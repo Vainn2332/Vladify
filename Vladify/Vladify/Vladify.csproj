@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Vladify.CoreLayer\Vladify.BusinessLogic.csproj" />
+    <ProjectReference Include="..\Vladify.BusinessLogic\Vladify.BusinessLogic.csproj" />
   </ItemGroup>
 
 </Project>

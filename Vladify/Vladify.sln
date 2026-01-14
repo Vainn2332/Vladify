@@ -10,7 +10,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		..\.gitignore = ..\.gitignore
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vladify.BusinessLogic", "Vladify.CoreLayer\Vladify.BusinessLogic.csproj", "{94D7AD7F-E793-44B0-A68D-513C768B95A9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vladify.BusinessLogic", "Vladify.BusinessLogic\Vladify.BusinessLogic.csproj", "{94D7AD7F-E793-44B0-A68D-513C768B95A9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vladify.DataAccess", "Vladify.DataAccess\Vladify.DataAccess.csproj", "{838F12B1-2378-40F4-AF28-73D846CC5FA2}"
 EndProject
