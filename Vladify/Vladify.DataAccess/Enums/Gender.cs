@@ -1,9 +1,8 @@
-﻿namespace Vladify.DataAccess.Enums
+﻿namespace Vladify.DataAccess.Enums;
+
+public enum Gender
 {
-    public enum Gender
-    {
-        Undefined = 0,
-        Male = 1,
-        Female = 2
-    }
-}   
+    Undefined = 0,
+    Male = 1,
+    Female = 2
+}
