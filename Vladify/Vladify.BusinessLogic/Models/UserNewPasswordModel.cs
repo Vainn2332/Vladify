@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Vladify.BusinessLogic.Models
+﻿namespace Vladify.BusinessLogic.Models
 {
-    internal class UserNewPasswordModel
+    public class UserNewPasswordModel
     {
+        public string NewPassword { get; set; } = string.Empty;
+
+        public string ConfirmPassword { get; set; } = string.Empty;
     }
 }

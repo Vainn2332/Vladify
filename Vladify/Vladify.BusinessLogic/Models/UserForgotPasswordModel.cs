@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Vladify.BusinessLogic.Models
+﻿namespace Vladify.BusinessLogic.Models
 {
-    internal class UserForgotPasswordModel
+    public class UserForgotPasswordModel
     {
+        public string EmailAddress { get; set; } = string.Empty;
     }
 }

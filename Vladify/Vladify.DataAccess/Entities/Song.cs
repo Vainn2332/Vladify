@@ -8,10 +8,10 @@ namespace Vladify.DataAccess.Entities
 {
     public class Song
     {
-        public int ID { get; set; }
+        public Guid Id { get; set; }
         public string Title { get; set; } = string.Empty;
         public string Album { get; set; } = string.Empty;
         public string Author { get; set; } = string.Empty;
-        public TimeSpan Duration { get; set; }
+        public TimeSpan Duration { get; set; } = TimeSpan.FromMinutes(3);
     }
 }
