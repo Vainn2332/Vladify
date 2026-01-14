@@ -1,17 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace Vladify.DataAccess.Entities;
 
-namespace Vladify.DataAccess.Entities
+public class Song
 {
-    public class Song
-    {
-        public Guid Id { get; set; }
-        public string Title { get; set; } = string.Empty;
-        public string Album { get; set; } = string.Empty;
-        public string Author { get; set; } = string.Empty;
-        public TimeSpan Duration { get; set; } = TimeSpan.FromMinutes(3);
-    }
+    public Guid Id { get; set; }
+    public string Title { get; set; } = string.Empty;
+    public string Album { get; set; } = string.Empty;
+    public string Author { get; set; } = string.Empty;
+    public TimeSpan Duration { get; set; } = TimeSpan.FromMinutes(3);
 }
