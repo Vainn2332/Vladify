@@ -9,7 +9,8 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
 string? connectionString = builder.Configuration.GetConnectionString("ApplicationDbContext");
-if (connectionString != null)
+
+if (connectionString is not null)
 {
     builder.Services.AddDbInBusinessLogic(connectionString);
 }

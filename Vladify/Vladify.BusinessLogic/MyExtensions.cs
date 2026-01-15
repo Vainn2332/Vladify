@@ -8,6 +8,7 @@ public static class MyExtensions
     public static IServiceCollection AddDbInBusinessLogic(this IServiceCollection services, string connectionString)
     {
         services.AddDbInDataAccess(connectionString);
+
         return services;
     }
 }

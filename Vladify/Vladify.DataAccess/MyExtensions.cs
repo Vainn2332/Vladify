@@ -9,6 +9,7 @@ public static class MyExtensions
     {
         services.AddDbContext<ApplicationDbContext>(options =>
         options.UseSqlServer(connectionString));
+
         return services;
     }
 }
