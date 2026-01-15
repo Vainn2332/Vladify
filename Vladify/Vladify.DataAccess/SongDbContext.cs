@@ -1,6 +1,9 @@
-﻿namespace Vladify.DataAccess
+﻿using Microsoft.EntityFrameworkCore;
+using Vladify.DataAccess.Entities;
+
+namespace Vladify.DataAccess;
+
+public class SongDbContext(DbContextOptions<SongDbContext> options) : DbContext(options)
 {
-    internal class SongDbContext
-    {
-    }
+    public DbSet<Song>? Songs { get; set; }
 }
