@@ -12,7 +12,7 @@ public class User
 
     public string PasswordHash { get; set; } = null!;
 
-    public int Age { get; set; }
+    public required int Age { get; set; }
 
     public Gender Gender { get; set; } = Gender.Undefined;
 }
