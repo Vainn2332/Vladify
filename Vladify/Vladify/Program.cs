@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using Vladify.BusinessLogic;
+using Vladify.BusinessLogic.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 

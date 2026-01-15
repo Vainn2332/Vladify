@@ -1,9 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Vladify.DataAccess;
+namespace Vladify.DataAccess.Extensions;
 
-public static class MyExtensions
+public static class DALExtensions
 {
     public static IServiceCollection AddDbInDataAccess(this IServiceCollection services, string connectionString)
     {

@@ -1,9 +1,9 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Vladify.DataAccess;
+using Vladify.DataAccess.Extensions;
 
-namespace Vladify.BusinessLogic;
+namespace Vladify.BusinessLogic.Extensions;
 
-public static class MyExtensions
+public static class BLExtensions
 {
     public static IServiceCollection AddDbInBusinessLogic(this IServiceCollection services, string connectionString)
     {
