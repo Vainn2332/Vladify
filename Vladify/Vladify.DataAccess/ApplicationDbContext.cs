@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Vladify.DataAccess.Constants;
 using Vladify.DataAccess.Entities;
 
 namespace Vladify.DataAccess;
@@ -10,6 +11,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        Bogus.Randomizer.Seed = new Random(DALConstants.RandomSeedDataNumber);
+
         modelBuilder.ApplyConfiguration(new SongDbConfig());
         modelBuilder.ApplyConfiguration(new UserDbConfig());
 
