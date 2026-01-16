@@ -1,5 +1,6 @@
 ﻿using Bogus;
 using Bogus.Extensions;
+using Vladify.DataAccess.Constants;
 using Vladify.DataAccess.Entities;
 using Vladify.DataAccess.Enums;
 
@@ -11,11 +12,12 @@ public class UserFaker : Faker<User>
     BCrypt.Net.BCrypt.EnhancedHashPassword("TestPassword123");
     public UserFaker()
     {
-        RuleFor(r => r.Id, p => p.Random.Guid());
-        RuleFor(r => r.Name, p => p.Name.FirstName().ClampLength(max: 50));
-        RuleFor(r => r.EmailAddress, p => p.Internet.Email());
-        RuleFor(r => r.PasswordHash, p => StaticPasswordHash);
-        RuleFor(r => r.Age, p => p.Random.Int(15, 100));
-        RuleFor(r => r.Gender, p => p.PickRandomWithout(Gender.Undefined));
+        RuleFor(property => property.Id, setter => setter.Random.Guid());
+        RuleFor(property => property.Name, setter => setter.Name.FirstName()
+        .ClampLength(max: DALConstants.MaxStandartStringLength));
+        RuleFor(property => property.EmailAddress, setter => setter.Internet.Email());
+        RuleFor(property => property.PasswordHash, setter => StaticPasswordHash);
+        RuleFor(property => property.Age, setter => setter.Random.Int(15, 100));
+        RuleFor(property => property.Gender, setter => setter.PickRandomWithout(Gender.Undefined));
     }
 }
