@@ -14,6 +14,7 @@ public class SongFaker : Faker<Song>
             string phrase = p.Hacker.Phrase();
             string[] words = phrase.Split();
             string partOfPhrase = $"{words[0]} {words[1]} {words[2]}";
+
             return partOfPhrase;
         });
         RuleFor(r => r.Album, p => p.Commerce.ProductName().ClampLength(max: 50));

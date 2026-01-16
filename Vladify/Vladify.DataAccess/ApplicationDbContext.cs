@@ -25,7 +25,6 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
         modelBuilder.Entity<User>().HasData(fakeUsers);
         modelBuilder.Entity<Song>().HasData(fakeSongs);
-
     }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
