@@ -8,8 +8,7 @@ namespace Vladify.DataAccess.Fakers;
 
 public class UserFaker : Faker<User>
 {
-    private static readonly string StaticPasswordHash =
-    BCrypt.Net.BCrypt.EnhancedHashPassword("TestPassword123");
+    private const string StaticPasswordHash = "$2a$11$bTZDAvzREGMgTpStdByHWudfzZE3u4hRIdkTdyy4Hkjqsj.q/lcey";
     public UserFaker()
     {
         RuleFor(property => property.Id, setter => setter.Random.Guid());
