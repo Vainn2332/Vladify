@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Vladify.BusinessLogic.Extensions;
+using Vladify.BusinessLogic.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +17,12 @@ if (connectionString is not null)
 }
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var dataSeeder = scope.ServiceProvider.GetRequiredService<IDataSeeder>();
+    dataSeeder?.SeedData();
+}
 
 if (app.Environment.IsDevelopment())
 {
