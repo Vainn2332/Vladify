@@ -13,14 +13,14 @@ internal class DbInitializer(ApplicationDbContext context) : IDbInitializer
 
         if (!context.Users.Any())
         {
-            var fakeUsers = new UserFaker().Generate(30);
+            var fakeUsers = new UserFaker().Generate(DALConstants.AmountOfUserSeedInstances);
             context.Users.AddRange(fakeUsers);
             context.SaveChanges();
         }
 
         if (!context.Songs.Any())
         {
-            var fakeSongs = new SongFaker().Generate(40);
+            var fakeSongs = new SongFaker().Generate(DALConstants.AmountOfSongSeedInstances);
             context.Songs.AddRange(fakeSongs);
             context.SaveChanges();
         }
