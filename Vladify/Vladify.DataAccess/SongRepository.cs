@@ -31,9 +31,9 @@ public class SongRepository(ApplicationDbContext _context) : ISongRepository
         return await _context.Songs.FindAsync(songId);
     }
 
-    public async Task UpdateAsync(Guid oldSongId, Song newSong)
+    public async Task UpdateAsync(Song newSong)
     {
-        await _context.Songs.Where(p => p.Id == oldSongId)
+        await _context.Songs.Where(p => p.Id == newSong.Id)
             .ExecuteUpdateAsync(setters => setters
             .SetProperty(p => p.Title, newSong.Title)
             .SetProperty(p => p.Album, newSong.Album)
