@@ -15,10 +15,8 @@ public class SongRepository(ApplicationDbContext _context) : ISongRepository
     public async Task DeleteAsync(Guid songId)
     {
         var song = await GetByIdAsync(songId);
-        if (song is not null)
-        {
-            await _context.Songs.Where(s => s.Id == songId).ExecuteDeleteAsync();
-        }
+
+        await _context.Songs.Where(s => s.Id == songId).ExecuteDeleteAsync();
     }
 
     public async Task<IEnumerable<Song>> GetAsync()

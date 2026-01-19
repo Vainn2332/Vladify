@@ -13,6 +13,12 @@ public class SongService(ISongRepository _songRepository) : ISongService
 
     public async Task DeleteSongAsync(Guid songId)
     {
+        var song = await _songRepository.GetByIdAsync(songId);
+        if (song is null)
+        {
+            throw new ArgumentException("Song with such Id does not exist!");
+        }
+
         await _songRepository.DeleteAsync(songId);
     }
 
