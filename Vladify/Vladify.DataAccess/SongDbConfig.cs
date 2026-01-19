@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Vladify.DataAccess.Constants;
 using Vladify.DataAccess.Entities;
+using Vladify.DataAccess.Fakers;
 
 namespace Vladify.DataAccess;
 
@@ -13,5 +14,9 @@ public class SongDbConfig : IEntityTypeConfiguration<Song>
         builder.Property(p => p.Title).HasMaxLength(DALConstants.MaxStandartStringLength);
         builder.Property(p => p.Album).HasMaxLength(DALConstants.MaxStandartStringLength);
         builder.Property(p => p.Author).HasMaxLength(DALConstants.MaxStandartStringLength);
+
+        var fakeSongs = new SongFaker().Generate(DALConstants.SongSeedDataAmount);
+
+        builder.HasData(fakeSongs);
     }
 }
