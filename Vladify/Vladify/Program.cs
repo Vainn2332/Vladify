@@ -15,6 +15,8 @@ if (connectionString is not null)
     builder.Services.AddDbInBusinessLogic(connectionString);
 }
 
+builder.Services.AddSongService();
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
