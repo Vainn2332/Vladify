@@ -9,13 +9,7 @@ public static class BLExtensions
 {
     public static IServiceCollection AddSqlServerDb(this IServiceCollection services, IConfiguration configuration)
     {
-        var connectionString = configuration.GetConnectionString("ApplicationDbContext");
-        if (connectionString is null)
-        {
-            throw new InvalidOperationException("Conection string 'ApplicationDbContext' is not found!");
-        }
-
-        services.AddDbInDataAccess(connectionString);
+        services.AddDbInDataAccess(configuration);
 
         return services;
     }
