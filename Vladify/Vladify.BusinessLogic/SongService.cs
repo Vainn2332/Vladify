@@ -11,7 +11,6 @@ public class SongService(ISongRepository _songRepository) : ISongService
     {
         var songEntity = new Song()
         {
-            Id = Guid.NewGuid(),
             Title = songRequestModel.Title,
             Album = songRequestModel.Album,
             Author = songRequestModel.Author,
@@ -29,17 +28,6 @@ public class SongService(ISongRepository _songRepository) : ISongService
         };
 
         return newSongModel;
-    }
-
-    public async Task DeleteSongAsync(Guid songId)
-    {
-        var song = await _songRepository.GetByIdAsync(songId);
-        if (song is null)
-        {
-            throw new ArgumentException("Song with such Id does not exist!");
-        }
-
-        await _songRepository.DeleteAsync(songId);
     }
 
     public async Task<SongModel?> GetSongByIdAsync(Guid songId)
@@ -73,18 +61,18 @@ public class SongService(ISongRepository _songRepository) : ISongService
         return songModels;
     }
 
-    public async Task<SongModel> UpdateSongAsync(SongModel newSongModel)
+    public async Task<SongModel> UpdateSongAsync(SongModel SongModel)
     {
-        var newSong = new Song()
+        var Song = new Song()
         {
-            Id = newSongModel.Id,
-            Title = newSongModel.Title,
-            Album = newSongModel.Album,
-            Author = newSongModel.Author,
-            Duration = newSongModel.Duration
+            Id = SongModel.Id,
+            Title = SongModel.Title,
+            Album = SongModel.Album,
+            Author = SongModel.Author,
+            Duration = SongModel.Duration
         };
 
-        var updatedSong = await _songRepository.UpdateAsync(newSong);
+        var updatedSong = await _songRepository.UpdateAsync(Song);
         var updatedSongModel = new SongModel()
         {
             Id = updatedSong.Id,
@@ -95,5 +83,16 @@ public class SongService(ISongRepository _songRepository) : ISongService
         };
 
         return updatedSongModel;
+    }
+
+    public async Task DeleteSongAsync(Guid songId)
+    {
+        var song = await _songRepository.GetByIdAsync(songId);
+        if (song is null)
+        {
+            throw new ArgumentException("Song with such Id does not exist!");
+        }
+
+        await _songRepository.DeleteAsync(songId);
     }
 }

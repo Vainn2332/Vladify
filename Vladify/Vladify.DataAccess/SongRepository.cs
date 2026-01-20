@@ -29,11 +29,11 @@ public class SongRepository(ApplicationDbContext _context) : ISongRepository
         return await _context.Songs.AsNoTracking().FirstOrDefaultAsync(s => s.Id == songId);
     }
 
-    public async Task<Song> UpdateAsync(Song newSong)
+    public async Task<Song> UpdateAsync(Song Song)
     {
-        _context.Songs.Update(newSong);
+        _context.Songs.Update(Song);
         await _context.SaveChangesAsync();
 
-        return newSong;
+        return Song;
     }
 }
