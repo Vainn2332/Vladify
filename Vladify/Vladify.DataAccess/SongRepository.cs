@@ -6,16 +6,16 @@ namespace Vladify.DataAccess;
 
 public class SongRepository(ApplicationDbContext _context) : ISongRepository
 {
-    public async Task AddAsync(Song song)
+    public async Task<Song> AddAsync(Song song)
     {
         await _context.Songs.AddAsync(song);
         await _context.SaveChangesAsync();
+
+        return song;
     }
 
     public async Task DeleteAsync(Guid songId)
     {
-        var song = await GetByIdAsync(songId);
-
         await _context.Songs.Where(s => s.Id == songId).ExecuteDeleteAsync();
     }
 
@@ -26,16 +26,14 @@ public class SongRepository(ApplicationDbContext _context) : ISongRepository
 
     public async Task<Song?> GetByIdAsync(Guid songId)
     {
-        return await _context.Songs.FindAsync(songId);
+        return await _context.Songs.AsNoTracking().FirstOrDefaultAsync(s => s.Id == songId);
     }
 
-    public async Task UpdateAsync(Song newSong)
+    public async Task<Song> UpdateAsync(Song newSong)
     {
-        await _context.Songs.Where(p => p.Id == newSong.Id)
-            .ExecuteUpdateAsync(setters => setters
-            .SetProperty(p => p.Title, newSong.Title)
-            .SetProperty(p => p.Album, newSong.Album)
-            .SetProperty(p => p.Author, newSong.Author)
-            .SetProperty(p => p.Duration, newSong.Duration));
+        _context.Songs.Update(newSong);
+        await _context.SaveChangesAsync();
+
+        return newSong;
     }
 }

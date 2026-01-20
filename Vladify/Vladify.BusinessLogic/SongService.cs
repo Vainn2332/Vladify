@@ -1,4 +1,5 @@
-﻿using Vladify.BusinessLogic.ServiceInterfaces;
+﻿using Vladify.BusinessLogic.Models;
+using Vladify.BusinessLogic.ServiceInterfaces;
 using Vladify.DataAccess.Entities;
 using Vladify.DataAccess.Interfaces;
 
@@ -6,9 +7,28 @@ namespace Vladify.BusinessLogic;
 
 public class SongService(ISongRepository _songRepository) : ISongService
 {
-    public async Task AddSongAsync(Song song)
+    public async Task<SongModel> AddSongAsync(SongRequestModel songRequestModel)
     {
-        await _songRepository.AddAsync(song);
+        var songEntity = new Song()
+        {
+            Id = Guid.NewGuid(),
+            Title = songRequestModel.Title,
+            Album = songRequestModel.Album,
+            Author = songRequestModel.Author,
+            Duration = songRequestModel.Duration
+        };
+
+        var newSong = await _songRepository.AddAsync(songEntity);
+        var newSongModel = new SongModel()
+        {
+            Id = newSong.Id,
+            Title = newSong.Title,
+            Album = newSong.Album,
+            Author = newSong.Author,
+            Duration = newSong.Duration
+        };
+
+        return newSongModel;
     }
 
     public async Task DeleteSongAsync(Guid songId)
@@ -22,18 +42,58 @@ public class SongService(ISongRepository _songRepository) : ISongService
         await _songRepository.DeleteAsync(songId);
     }
 
-    public async Task<Song?> GetSongByIdAsync(Guid songId)
+    public async Task<SongModel?> GetSongByIdAsync(Guid songId)
     {
-        return await _songRepository.GetByIdAsync(songId);
+        var song = await _songRepository.GetByIdAsync(songId);
+        var songModel = new SongModel()
+        {
+            Id = song.Id,
+            Title = song.Title,
+            Album = song.Album,
+            Author = song.Author,
+            Duration = song.Duration
+        };
+
+        return songModel;
     }
 
-    public async Task<IEnumerable<Song>> GetSongsAsync()
+    public async Task<IEnumerable<SongModel>> GetSongsAsync()
     {
-        return await _songRepository.GetAsync();
+        var songs = await _songRepository.GetAsync();
+
+        var songModels = songs.Select(s => new SongModel()
+        {
+            Id = s.Id,
+            Title = s.Title,
+            Album = s.Album,
+            Author = s.Author,
+            Duration = s.Duration
+        });
+
+        return songModels;
     }
 
-    public async Task UpdateSongAsync(Song newSong)
+    public async Task<SongModel> UpdateSongAsync(SongModel newSongModel)
     {
-        await _songRepository.UpdateAsync(newSong);
+        var newSong = new Song()
+        {
+            Id = newSongModel.Id,
+            Title = newSongModel.Title,
+            Album = newSongModel.Album,
+            Author = newSongModel.Author,
+            Duration = newSongModel.Duration
+        };
+
+        var updatedSong = await _songRepository.UpdateAsync(newSong);
+        var updatedSongModel = new SongModel()
+        {
+            Id = updatedSong.Id,
+            Title = updatedSong.Title,
+            Album = updatedSong.Album,
+            Author = updatedSong.Author,
+            Duration = updatedSong.Duration
+        };
+
+        return updatedSongModel;
     }
 }
