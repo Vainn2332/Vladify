@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using Vladify.BusinessLogic.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,12 +7,9 @@ builder.Services.AddControllers();
 
 builder.Services.AddOpenApi();
 
-string? connectionString = builder.Configuration.GetConnectionString("ApplicationDbContext");
+builder.Services.AddSqlServerDb(builder.Configuration);
 
-if (connectionString is not null)
-{
-    builder.Services.AddDbInBusinessLogic(connectionString);
-}
+builder.Services.AddServices();
 
 var app = builder.Build();
 

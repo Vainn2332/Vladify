@@ -4,7 +4,7 @@ using Vladify.DataAccess.Constants;
 using Vladify.DataAccess.Entities;
 using Vladify.DataAccess.Fakers;
 
-namespace Vladify.DataAccess;
+namespace Vladify.DataAccess.DbConfig;
 
 public class UserDbConfig : IEntityTypeConfiguration<User>
 {
