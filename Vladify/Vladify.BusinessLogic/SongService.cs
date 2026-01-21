@@ -13,17 +13,15 @@ public class SongService(ISongRepository _songRepository, IMapper _mapper) : ISo
         var song = _mapper.Map<Song>(songRequestModel);
 
         var newSong = await _songRepository.AddAsync(song);
-        var newSongModel = _mapper.Map<SongModel>(newSong);
 
-        return newSongModel;
+        return _mapper.Map<SongModel>(newSong);
     }
 
     public async Task<SongModel?> GetSongByIdAsync(Guid songId)
     {
         var song = await _songRepository.GetByIdAsync(songId);
-        var songModel = _mapper.Map<SongModel>(song);
 
-        return songModel;
+        return _mapper.Map<SongModel>(song);
     }
 
     public async Task<IEnumerable<SongModel>> GetSongsAsync()
@@ -40,9 +38,8 @@ public class SongService(ISongRepository _songRepository, IMapper _mapper) : ISo
         var song = _mapper.Map<Song>(SongModel);
 
         var updatedSong = await _songRepository.UpdateAsync(song);
-        var updatedSongModel = _mapper.Map<SongModel>(updatedSong);
 
-        return updatedSongModel;
+        return _mapper.Map<SongModel>(updatedSong);
     }
 
     public async Task DeleteSongAsync(Guid songId)
