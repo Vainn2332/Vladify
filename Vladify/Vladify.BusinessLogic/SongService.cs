@@ -93,6 +93,6 @@ public class SongService(ISongRepository _songRepository) : ISongService
             throw new ArgumentException("Song with such Id does not exist!");
         }
 
-        await _songRepository.DeleteAsync(songId);
+        await _songRepository.DeleteAsync(song);
     }
 }

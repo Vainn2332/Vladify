@@ -8,5 +8,5 @@ public interface ISongRepository
     public Task<IEnumerable<Song>> GetAsync();
     public Task<Song> AddAsync(Song song);
     public Task<Song> UpdateAsync(Song Song);
-    public Task DeleteAsync(Guid songId);
+    public Task DeleteAsync(Song song);
 }

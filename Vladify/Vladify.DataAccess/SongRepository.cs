@@ -14,11 +14,6 @@ public class SongRepository(ApplicationDbContext _context) : ISongRepository
         return song;
     }
 
-    public async Task DeleteAsync(Guid songId)
-    {
-        await _context.Songs.Where(s => s.Id == songId).ExecuteDeleteAsync();
-    }
-
     public async Task<IEnumerable<Song>> GetAsync()
     {
         return await _context.Songs.AsNoTracking().ToListAsync();
@@ -35,5 +30,12 @@ public class SongRepository(ApplicationDbContext _context) : ISongRepository
         await _context.SaveChangesAsync();
 
         return Song;
+    }
+
+    public async Task DeleteAsync(Song song)
+    {
+        _context.Remove(song);
+
+        await _context.SaveChangesAsync();
     }
 }
