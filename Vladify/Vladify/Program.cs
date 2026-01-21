@@ -11,6 +11,8 @@ builder.Services.AddSqlServerDb(builder.Configuration);
 
 builder.Services.AddServices();
 
+builder.Services.AddMapping();
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())

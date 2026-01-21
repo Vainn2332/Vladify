@@ -1,5 +1,7 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using AutoMapper;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Vladify.BusinessLogic.MapperProfiles;
 using Vladify.BusinessLogic.ServiceInterfaces;
 using Vladify.DataAccess.Extensions;
 
@@ -19,6 +21,18 @@ public static class BLExtensions
         services.AddSongRepository();
 
         services.AddScoped<ISongService, SongService>();
+
+        return services;
+    }
+
+    public static IServiceCollection AddMapping(this IServiceCollection services)
+    {
+        services.AddAutoMapper(cfg => { }, typeof(SongProfile).Assembly);
+
+        var sp = services.BuildServiceProvider();
+        var mapper = sp.GetRequiredService<IMapper>();
+
+        mapper.ConfigurationProvider.AssertConfigurationIsValid();
 
         return services;
     }

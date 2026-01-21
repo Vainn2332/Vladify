@@ -7,6 +7,6 @@ public class SongRequestModel
     public required string Album { get; set; }
 
     public required string Author { get; set; }
-    public required TimeSpan Duration { get; set; }
 
+    public required TimeSpan Duration { get; set; }
 }
