@@ -28,9 +28,7 @@ public class SongService(ISongRepository _songRepository, IMapper _mapper) : ISo
     {
         var songs = await _songRepository.GetAsync();
 
-        var songModels = songs.Select(_mapper.Map<SongModel>);
-
-        return songModels;
+        return _mapper.Map<IEnumerable<SongModel>>(songs);
     }
 
     public async Task<SongModel> UpdateSongAsync(SongModel SongModel)
