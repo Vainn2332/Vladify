@@ -1,3 +1,4 @@
+using Scalar.AspNetCore;
 using Vladify.BusinessLogic.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,6 +19,11 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+
+    app.MapScalarApiReference(options =>
+    {
+        options.WithTheme(ScalarTheme.BluePlanet);
+    });
 }
 
 app.UseHttpsRedirection();

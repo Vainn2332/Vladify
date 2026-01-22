@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Vladify.BusinessLogic.Exceptions;
 using Vladify.BusinessLogic.Models;
 using Vladify.BusinessLogic.ServiceInterfaces;
 using Vladify.DataAccess.Entities;
@@ -33,6 +34,12 @@ public class SongService(ISongRepository _songRepository, IMapper _mapper) : ISo
 
     public async Task<SongModel> UpdateSongAsync(SongModel SongModel)
     {
+        var target = await GetSongByIdAsync(SongModel.Id);
+        if (target is null)
+        {
+            throw new NotFoundException("Song with such id not found!");
+        }
+
         var song = _mapper.Map<Song>(SongModel);
 
         var updatedSong = await _songRepository.UpdateAsync(song);
@@ -45,7 +52,7 @@ public class SongService(ISongRepository _songRepository, IMapper _mapper) : ISo
         var song = await _songRepository.GetByIdAsync(songId);
         if (song is null)
         {
-            throw new ArgumentException("Song with such Id does not exist!");
+            throw new NotFoundException("Song with such id not found!");
         }
 
         await _songRepository.DeleteAsync(song);
