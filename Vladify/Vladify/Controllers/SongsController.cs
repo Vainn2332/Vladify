@@ -10,7 +10,7 @@ namespace Vladify.Controllers;
 public class SongsController(ISongService _songService, IMapper _mapper) : ControllerBase
 {
     [HttpPost]
-    public async Task<ActionResult> CreateSong([FromBody] SongRequestModel songRequestModel)
+    public async Task<ActionResult<SongModel>> CreateSong([FromBody] SongRequestModel songRequestModel)
     {
         var createdSong = await _songService.AddSongAsync(songRequestModel);
 
@@ -18,7 +18,7 @@ public class SongsController(ISongService _songService, IMapper _mapper) : Contr
     }
 
     [HttpGet]
-    public async Task<ActionResult> GetAllSongs([FromQuery] PaginationFilter filter)
+    public async Task<ActionResult<IEnumerable<SongModel>>> GetAllSongs([FromQuery] PaginationFilter filter)
     {
         var songs = await _songService.GetSongsAsync(filter);
 
@@ -26,7 +26,7 @@ public class SongsController(ISongService _songService, IMapper _mapper) : Contr
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult> GetSongById(Guid id)
+    public async Task<ActionResult<SongModel>> GetSongById(Guid id)
     {
         var song = await _songService.GetSongByIdAsync(id);
         if (song is null)
@@ -38,7 +38,7 @@ public class SongsController(ISongService _songService, IMapper _mapper) : Contr
     }
 
     [HttpPut("{id}")]
-    public async Task<ActionResult> UpdateSong(Guid id, [FromBody] SongRequestModel songRequestModel)
+    public async Task<ActionResult<SongModel>> UpdateSong(Guid id, [FromBody] SongRequestModel songRequestModel)
     {
         var songModel = _mapper.Map<SongModel>(songRequestModel);
         songModel.Id = id;
@@ -49,7 +49,7 @@ public class SongsController(ISongService _songService, IMapper _mapper) : Contr
     }
 
     [HttpDelete("{id}")]
-    public async Task<ActionResult> DeleteSong(Guid id)
+    public async Task<ActionResult<SongModel>> DeleteSong(Guid id)
     {
         await _songService.DeleteSongAsync(id);
 
