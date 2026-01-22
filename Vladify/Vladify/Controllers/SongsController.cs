@@ -10,25 +10,30 @@ namespace Vladify.Controllers;
 public class SongsController(ISongService _songService, IMapper _mapper) : ControllerBase
 {
     [HttpPost]
-    public async Task<ActionResult<SongModel>> CreateSong([FromBody] SongRequestModel songRequestModel)
+    public async Task<ActionResult<SongModel>> CreateSong(
+        SongRequestModel songRequestModel,
+        CancellationToken ct)
     {
-        var createdSong = await _songService.AddSongAsync(songRequestModel);
+        var createdSong = await _songService.AddSongAsync(songRequestModel, ct);
 
         return CreatedAtAction(nameof(GetSongById), new { Id = createdSong.Id }, createdSong);
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<SongModel>>> GetAllSongs([FromQuery] PaginationFilter filter)
+    public async Task<IEnumerable<SongModel>> GetAllSongs(
+        [FromQuery] PaginationFilter filter,
+        CancellationToken ct
+        )
     {
-        var songs = await _songService.GetSongsAsync(filter);
+        var songs = await _songService.GetSongsAsync(filter, ct);
 
-        return Ok(songs);
+        return songs;
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<SongModel>> GetSongById(Guid id)
+    public async Task<ActionResult<SongModel>> GetSongById(Guid id, CancellationToken ct)
     {
-        var song = await _songService.GetSongByIdAsync(id);
+        var song = await _songService.GetSongByIdAsync(id, ct);
         if (song is null)
         {
             return NotFound();
@@ -38,20 +43,23 @@ public class SongsController(ISongService _songService, IMapper _mapper) : Contr
     }
 
     [HttpPut("{id}")]
-    public async Task<ActionResult<SongModel>> UpdateSong(Guid id, [FromBody] SongRequestModel songRequestModel)
+    public async Task<SongModel> UpdateSong(
+        Guid id,
+        [FromBody] SongRequestModel songRequestModel,
+        CancellationToken ct)
     {
         var songModel = _mapper.Map<SongModel>(songRequestModel);
         songModel.Id = id;
 
-        var updatedSong = await _songService.UpdateSongAsync(songModel);
+        var updatedSong = await _songService.UpdateSongAsync(songModel, ct);
 
-        return Ok(updatedSong);
+        return updatedSong;
     }
 
     [HttpDelete("{id}")]
-    public async Task<ActionResult<SongModel>> DeleteSong(Guid id)
+    public async Task<ActionResult<SongModel>> DeleteSong(Guid id, CancellationToken ct)
     {
-        await _songService.DeleteSongAsync(id);
+        await _songService.DeleteSongAsync(id, ct);
 
         return NoContent();
     }

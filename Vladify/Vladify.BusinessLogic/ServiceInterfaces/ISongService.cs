@@ -4,9 +4,9 @@ namespace Vladify.BusinessLogic.ServiceInterfaces;
 
 public interface ISongService
 {
-    public Task<SongModel?> GetSongByIdAsync(Guid songId);
-    public Task<IEnumerable<SongModel>> GetSongsAsync(PaginationFilter filter);
-    public Task<SongModel> AddSongAsync(SongRequestModel songRequestModel);
-    public Task<SongModel> UpdateSongAsync(SongModel SongModel);
-    public Task DeleteSongAsync(Guid songId);
+    public Task<SongModel?> GetSongByIdAsync(Guid songId, CancellationToken ct = default);
+    public Task<IEnumerable<SongModel>> GetSongsAsync(PaginationFilter filter, CancellationToken ct = default);
+    public Task<SongModel> AddSongAsync(SongRequestModel songRequestModel, CancellationToken ct = default);
+    public Task<SongModel> UpdateSongAsync(SongModel SongModel, CancellationToken ct = default);
+    public Task DeleteSongAsync(Guid songId, CancellationToken ct = default);
 }
