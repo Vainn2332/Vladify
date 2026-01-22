@@ -5,7 +5,7 @@ namespace Vladify.BusinessLogic.ServiceInterfaces;
 public interface ISongService
 {
     public Task<SongModel?> GetSongByIdAsync(Guid songId);
-    public Task<IEnumerable<SongModel>> GetSongsAsync();
+    public Task<IEnumerable<SongModel>> GetSongsAsync(PaginationFilter filter);
     public Task<SongModel> AddSongAsync(SongRequestModel songRequestModel);
     public Task<SongModel> UpdateSongAsync(SongModel SongModel);
     public Task DeleteSongAsync(Guid songId);

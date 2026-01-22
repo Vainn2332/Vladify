@@ -18,9 +18,9 @@ public class SongsController(ISongService _songService, IMapper _mapper) : Contr
     }
 
     [HttpGet]
-    public async Task<ActionResult> GetAllSongs()
+    public async Task<ActionResult> GetAllSongs([FromQuery] PaginationFilter filter)
     {
-        var songs = await _songService.GetSongsAsync();
+        var songs = await _songService.GetSongsAsync(filter);
 
         return Ok(songs);
     }

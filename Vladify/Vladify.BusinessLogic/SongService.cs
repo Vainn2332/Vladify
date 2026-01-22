@@ -25,9 +25,9 @@ public class SongService(ISongRepository _songRepository, IMapper _mapper) : ISo
         return _mapper.Map<SongModel>(song);
     }
 
-    public async Task<IEnumerable<SongModel>> GetSongsAsync()
+    public async Task<IEnumerable<SongModel>> GetSongsAsync(PaginationFilter filter)
     {
-        var songs = await _songRepository.GetAsync();
+        var songs = await _songRepository.GetAsync(filter.PageNumber, filter.PageSize);
 
         return _mapper.Map<IEnumerable<SongModel>>(songs);
     }

@@ -14,9 +14,14 @@ public class SongRepository(ApplicationDbContext _context) : ISongRepository
         return song;
     }
 
-    public async Task<IEnumerable<Song>> GetAsync()
+    public async Task<IEnumerable<Song>> GetAsync(int pageNumber, int pageSize)
     {
-        return await _context.Songs.AsNoTracking().ToListAsync();
+        return await _context.Songs
+            .AsNoTracking()
+            .OrderBy(p => p.Id)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
     }
 
     public async Task<Song?> GetByIdAsync(Guid songId)
