@@ -14,7 +14,7 @@ public class SongRepository(ApplicationDbContext _context) : ISongRepository
         return song;
     }
 
-    public async Task<IEnumerable<Song>> GetAsync(int pageNumber, int pageSize, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<Song>> GetAllAsync(int pageNumber, int pageSize, CancellationToken cancellationToken = default)
     {
         return await _context.Songs
             .AsNoTracking()
