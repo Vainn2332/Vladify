@@ -4,9 +4,9 @@ namespace Vladify.DataAccess.Interfaces;
 
 public interface ISongRepository
 {
-    public Task<Song?> GetByIdAsync(Guid songId);
-    public Task<IEnumerable<Song>> GetAsync();
-    public Task<Song> AddAsync(Song song);
-    public Task<Song> UpdateAsync(Song Song);
-    public Task DeleteAsync(Song song);
+    public Task<Song?> GetByIdAsync(Guid songId, CancellationToken cancellationToken = default);
+    public Task<IEnumerable<Song>> GetAllAsync(int pageNumber, int pageSize, CancellationToken cancellationToken = default);
+    public Task<Song> AddAsync(Song song, CancellationToken cancellationToken = default);
+    public Task<Song> UpdateAsync(Song Song, CancellationToken cancellationToken = default);
+    public Task DeleteAsync(Song song, CancellationToken cancellationToken = default);
 }

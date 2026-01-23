@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Vladify.BusinessLogic.Exceptions;
 using Vladify.BusinessLogic.Models;
 using Vladify.BusinessLogic.ServiceInterfaces;
 using Vladify.DataAccess.Entities;
@@ -8,46 +9,46 @@ namespace Vladify.BusinessLogic;
 
 public class SongService(ISongRepository _songRepository, IMapper _mapper) : ISongService
 {
-    public async Task<SongModel> AddSongAsync(SongRequestModel songRequestModel)
+    public async Task<SongModel> AddSongAsync(SongRequestModel songRequestModel, CancellationToken cancellationToken = default)
     {
         var song = _mapper.Map<Song>(songRequestModel);
 
-        var newSong = await _songRepository.AddAsync(song);
+        var newSong = await _songRepository.AddAsync(song, cancellationToken);
 
         return _mapper.Map<SongModel>(newSong);
     }
 
-    public async Task<SongModel?> GetSongByIdAsync(Guid songId)
+    public async Task<SongModel?> GetSongByIdAsync(Guid songId, CancellationToken cancellationToken = default)
     {
-        var song = await _songRepository.GetByIdAsync(songId);
+        var song = await _songRepository.GetByIdAsync(songId, cancellationToken);
 
         return _mapper.Map<SongModel>(song);
     }
 
-    public async Task<IEnumerable<SongModel>> GetSongsAsync()
+    public async Task<IEnumerable<SongModel>> GetSongsAsync(PaginationFilter filter, CancellationToken cancellationToken = default)
     {
-        var songs = await _songRepository.GetAsync();
+        var songs = await _songRepository.GetAllAsync(filter.PageNumber, filter.PageSize, cancellationToken);
 
         return _mapper.Map<IEnumerable<SongModel>>(songs);
     }
 
-    public async Task<SongModel> UpdateSongAsync(SongModel SongModel)
+    public async Task<SongModel> UpdateSongAsync(SongModel SongModel, CancellationToken cancellationToken = default)
     {
+        var target = await GetSongByIdAsync(SongModel.Id, cancellationToken)
+            ?? throw new NotFoundException("Song with such id not found!");
+
         var song = _mapper.Map<Song>(SongModel);
 
-        var updatedSong = await _songRepository.UpdateAsync(song);
+        var updatedSong = await _songRepository.UpdateAsync(song, cancellationToken);
 
         return _mapper.Map<SongModel>(updatedSong);
     }
 
-    public async Task DeleteSongAsync(Guid songId)
+    public async Task DeleteSongAsync(Guid songId, CancellationToken cancellationToken = default)
     {
-        var song = await _songRepository.GetByIdAsync(songId);
-        if (song is null)
-        {
-            throw new ArgumentException("Song with such Id does not exist!");
-        }
+        var song = await _songRepository.GetByIdAsync(songId, cancellationToken)
+            ?? throw new NotFoundException("Song with such id not found!");
 
-        await _songRepository.DeleteAsync(song);
+        await _songRepository.DeleteAsync(song, cancellationToken);
     }
 }

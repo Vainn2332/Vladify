@@ -8,7 +8,11 @@ public class SongProfile : Profile
 {
     public SongProfile()
     {
-        CreateMap<SongRequestModel, Song>();
+        CreateMap<SongRequestModel, Song>()
+            .ForMember(dest => dest.Id, opt => opt.Ignore());
+
+        CreateMap<SongRequestModel, SongModel>()
+            .ForMember(dest => dest.Id, opt => opt.Ignore());
 
         CreateMap<SongModel, Song>().ReverseMap();
     }
