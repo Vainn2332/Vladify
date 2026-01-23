@@ -45,7 +45,7 @@ public class SongsController(ISongService _songService, IMapper _mapper) : Contr
     [HttpPut("{id}")]
     public async Task<SongModel> UpdateSong(
         Guid id,
-        [FromBody] SongRequestModel songRequestModel,
+        SongRequestModel songRequestModel,
         CancellationToken cancellationToken)
     {
         var songModel = _mapper.Map<SongModel>(songRequestModel);
