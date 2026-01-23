@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Vladify.BusinessLogic.Exceptions;
 using Vladify.BusinessLogic.Models;
 using Vladify.BusinessLogic.ServiceInterfaces;
 
@@ -10,36 +11,29 @@ namespace Vladify.Controllers;
 public class SongsController(ISongService _songService, IMapper _mapper) : ControllerBase
 {
     [HttpPost]
-    public async Task<ActionResult<SongModel>> CreateSong(
+    public Task<SongModel> CreateSong(
         SongRequestModel songRequestModel,
         CancellationToken cancellationToken)
     {
-        var createdSong = await _songService.AddSongAsync(songRequestModel, cancellationToken);
-
-        return CreatedAtAction(nameof(GetSongById), new { Id = createdSong.Id }, createdSong);
+        return _songService.AddSongAsync(songRequestModel, cancellationToken);
     }
 
     [HttpGet]
-    public async Task<IEnumerable<SongModel>> GetAllSongs(
+    public Task<IEnumerable<SongModel>> GetAllSongs(
         [FromQuery] PaginationFilter filter,
         CancellationToken cancellationToken
         )
     {
-        var songs = await _songService.GetSongsAsync(filter, cancellationToken);
-
-        return songs;
+        return _songService.GetSongsAsync(filter, cancellationToken);
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<SongModel>> GetSongById(Guid id, CancellationToken cancellationToken)
+    public async Task<SongModel> GetSongById(Guid id, CancellationToken cancellationToken)
     {
-        var song = await _songService.GetSongByIdAsync(id, cancellationToken);
-        if (song is null)
-        {
-            return NotFound();
-        }
+        var song = await _songService.GetSongByIdAsync(id, cancellationToken)
+            ?? throw new NotFoundException("Song with such id not found!");
 
-        return Ok(song);
+        return song;
     }
 
     [HttpPut("{id}")]
@@ -51,16 +45,12 @@ public class SongsController(ISongService _songService, IMapper _mapper) : Contr
         var songModel = _mapper.Map<SongModel>(songRequestModel);
         songModel.Id = id;
 
-        var updatedSong = await _songService.UpdateSongAsync(songModel, cancellationToken);
-
-        return updatedSong;
+        return await _songService.UpdateSongAsync(songModel, cancellationToken);
     }
 
     [HttpDelete("{id}")]
-    public async Task<ActionResult<SongModel>> DeleteSong(Guid id, CancellationToken cancellationToken)
+    public Task DeleteSong(Guid id, CancellationToken cancellationToken)
     {
-        await _songService.DeleteSongAsync(id, cancellationToken);
-
-        return NoContent();
+        return _songService.DeleteSongAsync(id, cancellationToken);
     }
 }

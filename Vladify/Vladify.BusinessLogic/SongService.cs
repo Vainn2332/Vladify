@@ -27,7 +27,7 @@ public class SongService(ISongRepository _songRepository, IMapper _mapper) : ISo
 
     public async Task<IEnumerable<SongModel>> GetSongsAsync(PaginationFilter filter, CancellationToken cancellationToken = default)
     {
-        var songs = await _songRepository.GetAsync(filter.PageNumber, filter.PageSize, cancellationToken);
+        var songs = await _songRepository.GetAllAsync(filter.PageNumber, filter.PageSize, cancellationToken);
 
         return _mapper.Map<IEnumerable<SongModel>>(songs);
     }

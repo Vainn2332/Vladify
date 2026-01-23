@@ -17,7 +17,6 @@ public class SongRepository(ApplicationDbContext _context) : ISongRepository
     public async Task<IEnumerable<Song>> GetAllAsync(int pageNumber, int pageSize, CancellationToken cancellationToken = default)
     {
         return await _context.Songs
-            .AsNoTracking()
             .OrderBy(p => p.Id)
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
@@ -26,15 +25,15 @@ public class SongRepository(ApplicationDbContext _context) : ISongRepository
 
     public async Task<Song?> GetByIdAsync(Guid songId, CancellationToken cancellationToken = default)
     {
-        return await _context.Songs.AsNoTracking().FirstOrDefaultAsync(s => s.Id == songId, cancellationToken);
+        return await _context.Songs.FirstOrDefaultAsync(s => s.Id == songId, cancellationToken);
     }
 
-    public async Task<Song> UpdateAsync(Song Song, CancellationToken cancellationToken = default)
+    public async Task<Song> UpdateAsync(Song song, CancellationToken cancellationToken = default)
     {
-        _context.Songs.Update(Song);
+        _context.Songs.Update(song);
         await _context.SaveChangesAsync(cancellationToken);
 
-        return Song;
+        return song;
     }
 
     public async Task DeleteAsync(Song song, CancellationToken cancellationToken = default)
