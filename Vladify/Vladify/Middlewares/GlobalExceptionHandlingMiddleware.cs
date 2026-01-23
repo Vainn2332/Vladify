@@ -14,7 +14,7 @@ public class GlobalExceptionHandlingMiddleware(RequestDelegate _next, ILogger<Gl
         }
         catch (Exception ex)
         {
-            _logger.LogError($"The unhandled error has occured!\n{ex.Message}");
+            _logger.LogError(ex, "The unhandled error has occured!");
 
             await HandleErrorAsync(context, ex);
         }
