@@ -1,18 +1,26 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Mvc.Filters;
+using System.Collections.Concurrent;
 using Vladify.BusinessLogic.Exceptions;
 
 namespace Vladify.Filters;
 
 public class ValidationFilter : IAsyncActionFilter
 {
+    //for optimizational purposes
+    private static readonly ConcurrentDictionary<Type, Type> _cache = [];
     public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {
         foreach (var argument in context.ActionArguments.Values)
         {
             if (argument is null) continue;
 
-            var validatorType = typeof(IValidator<>).MakeGenericType(argument.GetType());
+            var argumentType = argument.GetType();
+
+            var validatorType = _cache.GetOrAdd(argumentType, type =>
+                typeof(IValidator<>).MakeGenericType(argumentType)
+            );
+
             var validator = context.HttpContext.RequestServices.GetService(validatorType) as IValidator;
 
             if (validator is not null)
