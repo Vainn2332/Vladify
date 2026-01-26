@@ -1,5 +1,6 @@
 using Scalar.AspNetCore;
 using Vladify.BusinessLogic.Extensions;
+using Vladify.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,6 +26,8 @@ if (app.Environment.IsDevelopment())
         options.WithTheme(ScalarTheme.BluePlanet);
     });
 }
+
+app.UseGlobalExceptionHandler();
 
 app.UseHttpsRedirection();
 
