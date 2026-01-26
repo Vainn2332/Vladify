@@ -10,16 +10,27 @@ using Vladify.DataAccess.Extensions;
 
 namespace Vladify.BusinessLogic.Extensions;
 
-public static class BLExtensions
+public static class BLLExtensions
 {
-    public static IServiceCollection AddSqlServerDb(this IServiceCollection services, IConfiguration configuration)
+
+    public static IServiceCollection AddBusinessLogicLayer(this IServiceCollection services, IConfiguration configuration)
+    {
+        services
+            .AddSqlServerDb(configuration)
+            .AddServices()
+            .AddValidators()
+            .AddMapping();
+
+        return services;
+    }
+    private static IServiceCollection AddSqlServerDb(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddDbInDataAccess(configuration);
 
         return services;
     }
 
-    public static IServiceCollection AddServices(this IServiceCollection services)
+    private static IServiceCollection AddServices(this IServiceCollection services)
     {
         services.AddSongRepository();
 
@@ -28,14 +39,14 @@ public static class BLExtensions
         return services;
     }
 
-    public static IServiceCollection AddValidators(this IServiceCollection services)
+    private static IServiceCollection AddValidators(this IServiceCollection services)
     {
         services.AddScoped<IValidator<SongRequestModel>, SongValidator>();
 
         return services;
     }
 
-    public static IServiceCollection AddMapping(this IServiceCollection services)
+    private static IServiceCollection AddMapping(this IServiceCollection services)
     {
         services.AddAutoMapper(cfg => { }, typeof(SongProfile).Assembly);
 

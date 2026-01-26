@@ -3,6 +3,6 @@
 namespace Vladify.BusinessLogic.Models;
 
 public record PaginationFilter(
-    int PageNumber = BLLConstants.DefaultPaginationPageNumber,
-    int PageSize = BLLConstants.DefaultPaginationPageSize
+    int PageNumber = PaginationConstants.DefaultPaginationPageNumber,
+    int PageSize = PaginationConstants.DefaultPaginationPageSize
     );

@@ -13,13 +13,7 @@ builder.Services.AddControllers(options =>
 
 builder.Services.AddOpenApi();
 
-builder.Services.AddSqlServerDb(builder.Configuration);
-
-builder.Services.AddServices();
-
-builder.Services.AddValidators();
-
-builder.Services.AddMapping();
+builder.Services.AddBusinessLogicLayer(builder.Configuration);
 
 var app = builder.Build();
 
