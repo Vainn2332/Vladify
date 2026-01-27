@@ -12,7 +12,6 @@ namespace Vladify.BusinessLogic.Extensions;
 
 public static class BLLExtensions
 {
-
     public static IServiceCollection AddBusinessLogicLayer(this IServiceCollection services, IConfiguration configuration)
     {
         services
@@ -23,6 +22,7 @@ public static class BLLExtensions
 
         return services;
     }
+
     private static IServiceCollection AddSqlServerDb(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddDbInDataAccess(configuration);

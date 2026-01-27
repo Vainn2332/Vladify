@@ -5,7 +5,7 @@ using Vladify.BusinessLogic.Exceptions;
 
 namespace Vladify.Filters;
 
-public class ValidationFilter : IAsyncActionFilter
+public class ValidationFilter : Attribute, IAsyncActionFilter
 {
     //for optimizational purposes
     private static readonly ConcurrentDictionary<Type, Type> _cache = [];

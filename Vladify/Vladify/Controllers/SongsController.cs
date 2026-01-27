@@ -3,14 +3,14 @@ using Microsoft.AspNetCore.Mvc;
 using Vladify.BusinessLogic.Exceptions;
 using Vladify.BusinessLogic.Models;
 using Vladify.BusinessLogic.ServiceInterfaces;
-
+using Vladify.Filters;
 namespace Vladify.Controllers;
 
 [Route("api/songs")]
 [ApiController]
 public class SongsController(ISongService _songService, IMapper _mapper) : ControllerBase
 {
-    [HttpPost]
+    [HttpPost, ValidationFilter]
     public Task<SongModel> CreateSong(
         SongRequestModel songRequestModel,
         CancellationToken cancellationToken)
@@ -36,7 +36,7 @@ public class SongsController(ISongService _songService, IMapper _mapper) : Contr
         return song;
     }
 
-    [HttpPut("{id}")]
+    [HttpPut("{id}"), ValidationFilter]
     public async Task<SongModel> UpdateSong(
         Guid id,
         SongRequestModel songRequestModel,

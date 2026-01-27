@@ -16,19 +16,19 @@ public class SongValidator : AbstractValidator<SongRequestModel>
     public SongValidator()
     {
         RuleFor(song => song.Title)
-            .NotEmpty().WithMessage("Field 'Title' is required!")
-            .MaximumLength(Constraints.MaxDefaultStringLength).WithMessage("The length of field 'Title' exceeds maximum!");
+            .NotEmpty().WithMessage("Field '{PropertyName}' is required!")
+            .MaximumLength(Constraints.MaxDefaultStringLength).WithMessage("The length of field '{PropertyName}' exceeds {MaxLength}!");
 
         RuleFor(song => song.Album)
-            .NotEmpty().WithMessage("Field 'Album' is required!")
-            .MaximumLength(Constraints.MaxDefaultStringLength).WithMessage("The length of field 'Album' exceeds maximum!");
+            .NotEmpty().WithMessage("Field '{PropertyName}' is required!")
+            .MaximumLength(Constraints.MaxDefaultStringLength).WithMessage("The length of field '{PropertyName}' exceeds {MaxLength}!");
 
         RuleFor(song => song.Author)
-            .NotEmpty().WithMessage("Field 'Author' is required!")
-            .MaximumLength(Constraints.MaxDefaultStringLength).WithMessage("The length of field 'Author' exceeds maximum!");
+            .NotEmpty().WithMessage("Field '{PropertyName}' is required!")
+            .MaximumLength(Constraints.MaxDefaultStringLength).WithMessage("The length of field '{PropertyName}' exceeds {MaxLength}!");
 
         RuleFor(song => song.Duration)
-            .NotEmpty().WithMessage("Field 'Duration' is required!")
-            .InclusiveBetween(Constraints.MinSongDuration, Constraints.MaxSongDuration).WithMessage("Song length must be between 2 and 5 minutes"!);
+            .NotEmpty().WithMessage("Field '{PropertyName}' is required!")
+            .InclusiveBetween(Constraints.MinSongDuration, Constraints.MaxSongDuration).WithMessage("{PropertyName} must be between {From} and {To}!");
     }
 }
