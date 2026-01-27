@@ -9,6 +9,7 @@ public class ValidationFilter : Attribute, IAsyncActionFilter
 {
     //for optimizational purposes
     private static readonly ConcurrentDictionary<Type, Type> _cache = [];
+
     public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {
         foreach (var argument in context.ActionArguments.Values)
