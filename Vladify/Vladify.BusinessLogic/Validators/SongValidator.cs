@@ -2,6 +2,7 @@
 using Vladify.BusinessLogic.Models;
 
 namespace Vladify.BusinessLogic.Validators;
+
 file static class Constraints
 {
     public const int MaxDefaultStringLength = 50;
