@@ -1,8 +1,13 @@
-﻿using Vladify.BusinessLogic.Constants;
+﻿namespace Vladify.BusinessLogic.Models;
 
-namespace Vladify.BusinessLogic.Models;
+file static class Constraints
+{
+    public const int DefaultPaginationPageNumber = 1;
+
+    public const int DefaultPaginationPageSize = 20;
+}
 
 public record PaginationFilter(
-    int PageNumber = PaginationConstants.DefaultPaginationPageNumber,
-    int PageSize = PaginationConstants.DefaultPaginationPageSize
+    int PageNumber = Constraints.DefaultPaginationPageNumber,
+    int PageSize = Constraints.DefaultPaginationPageSize
     );

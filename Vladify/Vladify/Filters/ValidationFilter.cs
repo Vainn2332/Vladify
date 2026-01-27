@@ -18,7 +18,7 @@ public class ValidationFilter : IAsyncActionFilter
             var argumentType = argument.GetType();
 
             var validatorType = _cache.GetOrAdd(argumentType, type =>
-                typeof(IValidator<>).MakeGenericType(argumentType)
+                typeof(IValidator<>).MakeGenericType(type)
             );
 
             var validator = context.HttpContext.RequestServices.GetService(validatorType) as IValidator;
