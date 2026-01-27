@@ -1,15 +1,10 @@
 using Scalar.AspNetCore;
 using Vladify.BusinessLogic.Extensions;
 using Vladify.Extensions;
-using Vladify.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
-builder.Services.AddControllers(options =>
-{
-    options.Filters.Add<ValidationFilter>();
-});
+builder.Services.AddControllers();
 
 builder.Services.AddOpenApi();
 
