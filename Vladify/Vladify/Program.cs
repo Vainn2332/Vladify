@@ -4,16 +4,11 @@ using Vladify.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
 builder.Services.AddControllers();
 
 builder.Services.AddOpenApi();
 
-builder.Services.AddSqlServerDb(builder.Configuration);
-
-builder.Services.AddServices();
-
-builder.Services.AddMapping();
+builder.Services.AddBusinessLogicLayer(builder.Configuration);
 
 var app = builder.Build();
 
