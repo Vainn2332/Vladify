@@ -1,11 +1,11 @@
 ﻿using Vladify.DataAccess.Enums;
+using Vladify.DataAccess.Interfaces;
 
 namespace Vladify.DataAccess.Entities;
 
-public class User
+public class User : IEntity
 {
-    public Guid Id { get; set; }
-
+    public required Guid Id { get; set; }
     public string Name { get; set; } = null!;
 
     public string EmailAddress { get; set; } = null!;
