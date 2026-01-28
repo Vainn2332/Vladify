@@ -25,9 +25,9 @@ public class SongService(IRepository<Song> _songRepository, IMapper _mapper) : I
         return _mapper.Map<SongModel>(song);
     }
 
-    public async Task<IEnumerable<SongModel>> GetSongsAsync(PaginationFilter filter, bool isTracking, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<SongModel>> GetSongsAsync(PaginationFilter filter, CancellationToken cancellationToken = default)
     {
-        var songs = await _songRepository.GetAllAsync(filter.PageNumber, filter.PageSize, isTracking, cancellationToken);
+        var songs = await _songRepository.GetAllAsync(filter.PageNumber, filter.PageSize, cancellationToken);
 
         return _mapper.Map<IEnumerable<SongModel>>(songs);
     }

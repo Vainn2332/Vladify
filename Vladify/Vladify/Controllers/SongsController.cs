@@ -24,7 +24,7 @@ public class SongsController(ISongService _songService, IMapper _mapper) : Contr
         CancellationToken cancellationToken
         )
     {
-        return _songService.GetSongsAsync(filter, false, cancellationToken);
+        return _songService.GetSongsAsync(filter, cancellationToken);
     }
 
     [HttpGet("{id}")]
