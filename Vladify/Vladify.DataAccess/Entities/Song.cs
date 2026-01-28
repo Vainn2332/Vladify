@@ -1,9 +1,7 @@
 ﻿namespace Vladify.DataAccess.Entities;
 
-public class Song
+public class Song : BaseEntity
 {
-    public Guid Id { get; set; }
-
     public string Title { get; set; } = null!;
 
     public string Album { get; set; } = null!;

@@ -2,10 +2,8 @@
 
 namespace Vladify.DataAccess.Entities;
 
-public class User
+public class User : BaseEntity
 {
-    public Guid Id { get; set; }
-
     public string Name { get; set; } = null!;
 
     public string EmailAddress { get; set; } = null!;
