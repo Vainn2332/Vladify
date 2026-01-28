@@ -18,23 +18,23 @@ public class SongService(IRepository<Song> _songRepository, IMapper _mapper) : I
         return _mapper.Map<SongModel>(newSong);
     }
 
-    public async Task<SongModel?> GetSongByIdAsync(Guid songId, CancellationToken cancellationToken = default)
+    public async Task<SongModel?> GetSongByIdAsync(Guid songId, bool isTracking, CancellationToken cancellationToken = default)
     {
-        var song = await _songRepository.GetByIdAsync(songId, cancellationToken);
+        var song = await _songRepository.GetByIdAsync(songId, isTracking, cancellationToken);
 
         return _mapper.Map<SongModel>(song);
     }
 
-    public async Task<IEnumerable<SongModel>> GetSongsAsync(PaginationFilter filter, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<SongModel>> GetSongsAsync(PaginationFilter filter, bool isTracking, CancellationToken cancellationToken = default)
     {
-        var songs = await _songRepository.GetAllAsync(filter.PageNumber, filter.PageSize, cancellationToken);
+        var songs = await _songRepository.GetAllAsync(filter.PageNumber, filter.PageSize, isTracking, cancellationToken);
 
         return _mapper.Map<IEnumerable<SongModel>>(songs);
     }
 
     public async Task<SongModel> UpdateSongAsync(SongModel SongModel, CancellationToken cancellationToken = default)
     {
-        var target = await GetSongByIdAsync(SongModel.Id, cancellationToken)
+        var target = await GetSongByIdAsync(SongModel.Id, true, cancellationToken)
             ?? throw new NotFoundException("Song with such id not found!");
 
         var song = _mapper.Map<Song>(SongModel);
@@ -46,7 +46,7 @@ public class SongService(IRepository<Song> _songRepository, IMapper _mapper) : I
 
     public async Task DeleteSongAsync(Guid songId, CancellationToken cancellationToken = default)
     {
-        var song = await _songRepository.GetByIdAsync(songId, cancellationToken)
+        var song = await _songRepository.GetByIdAsync(songId, true, cancellationToken)
             ?? throw new NotFoundException("Song with such id not found!");
 
         await _songRepository.DeleteAsync(song, cancellationToken);

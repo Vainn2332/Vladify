@@ -14,19 +14,41 @@ public class Repository<T>(ApplicationDbContext _context) : IRepository<T> where
         return entity;
     }
 
-    public async Task<IEnumerable<T>> GetAllAsync(int pageNumber, int pageSize, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<T>> GetAllAsync(int pageNumber, int pageSize, bool isTracking, CancellationToken cancellationToken = default)
     {
-        return await _context.Set<T>()
-           .OrderBy(p => p.Id)
-           .Skip((pageNumber - 1) * pageSize)
-           .Take(pageSize)
-           .ToListAsync(cancellationToken);
+        if (isTracking)
+        {
+            return await _context.Set<T>()
+                .OrderBy(p => p.Id)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync(cancellationToken);
+        }
+        else
+        {
+            return await _context.Set<T>()
+                .AsNoTracking()
+                .OrderBy(p => p.Id)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync(cancellationToken);
+        }
+
     }
 
-    public async Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<T?> GetByIdAsync(Guid id, bool isTracking, CancellationToken cancellationToken = default)
     {
-        return await _context.Set<T>()
-            .FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
+        if (isTracking)
+        {
+            return await _context.Set<T>()
+                .FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
+        }
+        else
+        {
+            return await _context.Set<T>()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
+        }
     }
 
     public async Task<T> UpdateAsync(T entity, CancellationToken cancellationToken = default)
