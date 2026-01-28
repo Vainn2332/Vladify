@@ -7,7 +7,7 @@ using Vladify.DataAccess.Interfaces;
 
 namespace Vladify.BusinessLogic;
 
-public class SongService(ISongRepository _songRepository, IMapper _mapper) : ISongService
+public class SongService(IRepository<Song> _songRepository, IMapper _mapper) : ISongService
 {
     public async Task<SongModel> AddSongAsync(SongRequestModel songRequestModel, CancellationToken cancellationToken = default)
     {

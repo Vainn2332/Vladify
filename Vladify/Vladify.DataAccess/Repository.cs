@@ -14,7 +14,7 @@ public class Repository<T>(ApplicationDbContext _context) : IRepository<T> where
         return entity;
     }
 
-    public async Task<IEnumerable<T>> GetAsync(int pageNumber, int pageSize, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<T>> GetAllAsync(int pageNumber, int pageSize, CancellationToken cancellationToken = default)
     {
         return await _context.Set<T>()
            .OrderBy(p => p.Id)
