@@ -31,7 +31,7 @@ public class Repository<T>(ApplicationDbContext _context) : IRepository<T> where
             getQuery = getQuery.AsNoTracking();
         }
 
-        return await _context.Set<T>()
+        return await getQuery
             .FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
     }
 
