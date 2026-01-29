@@ -30,7 +30,7 @@ public class SongsController(ISongService _songService, IMapper _mapper) : Contr
     [HttpGet("{id}")]
     public async Task<SongModel> GetSongById(Guid id, CancellationToken cancellationToken)
     {
-        var song = await _songService.GetSongByIdAsync(id, cancellationToken)
+        var song = await _songService.GetSongByIdAsync(id, false, cancellationToken)
             ?? throw new NotFoundException("Song with such id not found!");
 
         return song;

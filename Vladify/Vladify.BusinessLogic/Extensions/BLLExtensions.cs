@@ -32,7 +32,7 @@ public static class BLLExtensions
 
     private static IServiceCollection AddServices(this IServiceCollection services)
     {
-        services.AddSongRepository();
+        services.AddGenericRepository();
 
         services.AddScoped<ISongService, SongService>();
 

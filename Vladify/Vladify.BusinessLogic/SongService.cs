@@ -7,7 +7,7 @@ using Vladify.DataAccess.Interfaces;
 
 namespace Vladify.BusinessLogic;
 
-public class SongService(ISongRepository _songRepository, IMapper _mapper) : ISongService
+public class SongService(IRepository<Song> _songRepository, IMapper _mapper) : ISongService
 {
     public async Task<SongModel> AddSongAsync(SongRequestModel songRequestModel, CancellationToken cancellationToken = default)
     {
@@ -18,9 +18,9 @@ public class SongService(ISongRepository _songRepository, IMapper _mapper) : ISo
         return _mapper.Map<SongModel>(newSong);
     }
 
-    public async Task<SongModel?> GetSongByIdAsync(Guid songId, CancellationToken cancellationToken = default)
+    public async Task<SongModel?> GetSongByIdAsync(Guid songId, bool isTracking, CancellationToken cancellationToken = default)
     {
-        var song = await _songRepository.GetByIdAsync(songId, cancellationToken);
+        var song = await _songRepository.GetByIdAsync(songId, isTracking, cancellationToken);
 
         return _mapper.Map<SongModel>(song);
     }
@@ -34,7 +34,7 @@ public class SongService(ISongRepository _songRepository, IMapper _mapper) : ISo
 
     public async Task<SongModel> UpdateSongAsync(SongModel SongModel, CancellationToken cancellationToken = default)
     {
-        var target = await GetSongByIdAsync(SongModel.Id, cancellationToken)
+        var target = await GetSongByIdAsync(SongModel.Id, true, cancellationToken)
             ?? throw new NotFoundException("Song with such id not found!");
 
         var song = _mapper.Map<Song>(SongModel);
@@ -46,7 +46,7 @@ public class SongService(ISongRepository _songRepository, IMapper _mapper) : ISo
 
     public async Task DeleteSongAsync(Guid songId, CancellationToken cancellationToken = default)
     {
-        var song = await _songRepository.GetByIdAsync(songId, cancellationToken)
+        var song = await _songRepository.GetByIdAsync(songId, true, cancellationToken)
             ?? throw new NotFoundException("Song with such id not found!");
 
         await _songRepository.DeleteAsync(song, cancellationToken);

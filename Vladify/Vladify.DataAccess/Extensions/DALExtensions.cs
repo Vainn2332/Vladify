@@ -18,9 +18,9 @@ public static class DALExtensions
         return services;
     }
 
-    public static IServiceCollection AddSongRepository(this IServiceCollection services)
+    public static IServiceCollection AddGenericRepository(this IServiceCollection services)
     {
-        services.AddScoped<ISongRepository, SongRepository>();
+        services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
         return services;
     }
