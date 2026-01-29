@@ -46,7 +46,6 @@ public class UserService(IUserRepository _userRepository, IMapper _mapper) : IUs
         var updatedUser = await _userRepository.UpdateAsync(user, cancellationToken);
 
         return _mapper.Map<UserModel>(updatedUser);
-
     }
 
     public async Task DeleteUserAsync(Guid userId, CancellationToken cancellationToken = default)

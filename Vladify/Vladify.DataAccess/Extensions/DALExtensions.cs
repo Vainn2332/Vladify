@@ -24,4 +24,11 @@ public static class DALExtensions
 
         return services;
     }
+
+    public static IServiceCollection AddUserRepository(this IServiceCollection services)
+    {
+        services.AddScoped<IUserRepository, UserRepository>();
+
+        return services;
+    }
 }

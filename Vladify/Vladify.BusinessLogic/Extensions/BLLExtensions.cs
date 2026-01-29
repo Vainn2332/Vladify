@@ -34,7 +34,11 @@ public static class BLLExtensions
     {
         services.AddGenericRepository();
 
+        services.AddUserRepository();
+
         services.AddScoped<ISongService, SongService>();
+
+        services.AddScoped<IUserService, UserService>();
 
         return services;
     }
