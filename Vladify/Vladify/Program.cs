@@ -1,5 +1,6 @@
 using Scalar.AspNetCore;
 using Vladify.BusinessLogic.Extensions;
+using Vladify.DataAccess.Extensions;
 using Vladify.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,7 +9,9 @@ builder.Services.AddControllers();
 
 builder.Services.AddOpenApi();
 
-builder.Services.AddBusinessLogicLayer(builder.Configuration);
+builder.Services.AddDataAccessLayer(builder.Configuration);
+
+builder.Services.AddBusinessLogicLayer();
 
 var app = builder.Build();
 
