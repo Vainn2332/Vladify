@@ -13,7 +13,7 @@ public class SongsController(ISongService _songService, IMapper _mapper) : Contr
     [HttpPost, ValidationFilter]
     public Task<SongModel> CreateSong(
         SongRequestModel songRequestModel,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken = default)
     {
         return _songService.AddSongAsync(songRequestModel, cancellationToken);
     }
@@ -21,14 +21,14 @@ public class SongsController(ISongService _songService, IMapper _mapper) : Contr
     [HttpGet]
     public Task<IEnumerable<SongModel>> GetAllSongs(
         [FromQuery] PaginationFilter filter,
-        CancellationToken cancellationToken
+        CancellationToken cancellationToken = default
         )
     {
         return _songService.GetSongsAsync(filter, cancellationToken);
     }
 
     [HttpGet("{id}")]
-    public async Task<SongModel> GetSongById(Guid id, CancellationToken cancellationToken)
+    public async Task<SongModel> GetSongById(Guid id, CancellationToken cancellationToken = default)
     {
         var song = await _songService.GetSongByIdAsync(id, false, cancellationToken)
             ?? throw new NotFoundException("Song with such id not found!");
@@ -40,7 +40,7 @@ public class SongsController(ISongService _songService, IMapper _mapper) : Contr
     public async Task<SongModel> UpdateSong(
         Guid id,
         SongRequestModel songRequestModel,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken = default)
     {
         var songModel = _mapper.Map<SongModel>(songRequestModel);
         songModel.Id = id;
@@ -49,7 +49,7 @@ public class SongsController(ISongService _songService, IMapper _mapper) : Contr
     }
 
     [HttpDelete("{id}")]
-    public Task DeleteSong(Guid id, CancellationToken cancellationToken)
+    public Task DeleteSong(Guid id, CancellationToken cancellationToken = default)
     {
         return _songService.DeleteSongAsync(id, cancellationToken);
     }

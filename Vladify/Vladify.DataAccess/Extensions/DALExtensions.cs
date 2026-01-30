@@ -7,7 +7,15 @@ namespace Vladify.DataAccess.Extensions;
 
 public static class DALExtensions
 {
-    public static IServiceCollection AddDbInDataAccess(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddDataAccessLayer(this IServiceCollection services, IConfiguration configuration)
+    {
+        services
+            .AddSqlServer(configuration)
+            .AddRepositories();
+
+        return services;
+    }
+    public static IServiceCollection AddSqlServer(this IServiceCollection services, IConfiguration configuration)
     {
         var connectionString = configuration.GetConnectionString("ApplicationDbContext")
             ?? throw new InvalidOperationException("Conection string 'ApplicationDbContext' is not found!");
@@ -18,10 +26,11 @@ public static class DALExtensions
         return services;
     }
 
-    public static IServiceCollection AddGenericRepository(this IServiceCollection services)
+    public static IServiceCollection AddRepositories(this IServiceCollection services)
     {
-        services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-
+        services
+            .AddScoped(typeof(IRepository<>), typeof(Repository<>))
+            .AddScoped<IUserRepository, UserRepository>();
         return services;
     }
 }
