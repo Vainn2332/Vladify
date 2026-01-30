@@ -16,7 +16,7 @@ public class UserService(IUserRepository _userRepository, IMapper _mapper) : IUs
         {
             throw new ArgumentException("User with such email already exists!");
         }
-
+        userRequestModel.Password = HashPassword(userRequestModel.Password);
         var user = _mapper.Map<User>(userRequestModel);
 
         var newUser = await _userRepository.AddAsync(user, cancellationToken);
@@ -38,10 +38,13 @@ public class UserService(IUserRepository _userRepository, IMapper _mapper) : IUs
         return _mapper.Map<IEnumerable<UserModel>>(users);
     }
 
-    public async Task<UserModel> UpdateUserAsync(UserModel userModel, CancellationToken cancellationToken = default)
+    public async Task<UserModel> UpdateUserAsync(UserUpdateRequestModel userUpdateRequestModel, CancellationToken cancellationToken = default)
     {
-        var user = await _userRepository.GetByIdAsync(userModel.Id, true, cancellationToken)
+        var target = await _userRepository.GetByIdAsync(userUpdateRequestModel.Id, false, cancellationToken)
             ?? throw new NotFoundException("User with such id not found!");
+
+        userUpdateRequestModel.Password = HashPassword(userUpdateRequestModel.Password);
+        var user = _mapper.Map<User>(userUpdateRequestModel);
 
         var updatedUser = await _userRepository.UpdateAsync(user, cancellationToken);
 
@@ -54,5 +57,10 @@ public class UserService(IUserRepository _userRepository, IMapper _mapper) : IUs
             ?? throw new NotFoundException("User with such id not found!");
 
         await _userRepository.DeleteAsync(user, cancellationToken);
+    }
+
+    public string HashPassword(string password)
+    {
+        return BCrypt.Net.BCrypt.EnhancedHashPassword(password);
     }
 }
