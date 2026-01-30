@@ -9,5 +9,4 @@ public interface IUserService
     public Task<UserModel> AddUserAsync(UserRequestModel userRequestModel, CancellationToken cancellationToken = default);
     public Task<UserModel> UpdateUserAsync(UserUpdateRequestModel userModel, CancellationToken cancellationToken = default);
     public Task DeleteUserAsync(Guid userId, CancellationToken cancellationToken = default);
-    public string HashPassword(string password);
 }

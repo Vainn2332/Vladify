@@ -59,7 +59,7 @@ public class UserService(IUserRepository _userRepository, IMapper _mapper) : IUs
         await _userRepository.DeleteAsync(user, cancellationToken);
     }
 
-    public string HashPassword(string password)
+    private string HashPassword(string password)
     {
         return BCrypt.Net.BCrypt.EnhancedHashPassword(password);
     }
