@@ -35,7 +35,7 @@ public class UsersController(IUserService _userService, IMapper _mapper) : Contr
     }
 
     [HttpPut("{id}"), ValidationFilter]
-    public async Task<UserModel> UpdateUser(
+    public Task<UserModel> UpdateUser(
         Guid id,
         UserRequestModel userRequestModel,
         CancellationToken cancellationToken)
@@ -43,7 +43,7 @@ public class UsersController(IUserService _userService, IMapper _mapper) : Contr
         var userUpdateModel = _mapper.Map<UserUpdateRequestModel>(userRequestModel);
         userUpdateModel.Id = id;
 
-        return await _userService.UpdateUserAsync(userUpdateModel, cancellationToken);
+        return _userService.UpdateUserAsync(userUpdateModel, cancellationToken);
     }
 
     [HttpDelete("{id}")]
