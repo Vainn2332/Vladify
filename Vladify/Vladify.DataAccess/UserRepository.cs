@@ -8,13 +8,7 @@ public class UserRepository(ApplicationDbContext _context) : Repository<User>(_c
 {
     public async Task<User?> GetByEmailAsync(string email, bool isTracking, CancellationToken cancellationToken)
     {
-        var getQuery = _context.Users.AsQueryable();
-
-        if (!isTracking)
-        {
-            getQuery = getQuery.AsNoTracking();
-        }
-
-        return await getQuery.FirstOrDefaultAsync(u => u.EmailAddress == email, cancellationToken);
+        return await (isTracking ? _context.Users : _context.Users.AsNoTracking())
+            .FirstOrDefaultAsync(u => u.EmailAddress == email, cancellationToken);
     }
 }
