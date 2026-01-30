@@ -32,13 +32,11 @@ public static class BLLExtensions
 
     private static IServiceCollection AddServices(this IServiceCollection services)
     {
-        services.AddGenericRepository();
-
-        services.AddUserRepository();
-
-        services.AddScoped<ISongService, SongService>();
-
-        services.AddScoped<IUserService, UserService>();
+        services
+            .AddGenericRepository()
+            .AddUserRepository()
+            .AddScoped<ISongService, SongService>()
+            .AddScoped<IUserService, UserService>();
 
         return services;
     }
