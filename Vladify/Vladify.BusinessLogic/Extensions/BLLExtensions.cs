@@ -1,18 +1,21 @@
 ﻿using AutoMapper;
 using FluentValidation;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Vladify.BusinessLogic.MapperProfiles;
 using Vladify.BusinessLogic.Models;
 using Vladify.BusinessLogic.ServiceInterfaces;
 using Vladify.BusinessLogic.Validators;
+using Vladify.DataAccess.Extensions;
 
 namespace Vladify.BusinessLogic.Extensions;
 
 public static class BLLExtensions
 {
-    public static IServiceCollection AddBusinessLogicLayer(this IServiceCollection services)
+    public static IServiceCollection AddBusinessLogicLayer(this IServiceCollection services, IConfiguration configuration)
     {
         services
+            .AddSqlServerDb(configuration)
             .AddServices()
             .AddValidators()
             .AddMapping();
@@ -20,9 +23,17 @@ public static class BLLExtensions
         return services;
     }
 
+    private static IServiceCollection AddSqlServerDb(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddDbInDataAccess(configuration);
+
+        return services;
+    }
+
     private static IServiceCollection AddServices(this IServiceCollection services)
     {
         services
+            .AddRepositories()
             .AddScoped<ISongService, SongService>()
             .AddScoped<IUserService, UserService>();
 
