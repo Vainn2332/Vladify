@@ -9,7 +9,7 @@ namespace Vladify.BusinessLogic;
 
 public class SongService(IRepository<Song> _songRepository, IMapper _mapper) : ISongService
 {
-    public async Task<SongModel> AddSongAsync(SongRequestModel songRequestModel, CancellationToken cancellationToken = default)
+    public async Task<SongModel> AddSongAsync(SongRequestModel songRequestModel, CancellationToken cancellationToken)
     {
         var song = _mapper.Map<Song>(songRequestModel);
 
@@ -18,21 +18,21 @@ public class SongService(IRepository<Song> _songRepository, IMapper _mapper) : I
         return _mapper.Map<SongModel>(newSong);
     }
 
-    public async Task<SongModel?> GetSongByIdAsync(Guid songId, bool isTracking, CancellationToken cancellationToken = default)
+    public async Task<SongModel?> GetSongByIdAsync(Guid songId, bool isTracking, CancellationToken cancellationToken)
     {
         var song = await _songRepository.GetByIdAsync(songId, isTracking, cancellationToken);
 
         return _mapper.Map<SongModel>(song);
     }
 
-    public async Task<IEnumerable<SongModel>> GetSongsAsync(PaginationFilter filter, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<SongModel>> GetSongsAsync(PaginationFilter filter, CancellationToken cancellationToken)
     {
         var songs = await _songRepository.GetAllAsync(filter.PageNumber, filter.PageSize, cancellationToken);
 
         return _mapper.Map<IEnumerable<SongModel>>(songs);
     }
 
-    public async Task<SongModel> UpdateSongAsync(SongModel SongModel, CancellationToken cancellationToken = default)
+    public async Task<SongModel> UpdateSongAsync(SongModel SongModel, CancellationToken cancellationToken)
     {
         var target = await GetSongByIdAsync(SongModel.Id, true, cancellationToken)
             ?? throw new NotFoundException("Song with such id not found!");
@@ -44,7 +44,7 @@ public class SongService(IRepository<Song> _songRepository, IMapper _mapper) : I
         return _mapper.Map<SongModel>(updatedSong);
     }
 
-    public async Task DeleteSongAsync(Guid songId, CancellationToken cancellationToken = default)
+    public async Task DeleteSongAsync(Guid songId, CancellationToken cancellationToken)
     {
         var song = await _songRepository.GetByIdAsync(songId, true, cancellationToken)
             ?? throw new NotFoundException("Song with such id not found!");

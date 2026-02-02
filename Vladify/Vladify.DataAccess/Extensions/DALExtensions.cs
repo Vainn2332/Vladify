@@ -18,10 +18,11 @@ public static class DALExtensions
         return services;
     }
 
-    public static IServiceCollection AddGenericRepository(this IServiceCollection services)
+    public static IServiceCollection AddRepositories(this IServiceCollection services)
     {
-        services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-
+        services
+            .AddScoped(typeof(IRepository<>), typeof(Repository<>))
+            .AddScoped<IUserRepository, UserRepository>();
         return services;
     }
 }
