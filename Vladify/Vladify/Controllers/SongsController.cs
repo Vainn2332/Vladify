@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Vladify.BusinessLogic.Exceptions;
 using Vladify.BusinessLogic.Models;
@@ -11,6 +12,7 @@ namespace Vladify.Controllers;
 public class SongsController(ISongService _songService, IMapper _mapper) : ControllerBase
 {
     [HttpPost, ValidationFilter]
+    [Authorize]
     public Task<SongModel> CreateSong(
         SongRequestModel songRequestModel,
         CancellationToken cancellationToken = default)
@@ -19,6 +21,7 @@ public class SongsController(ISongService _songService, IMapper _mapper) : Contr
     }
 
     [HttpGet]
+    [Authorize]
     public Task<IEnumerable<SongModel>> GetAllSongs(
         [FromQuery] PaginationFilter filter,
         CancellationToken cancellationToken = default
@@ -28,6 +31,7 @@ public class SongsController(ISongService _songService, IMapper _mapper) : Contr
     }
 
     [HttpGet("{id}")]
+    [Authorize]
     public async Task<SongModel> GetSongById(Guid id, CancellationToken cancellationToken = default)
     {
         var song = await _songService.GetSongByIdAsync(id, false, cancellationToken)
@@ -37,6 +41,7 @@ public class SongsController(ISongService _songService, IMapper _mapper) : Contr
     }
 
     [HttpPut("{id}"), ValidationFilter]
+    [Authorize]
     public async Task<SongModel> UpdateSong(
         Guid id,
         SongRequestModel songRequestModel,
@@ -49,6 +54,7 @@ public class SongsController(ISongService _songService, IMapper _mapper) : Contr
     }
 
     [HttpDelete("{id}")]
+    [Authorize]
     public Task DeleteSong(Guid id, CancellationToken cancellationToken = default)
     {
         return _songService.DeleteSongAsync(id, cancellationToken);
