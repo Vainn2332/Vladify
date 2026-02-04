@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Scalar.AspNetCore;
 using Vladify.BusinessLogic.Extensions;
 using Vladify.Extensions;
-
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
@@ -12,7 +12,7 @@ builder.Services.AddOpenApi(options =>
 {
     options.AddDocumentTransformer((document, context, cancellationToken) =>
     {
-        var domain = builder.Configuration["Auth0:Domain"]; // Например: "vladify.auth0.com"
+        var domain = builder.Configuration["Auth0:Domain"];
 
         var securityScheme = new OpenApiSecurityScheme
         {
@@ -21,10 +21,11 @@ builder.Services.AddOpenApi(options =>
             {
                 AuthorizationCode = new OpenApiOAuthFlow
                 {
-                    // Куда Scalar перенаправит тебя для ввода пароля
+                    // Where Scalar redirects to input password
                     AuthorizationUrl = new Uri($"https://{domain}/authorize"),
-                    // Где Scalar обменяет "код" на реальный JWT токен
+                    // Where Scalar exchanges input on JWT
                     TokenUrl = new Uri($"https://{domain}/oauth/token"),
+                    //What info we'd like to get
                     Scopes = new Dictionary<string, string>
                     {
                         { "openid", "OpenID" },
@@ -41,16 +42,27 @@ builder.Services.AddOpenApi(options =>
         return Task.CompletedTask;
     });
 });
+//default scheme for authentication
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+{
+    //configuring JWT authentication scheme
 
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(options =>
-{
-    options.Authority = "https://dev-e5yk0xsv7lcoyajl.us.auth0.com";
+    //Auth0 tenant
+    options.Authority = $"https://{builder.Configuration["Auth0:Domain"]}";
+    //Auth0 API ID
     options.Audience = builder.Configuration["Auth0:AuthServiceIdentifier"];
+
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+    };
 });
+
+builder.Services.AddAuthorization();
 
 builder.Services.AddBusinessLogicLayer(builder.Configuration);
 
