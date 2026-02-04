@@ -2,7 +2,6 @@ using Scalar.AspNetCore;
 using Vladify.BusinessLogic.Extensions;
 using Vladify.Extensions;
 
-
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
