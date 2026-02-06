@@ -10,6 +10,7 @@ namespace Vladify.Controllers;
 
 [Route("api/users")]
 [ApiController]
+[Authorize]
 public class UsersController(IUserService _userService, IMapper _mapper) : ControllerBase
 {
     [HttpPost, ValidationFilter]
@@ -19,7 +20,6 @@ public class UsersController(IUserService _userService, IMapper _mapper) : Contr
     }
 
     [HttpGet, ValidationFilter]
-    [Authorize]
     public Task<IEnumerable<UserModel>> GetUsers(
         [FromQuery] PaginationFilter paginationFilter,
         CancellationToken cancellationToken = default)
@@ -28,7 +28,6 @@ public class UsersController(IUserService _userService, IMapper _mapper) : Contr
     }
 
     [HttpGet("{id}")]
-    [Authorize]
     public async Task<UserModel> GetUserById(Guid id, CancellationToken cancellationToken = default)
     {
         var user = await _userService.GetUserByIdAsync(id, false, cancellationToken)
@@ -38,7 +37,6 @@ public class UsersController(IUserService _userService, IMapper _mapper) : Contr
     }
 
     [HttpPut("{id}"), ValidationFilter]
-    [Authorize]
     public Task<UserModel> UpdateUser(
         Guid id,
         UserRequestModel userRequestModel,
@@ -51,7 +49,6 @@ public class UsersController(IUserService _userService, IMapper _mapper) : Contr
     }
 
     [HttpDelete("{id}")]
-    [Authorize]
     public Task DeleteUser(Guid id, CancellationToken cancellationToken = default)
     {
         return _userService.DeleteUserAsync(id, cancellationToken);
