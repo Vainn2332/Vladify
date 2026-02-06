@@ -1,6 +1,8 @@
 using Scalar.AspNetCore;
+using Vladify.BusinessLogic.Exceptions;
 using Vladify.BusinessLogic.Extensions;
 using Vladify.Extensions;
+using Vladify.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,9 +29,12 @@ if (app.Environment.IsDevelopment())
         options.AddPreferredSecuritySchemes("Auth0")
             .AddAuthorizationCodeFlow("Auth0", flow =>
             {
-                flow.ClientId = builder.Configuration["Auth0:ClientID"];
+                var auth0Options = builder.Configuration.GetSection(Auth0Options.SectionName).Get<Auth0Options>()
+                    ?? throw new NotFoundException($"Configuration section{Auth0Options.SectionName} not found!");
+
+                flow.ClientId = auth0Options.ClientId;
                 flow.Pkce = Pkce.Sha256;
-                flow.AddQueryParameter("audience", builder.Configuration["Auth0:AuthServiceIdentifier"]);
+                flow.AddQueryParameter("audience", auth0Options.Audience);
             });
     });
 }
