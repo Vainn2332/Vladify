@@ -17,7 +17,7 @@ public static class ApiExtensions
     public static IServiceCollection AddOpenApiDocumentation(this IServiceCollection services, IConfiguration configuration)
     {
         var auth0Options = configuration.GetSection(Auth0Options.SectionName).Get<Auth0Options>()
-                   ?? throw new NotFoundException($"Configuration section{Auth0Options.SectionName} not found!");
+            ?? throw new NotFoundException($"Configuration section{Auth0Options.SectionName} not found!");
 
         services.AddOpenApi(options =>
         {
@@ -56,7 +56,6 @@ public static class ApiExtensions
 
     public static IServiceCollection AddJwtBasedAuthentication(this IServiceCollection services, IConfiguration configuration)
     {
-
         var auth0Options = configuration.GetSection(Auth0Options.SectionName).Get<Auth0Options>()
             ?? throw new NotFoundException($"Configuration section{Auth0Options.SectionName} not found!");
 
