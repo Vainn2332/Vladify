@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Vladify.BusinessLogic.Exceptions;
 using Vladify.BusinessLogic.Models;
@@ -8,6 +9,7 @@ namespace Vladify.Controllers;
 
 [Route("api/songs")]
 [ApiController]
+[Authorize]
 public class SongsController(ISongService _songService, IMapper _mapper) : ControllerBase
 {
     [HttpPost, ValidationFilter]

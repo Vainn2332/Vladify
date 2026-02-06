@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Vladify.BusinessLogic.Exceptions;
 using Vladify.BusinessLogic.Models;
@@ -9,6 +10,7 @@ namespace Vladify.Controllers;
 
 [Route("api/users")]
 [ApiController]
+[Authorize]
 public class UsersController(IUserService _userService, IMapper _mapper) : ControllerBase
 {
     [HttpPost, ValidationFilter]
