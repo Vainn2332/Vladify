@@ -1,4 +1,4 @@
-name: Vladify CI
+name: cicd
 
 on:
   push:
@@ -23,7 +23,5 @@ jobs:
       run: dotnet restore ./Vladify
 
     - name: Build
-      run: dotnet build ./Vladify --no-restore --configuration Release 
-
-
+      run: dotnet build ./Vladify --no-restore --configuration Release
   
