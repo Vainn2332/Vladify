@@ -3,8 +3,9 @@ using Vladify.DataAccess.Interfaces;
 
 namespace Vladify.DataAccess;
 
-public class Repository<T>(ApplicationDbContext _context) : IRepository<T> where T : class, IEntity
+public class Repository<T>(ApplicationDbContext context) : IRepository<T> where T : class, IEntity
 {
+    protected readonly ApplicationDbContext _context = context;
     public async Task<T> AddAsync(T entity, CancellationToken cancellationToken)
     {
         await _context.Set<T>().AddAsync(entity, cancellationToken);
