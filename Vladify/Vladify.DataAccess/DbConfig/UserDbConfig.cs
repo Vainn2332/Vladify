@@ -13,9 +13,9 @@ public class UserDbConfig : IEntityTypeConfiguration<User>
         builder.HasKey(p => p.Id);
         builder.HasIndex(p => p.EmailAddress).IsUnique();
         builder.Property(p => p.Gender).HasConversion<string>();//saving Male instead of 1 in Db
-        builder.Property(p => p.Name).HasMaxLength(DALConstants.MaxStandartStringLength);
+        builder.Property(p => p.Name).HasMaxLength(DalConstants.MaxStandartStringLength);
 
-        var fakeUsers = new UserFaker().Generate(DALConstants.UserSeedDataAmount);
+        var fakeUsers = new UserFaker().Generate(DalConstants.UserSeedDataAmount);
 
         builder.HasData(fakeUsers);
     }
