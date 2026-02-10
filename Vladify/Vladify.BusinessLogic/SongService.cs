@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Vladify.BusinessLogic.Exceptions;
 using Vladify.BusinessLogic.Models;
+using Vladify.BusinessLogic.Models.SongModels;
 using Vladify.BusinessLogic.ServiceInterfaces;
 using Vladify.DataAccess.Entities;
 using Vladify.DataAccess.Interfaces;

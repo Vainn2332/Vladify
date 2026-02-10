@@ -1,6 +1,6 @@
 ﻿using Vladify.DataAccess.Enums;
 
-namespace Vladify.BusinessLogic.Models;
+namespace Vladify.BusinessLogic.Models.UserModels;
 
 public class UserModel
 {

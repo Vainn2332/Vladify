@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using Vladify.BusinessLogic.Models;
+using Vladify.BusinessLogic.Models.SongModels;
 
 namespace Vladify.BusinessLogic.Validators;
 

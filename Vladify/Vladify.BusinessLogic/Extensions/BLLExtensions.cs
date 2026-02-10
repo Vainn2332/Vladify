@@ -3,7 +3,7 @@ using FluentValidation;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Vladify.BusinessLogic.MapperProfiles;
-using Vladify.BusinessLogic.Models;
+using Vladify.BusinessLogic.Models.SongModels;
 using Vladify.BusinessLogic.ServiceInterfaces;
 using Vladify.BusinessLogic.Validators;
 using Vladify.DataAccess.Extensions;
