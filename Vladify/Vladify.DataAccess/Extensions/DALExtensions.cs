@@ -5,7 +5,7 @@ using Vladify.DataAccess.Interfaces;
 
 namespace Vladify.DataAccess.Extensions;
 
-public static class DALExtensions
+public static class DalExtensions
 {
     public static IServiceCollection AddDbInDataAccess(this IServiceCollection services, IConfiguration configuration)
     {

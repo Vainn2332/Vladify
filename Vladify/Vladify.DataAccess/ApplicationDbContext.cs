@@ -12,7 +12,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        Bogus.Randomizer.Seed = new Random(DALConstants.RandomSeedDataNumber);
+        Bogus.Randomizer.Seed = new Random(DalConstants.RandomSeedDataNumber);
 
         modelBuilder.ApplyConfiguration(new SongDbConfig());
         modelBuilder.ApplyConfiguration(new UserDbConfig());
