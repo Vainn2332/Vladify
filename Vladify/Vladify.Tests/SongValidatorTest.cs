@@ -12,7 +12,7 @@ public class SongValidatorTest
     [InlineData(nameof(SongRequestModel.Title))]
     [InlineData(nameof(SongRequestModel.Author))]
     [InlineData(nameof(SongRequestModel.Album))]
-    public void Should_Return_Error_When_Field_Is_Empty(string propertyName)
+    public void Should_ReturnError_When_Field_IsEmpty(string propertyName)
     {
         var model = new SongRequestModel
         {
@@ -29,11 +29,28 @@ public class SongValidatorTest
             .WithErrorMessage($"Field '{propertyName}' is required!");
     }
 
+    [Fact]
+    public void Should_ReturnError_When_Duration_IsEmpty()
+    {
+        var model = new SongRequestModel
+        {
+            Title = "Valid",
+            Album = "Valid",
+            Author = "Valid",
+            Duration = TimeSpan.Zero
+        };
+
+        var result = _songValidator.TestValidate(model);
+
+        result.ShouldHaveValidationErrorFor(p => p.Duration)
+            .WithErrorMessage($"Field 'Duration' is required!");
+    }
+
     [Theory]
     [InlineData(nameof(SongRequestModel.Title))]
     [InlineData(nameof(SongRequestModel.Author))]
     [InlineData(nameof(SongRequestModel.Album))]
-    public void Should_Return_Error_When_MaxLength_Exceeded(string propertyName)
+    public void Should_ReturnError_When_MaxLength_Exceeded(string propertyName)
     {
         string errorString = new string('f', 100);
         var model = new SongRequestModel()
@@ -54,7 +71,7 @@ public class SongValidatorTest
     [Theory]
     [InlineData(5)]
     [InlineData(1801)]
-    public void Should_Return_Error_When_NotInRange(int seconds)
+    public void Should_ReturnError_When_NotInRange(int seconds)
     {
         var model = new SongRequestModel()
         {
@@ -71,7 +88,7 @@ public class SongValidatorTest
     }
 
     [Fact]
-    public void Should_Return_Ok_When_AllFields_Are_Correct()
+    public void Should_ReturnSuccess_When_AllFields_AreCorrect()
     {
         var model = new SongRequestModel()
         {
