@@ -154,7 +154,6 @@ public class SongServiceTest
     public async Task GetSongById_Should_ReturnNull_When_NotFound()
     {
         var userId = Guid.NewGuid();
-
         _songRepositoryMock.Setup(m => m.GetByIdAsync(userId, It.IsAny<bool>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((Song?)null);
         _mapperMock.Setup(m => m.Map<SongModel>(null))
@@ -186,6 +185,7 @@ public class SongServiceTest
         _songService.UpdateSongAsync(request, CancellationToken.None));
 
         Assert.Equal("Song with such id not found!", exception.Message);
+
         _songRepositoryMock.Verify(m => m.GetByIdAsync(invalidSongId, It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Once);
         _songRepositoryMock.Verify(m => m.UpdateAsync(It.IsAny<Song>(), It.IsAny<CancellationToken>()), Times.Never);
     }
@@ -226,7 +226,6 @@ public class SongServiceTest
             Author = request.Author,
             Duration = request.Duration
         };
-
         _songRepositoryMock.Setup(m => m.GetByIdAsync(songId, false, It.IsAny<CancellationToken>()))
             .ReturnsAsync(oldSongEntity);
         _mapperMock.Setup(m => m.Map<Song>(request))
@@ -249,7 +248,6 @@ public class SongServiceTest
     public async Task DeleteAsync_Should_ReturnNotFoundException_WhenNotFound()
     {
         var invalidSongId = Guid.NewGuid();
-
         _songRepositoryMock.Setup(m => m.GetByIdAsync(invalidSongId, It.IsAny<bool>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((Song?)null);
 
@@ -257,6 +255,7 @@ public class SongServiceTest
         _songService.DeleteSongAsync(invalidSongId, CancellationToken.None));
 
         Assert.Equal("Song with such id not found!", exception.Message);
+
         _songRepositoryMock.Verify(m => m.GetByIdAsync(invalidSongId, It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Once);
         _songRepositoryMock.Verify(m => m.DeleteAsync(It.IsAny<Song>(), It.IsAny<CancellationToken>()), Times.Never);
     }
