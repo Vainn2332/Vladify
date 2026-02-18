@@ -27,7 +27,7 @@ jobs:
       with:
         dotnet-version: '9.0'
     
-    - name: Restore dependencies
+    - name: Restore Dependencies
       run: dotnet restore ./Vladify
 
     - name: Install SonarCloud scanner
@@ -46,6 +46,9 @@ jobs:
 
     - name: Build
       run: dotnet build ./Vladify --no-restore --configuration Release
+    
+    - name: Running Tests
+      run: dotnet test --no-build --collect:"XPlat Code Coverage"
 
     - name: End Analysis
       env:
