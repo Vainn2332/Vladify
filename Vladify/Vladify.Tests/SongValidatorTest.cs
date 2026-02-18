@@ -12,7 +12,7 @@ public class SongValidatorTest
     [InlineData(nameof(SongRequestModel.Title))]
     [InlineData(nameof(SongRequestModel.Author))]
     [InlineData(nameof(SongRequestModel.Album))]
-    public void Should_ReturnError_When_Field_IsEmpty(string propertyName)
+    public void SongValidator_Should_ReturnError_When_Field_IsEmpty(string propertyName)
     {
         var model = new SongRequestModel
         {
@@ -30,7 +30,7 @@ public class SongValidatorTest
     }
 
     [Fact]
-    public void Should_ReturnError_When_Duration_IsEmpty()
+    public void SongValidator_Should_ReturnError_When_Duration_IsEmpty()
     {
         var model = new SongRequestModel
         {
@@ -50,7 +50,7 @@ public class SongValidatorTest
     [InlineData(nameof(SongRequestModel.Title))]
     [InlineData(nameof(SongRequestModel.Author))]
     [InlineData(nameof(SongRequestModel.Album))]
-    public void Should_ReturnError_When_MaxLength_Exceeded(string propertyName)
+    public void SongValidator_Should_ReturnError_When_MaxLength_Exceeded(string propertyName)
     {
         string errorString = new string('f', 100);
         var model = new SongRequestModel()
@@ -71,7 +71,7 @@ public class SongValidatorTest
     [Theory]
     [InlineData(5)]
     [InlineData(1801)]
-    public void Should_ReturnError_When_NotInRange(int seconds)
+    public void SongValidator_Should_ReturnError_When_NotInRange(int seconds)
     {
         var model = new SongRequestModel()
         {
@@ -88,7 +88,7 @@ public class SongValidatorTest
     }
 
     [Fact]
-    public void Should_ReturnSuccess_When_AllFields_AreCorrect()
+    public void SongValidator_Should_ReturnSuccess_When_AllFields_AreCorrect()
     {
         var model = new SongRequestModel()
         {
