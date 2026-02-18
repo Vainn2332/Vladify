@@ -10,9 +10,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
   
-    defaults:
-      run: 
-        working-directory: ./Vladify
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -31,7 +28,7 @@ jobs:
         dotnet-version: '9.0'
     
     - name: Restore Dependencies
-      run: dotnet restore
+      run: dotnet restore ./Vladify
 
     - name: Install SonarCloud scanner
       run: dotnet tool install --global dotnet-sonarscanner
@@ -48,10 +45,10 @@ jobs:
         /d:sonar.host.url="https://sonarcloud.io"
 
     - name: Build
-      run: dotnet build --no-restore --configuration Release
+      run: dotnet build ./Vladify --no-restore --configuration Release
     
     - name: Running Tests
-      run: dotnet test Vladify.Tests/Vladify.Tests.csproj --no-build --collect:"XPlat Code Coverage"
+      run: dotnet test ./Vladify --no-build --collect:"XPlat Code Coverage"
         
     - name: End Analysis
       env:
