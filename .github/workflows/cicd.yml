@@ -51,7 +51,7 @@ jobs:
       run: dotnet build --no-restore --configuration Release
     
     - name: Running Tests
-      run: dotnet test --no-build --collect:"XPlat Code Coverage"
+      run: dotnet test Vladify.Tests/Vladify.Tests.csproj --no-build --collect:"XPlat Code Coverage"
         
     - name: End Analysis
       env:
