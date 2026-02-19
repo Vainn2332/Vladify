@@ -33,12 +33,12 @@ public class SongService(IRepository<Song> _songRepository, IMapper _mapper) : I
         return _mapper.Map<IEnumerable<SongModel>>(songs);
     }
 
-    public async Task<SongModel> UpdateSongAsync(SongModel SongModel, CancellationToken cancellationToken)
+    public async Task<SongModel> UpdateSongAsync(SongModel songModel, CancellationToken cancellationToken)
     {
-        _ = await _songRepository.GetByIdAsync(SongModel.Id, false, cancellationToken)
+        _ = await _songRepository.GetByIdAsync(songModel.Id, false, cancellationToken)
             ?? throw new NotFoundException("Song with such id not found!");
 
-        var song = _mapper.Map<Song>(SongModel);
+        var song = _mapper.Map<Song>(songModel);
 
         var updatedSong = await _songRepository.UpdateAsync(song, cancellationToken);
 
