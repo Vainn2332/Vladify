@@ -6,7 +6,7 @@ namespace Vladify.UnitTests;
 
 public class SongValidatorTest
 {
-    private readonly SongValidator _songValidator = new SongValidator();
+    //private readonly SongValidator songValidator = new SongValidator();
 
     [Theory]
     [InlineData(nameof(SongRequestModel.Title))]
@@ -14,6 +14,7 @@ public class SongValidatorTest
     [InlineData(nameof(SongRequestModel.Album))]
     public void SongValidator_Should_ReturnError_When_Field_IsEmpty(string propertyName)
     {
+        SongValidator songValidator = new SongValidator();
         var model = new SongRequestModel
         {
             Title = "Valid",
@@ -23,7 +24,7 @@ public class SongValidatorTest
         };
         typeof(SongRequestModel).GetProperty(propertyName)!.SetValue(model, "");
 
-        var result = _songValidator.TestValidate(model);
+        var result = songValidator.TestValidate(model);
 
         result.ShouldHaveValidationErrorFor(propertyName)
             .WithErrorMessage($"Field '{propertyName}' is required!");
@@ -32,6 +33,7 @@ public class SongValidatorTest
     [Fact]
     public void SongValidator_Should_ReturnError_When_Duration_IsEmpty()
     {
+        SongValidator songValidator = new SongValidator();
         var model = new SongRequestModel
         {
             Title = "Valid",
@@ -40,7 +42,7 @@ public class SongValidatorTest
             Duration = TimeSpan.Zero
         };
 
-        var result = _songValidator.TestValidate(model);
+        var result = songValidator.TestValidate(model);
 
         result.ShouldHaveValidationErrorFor(p => p.Duration)
             .WithErrorMessage($"Field 'Duration' is required!");
@@ -52,6 +54,7 @@ public class SongValidatorTest
     [InlineData(nameof(SongRequestModel.Album))]
     public void SongValidator_Should_ReturnError_When_MaxLength_Exceeded(string propertyName)
     {
+        SongValidator songValidator = new SongValidator();
         string errorString = new string('f', 100);
         var model = new SongRequestModel()
         {
@@ -62,7 +65,7 @@ public class SongValidatorTest
         };
         typeof(SongRequestModel).GetProperty(propertyName)!.SetValue(model, errorString);
 
-        var result = _songValidator.TestValidate(model);
+        var result = songValidator.TestValidate(model);
 
         result.ShouldHaveValidationErrorFor(propertyName)
             .WithErrorMessage($"The length of field '{propertyName}' exceeds 50!");
@@ -73,6 +76,7 @@ public class SongValidatorTest
     [InlineData(1801)]
     public void SongValidator_Should_ReturnError_When_NotInRange(int seconds)
     {
+        SongValidator songValidator = new SongValidator();
         var model = new SongRequestModel()
         {
             Title = "valid",
@@ -81,7 +85,7 @@ public class SongValidatorTest
             Duration = TimeSpan.FromSeconds(seconds)
         };
 
-        var result = _songValidator.TestValidate(model);
+        var result = songValidator.TestValidate(model);
 
         result.ShouldHaveValidationErrorFor(p => p.Duration)
             .WithErrorMessage($"Duration must be between 00:00:10 and 00:30:00!");
@@ -90,6 +94,7 @@ public class SongValidatorTest
     [Fact]
     public void SongValidator_Should_ReturnSuccess_When_AllFields_AreCorrect()
     {
+        SongValidator songValidator = new SongValidator();
         var model = new SongRequestModel()
         {
             Album = "Break the horizon",
@@ -98,7 +103,7 @@ public class SongValidatorTest
             Duration = TimeSpan.FromMinutes(3).Add(TimeSpan.FromSeconds(19))
         };
 
-        var result = _songValidator.TestValidate(model);
+        var result = songValidator.TestValidate(model);
 
         result.ShouldNotHaveAnyValidationErrors();
     }
