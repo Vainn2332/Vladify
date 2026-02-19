@@ -226,7 +226,7 @@ public class SongServiceTest
             Author = request.Author,
             Duration = request.Duration
         };
-        _songRepositoryMock.Setup(m => m.GetByIdAsync(songId, false, It.IsAny<CancellationToken>()))
+        _songRepositoryMock.Setup(m => m.GetByIdAsync(songId, It.IsAny<bool>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(oldSongEntity);
         _mapperMock.Setup(m => m.Map<Song>(request))
             .Returns(updatedSongEntity);
