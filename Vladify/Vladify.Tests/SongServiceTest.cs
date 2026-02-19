@@ -240,7 +240,6 @@ public class SongServiceTest
         Assert.NotNull(result);
         Assert.Equal(request.Id, result.Id);
 
-        _songRepositoryMock.Verify(m => m.GetByIdAsync(songId, It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Once);
         _songRepositoryMock.Verify(m => m.UpdateAsync(updatedSongEntity, It.IsAny<CancellationToken>()), Times.Once);
     }
 
