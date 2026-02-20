@@ -1,6 +1,6 @@
 ﻿namespace Vladify.DataAccess.Constants;
 
-public static class DalConstants
+public static class DataAccessLayerConstants
 {
     public const int MaxStandartStringLength = 50;
 

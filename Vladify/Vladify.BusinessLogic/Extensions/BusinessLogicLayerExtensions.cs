@@ -10,7 +10,7 @@ using Vladify.DataAccess.Extensions;
 
 namespace Vladify.BusinessLogic.Extensions;
 
-public static class BllExtensions
+public static class BusinessLogicLayerExtensions
 {
     public static IServiceCollection AddBusinessLogicLayer(this IServiceCollection services, IConfiguration configuration)
     {

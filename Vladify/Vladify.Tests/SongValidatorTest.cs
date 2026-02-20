@@ -6,8 +6,6 @@ namespace Vladify.UnitTests;
 
 public class SongValidatorTest
 {
-    //private readonly SongValidator songValidator = new SongValidator();
-
     [Theory]
     [InlineData(nameof(SongRequestModel.Title))]
     [InlineData(nameof(SongRequestModel.Author))]
