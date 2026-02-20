@@ -23,7 +23,7 @@ public class UserServiceTest
         _userService = new UserService(_userRepositoryMock.Object, _mapperMock.Object);
     }
     [Fact]
-    public async Task AddUserAsync_Should_ReturnArgumentException_UserWIthSuchEmailAlreadyExists()
+    public async Task AddUserAsync_Should_ReturnArgumentException_WithError_UserWithSuchEmailAlreadyExists()
     {
         var emailThatAlreadyExists = "validEmail";
         var request = new UserRequestModel()
@@ -43,7 +43,7 @@ public class UserServiceTest
             Name = "valid",
             PasswordHash = "validHash"
         };
-        _userRepositoryMock.Setup(m => m.GetByEmailAsync(emailThatAlreadyExists, false, It.IsAny<CancellationToken>()))
+        _userRepositoryMock.Setup(m => m.GetByEmailAsync(emailThatAlreadyExists, It.IsAny<bool>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(existingUser);
         var exception = await Assert.ThrowsAsync<ArgumentException>(() =>
                 _userService.AddUserAsync(request, CancellationToken.None));
@@ -153,7 +153,7 @@ public class UserServiceTest
         _userRepositoryMock.Verify(m => m.GetAllAsync(paginationFilter.PageNumber, paginationFilter.PageSize, It.IsAny<CancellationToken>()), Times.Once);
     }
     [Fact]
-    public async Task GetUserById_Should_ReturnUser_When_Found()
+    public async Task GetUserById_Should_ReturnUser_WhenFound()
     {
         var userId = Guid.NewGuid();
         var userEntity = new User()
@@ -189,21 +189,21 @@ public class UserServiceTest
     [Fact]
     public async Task GetUserById_Should_ReturnNull_When_NotFound()
     {
-        var userId = Guid.NewGuid();
-        _userRepositoryMock.Setup(m => m.GetByIdAsync(userId, It.IsAny<bool>(), It.IsAny<CancellationToken>()))
+        var invalidUserId = Guid.NewGuid();
+        _userRepositoryMock.Setup(m => m.GetByIdAsync(invalidUserId, It.IsAny<bool>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((User?)null);
         _mapperMock.Setup(m => m.Map<UserModel>(null))
             .Returns((UserModel)null!);
 
-        var result = await _userService.GetUserByIdAsync(userId, true, CancellationToken.None);
+        var result = await _userService.GetUserByIdAsync(invalidUserId, true, CancellationToken.None);
 
         Assert.Null(result);
 
-        _userRepositoryMock.Verify(m => m.GetByIdAsync(userId, It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Once);
+        _userRepositoryMock.Verify(m => m.GetByIdAsync(invalidUserId, It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
-    public async Task UpdateAsync_Should_ReturnNotFoundException_WhenNotFound()
+    public async Task UpdateUserAsync_Should_ReturnNotFoundException_WhenNotFound()
     {
         var invalidUserId = Guid.NewGuid();
         var request = new UserUpdateRequestModel()
@@ -294,7 +294,7 @@ public class UserServiceTest
     }
 
     [Fact]
-    public async Task DeleteAsync_Should_ReturnNotFoundException_WhenNotFound()
+    public async Task DeleteaUserAsync_Should_ReturnNotFoundException_WhenNotFound()
     {
         var invalidUserId = Guid.NewGuid();
         _userRepositoryMock.Setup(m => m.GetByIdAsync(invalidUserId, It.IsAny<bool>(), It.IsAny<CancellationToken>()))
@@ -310,7 +310,7 @@ public class UserServiceTest
     }
 
     [Fact]
-    public async Task DeleteAsync_Should_Delete_WhenExists()
+    public async Task DeleteUserAsync_Should_Delete_WhenExists()
     {
         var userId = Guid.NewGuid();
         var userEntity = new User()

@@ -118,7 +118,7 @@ public class SongServiceTest
     }
 
     [Fact]
-    public async Task GetSongById_Should_ReturnSong_When_Found()
+    public async Task GetSongById_Should_ReturnSong_WhenFound()
     {
         var songId = Guid.NewGuid();
         var songEntity = new Song()
@@ -151,23 +151,23 @@ public class SongServiceTest
     }
 
     [Fact]
-    public async Task GetSongById_Should_ReturnNull_When_NotFound()
+    public async Task GetSongById_Should_ReturnNull_WhenNotFound()
     {
-        var songId = Guid.NewGuid();
-        _songRepositoryMock.Setup(m => m.GetByIdAsync(songId, It.IsAny<bool>(), It.IsAny<CancellationToken>()))
+        var invalidSongId = Guid.NewGuid();
+        _songRepositoryMock.Setup(m => m.GetByIdAsync(invalidSongId, It.IsAny<bool>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((Song?)null);
         _mapperMock.Setup(m => m.Map<SongModel>(null))
             .Returns((SongModel)null!);
 
-        var result = await _songService.GetSongByIdAsync(songId, true, CancellationToken.None);
+        var result = await _songService.GetSongByIdAsync(invalidSongId, true, CancellationToken.None);
 
         Assert.Null(result);
 
-        _songRepositoryMock.Verify(m => m.GetByIdAsync(songId, It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Once);
+        _songRepositoryMock.Verify(m => m.GetByIdAsync(invalidSongId, It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
-    public async Task UpdateAsync_Should_ReturnNotFoundException_WhenNotFound()
+    public async Task UpdateSongAsync_Should_ReturnNotFoundException_WhenNotFound()
     {
         var invalidSongId = Guid.NewGuid();
         var request = new SongModel()
@@ -246,7 +246,7 @@ public class SongServiceTest
 
 
     [Fact]
-    public async Task DeleteAsync_Should_ReturnNotFoundException_WhenNotFound()
+    public async Task DeleteSongAsync_Should_ReturnNotFoundException_WhenNotFound()
     {
         var invalidSongId = Guid.NewGuid();
         _songRepositoryMock.Setup(m => m.GetByIdAsync(invalidSongId, It.IsAny<bool>(), It.IsAny<CancellationToken>()))
@@ -262,7 +262,7 @@ public class SongServiceTest
     }
 
     [Fact]
-    public async Task DeleteAsync_Should_Delete_WhenExists()
+    public async Task DeleteSongAsync_Should_Delete_WhenExists()
     {
         var songId = Guid.NewGuid();
         var songEntity = new Song()
