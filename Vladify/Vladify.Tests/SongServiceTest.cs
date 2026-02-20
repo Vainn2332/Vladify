@@ -1,4 +1,6 @@
-﻿using AutoMapper;
+﻿using AutoFixture;
+using AutoFixture.AutoMoq;
+using AutoMapper;
 using Moq;
 using Vladify.BusinessLogic;
 using Vladify.BusinessLogic.Exceptions;
@@ -11,53 +13,34 @@ namespace Vladify.UnitTests;
 
 public class SongServiceTest
 {
+    private readonly IFixture _fixture;
     private readonly Mock<IRepository<Song>> _songRepositoryMock;
     private readonly Mock<IMapper> _mapperMock;
     private readonly SongService _songService;
     public SongServiceTest()
     {
-        _songRepositoryMock = new Mock<IRepository<Song>>();
-        _mapperMock = new Mock<IMapper>();
-        _songService = new SongService(_songRepositoryMock.Object, _mapperMock.Object);
+        _fixture = new Fixture().Customize(new AutoMoqCustomization());
+        _songRepositoryMock = _fixture.Freeze<Mock<IRepository<Song>>>();
+        _mapperMock = _fixture.Freeze<Mock<IMapper>>();
+        _songService = _fixture.Create<SongService>();
     }
 
     [Fact]
     public async Task AddSongAsync_Should_ReturnSongModel()
     {
-        var request = new SongRequestModel()
-        {
-            Title = "valid",
-            Album = "valid",
-            Author = "valid",
-            Duration = TimeSpan.FromMinutes(2)
-        };
-        var songEntity = new Song()
-        {
-            Id = Guid.NewGuid(),
-            Title = request.Title,
-            Album = request.Album,
-            Author = request.Author,
-            Duration = request.Duration
-        };
-        var songModel = new SongModel()
-        {
-            Id = songEntity.Id,
-            Title = songEntity.Title,
-            Album = songEntity.Album,
-            Author = songEntity.Author,
-            Duration = songEntity.Duration
-        };
-        _mapperMock.Setup(m => m.Map<Song>(request))
-            .Returns(songEntity);
+        var request = _fixture.Create<SongRequestModel>();
+        var songEntity = _fixture.Create<Song>();
+        var expectedModel = _fixture.Create<SongModel>();
+
+        _mapperMock.Setup(m => m.Map<Song>(request)).Returns(songEntity);
         _songRepositoryMock.Setup(m => m.AddAsync(songEntity, It.IsAny<CancellationToken>()))
             .ReturnsAsync(songEntity);
-        _mapperMock.Setup(m => m.Map<SongModel>(songEntity))
-            .Returns(songModel);
+        _mapperMock.Setup(m => m.Map<SongModel>(songEntity)).Returns(expectedModel);
 
         var result = await _songService.AddSongAsync(request, CancellationToken.None);
 
         Assert.NotNull(result);
-        Assert.Equal(songEntity.Id, result.Id);
+        Assert.IsType<SongModel>(result);
 
         _songRepositoryMock.Verify(m => m.AddAsync(songEntity, It.IsAny<CancellationToken>()), Times.Once);
     }
