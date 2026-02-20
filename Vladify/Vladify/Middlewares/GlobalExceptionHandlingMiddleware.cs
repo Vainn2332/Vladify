@@ -20,7 +20,7 @@ public class GlobalExceptionHandlingMiddleware(RequestDelegate _next, ILogger<Gl
         }
     }
 
-    private async Task HandleErrorAsync(HttpContext context, Exception exception)
+    private static async Task HandleErrorAsync(HttpContext context, Exception exception)
     {
         context.Response.ContentType = "application/json";
 

@@ -14,7 +14,7 @@ public class UserFaker : Faker<User>
         RuleFor(property => property.Id, setter => setter.Random.Guid());
 
         RuleFor(property => property.Name, setter => setter.Name.FirstName()
-            .ClampLength(max: DALConstants.MaxStandartStringLength));
+            .ClampLength(max: DataAccessLayerConstants.MaxStandartStringLength));
 
         RuleFor(property => property.EmailAddress, setter => setter.Internet.Email());
 
