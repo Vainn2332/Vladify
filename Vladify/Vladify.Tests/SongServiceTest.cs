@@ -26,7 +26,7 @@ public class SongServiceTest
     }
 
     [Fact]
-    public async Task AddSongAsync_Should_ReturnSongModel()
+    public async Task AddSongAsync_Should_ReturnSongModel_WhenOk()
     {
         var request = _fixture.Create<SongRequestModel>();
         var songEntity = _fixture.Create<Song>();
@@ -46,7 +46,7 @@ public class SongServiceTest
     }
 
     [Fact]
-    public async Task GetSongsAsync_Should_ReturnSongs()
+    public async Task GetSongsAsync_Should_ReturnSongs_WhenOk()
     {
         var paginationFilter = _fixture.Create<PaginationFilter>();
         var songEntityList = _fixture.CreateMany<Song>(paginationFilter.PageSize);
@@ -115,7 +115,7 @@ public class SongServiceTest
     }
 
     [Fact]
-    public async Task UpdateSongAsync_Should_ReturnSongModel()
+    public async Task UpdateSongAsync_Should_ReturnSongModel_WhenOk()
     {
         var request = _fixture.Create<SongModel>();
         var songEntity = _fixture.Create<Song>();

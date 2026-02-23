@@ -42,7 +42,7 @@ public class UserServiceTest
     }
 
     [Fact]
-    public async Task AddUserAsync_Should_ReturnUser()
+    public async Task AddUserAsync_Should_ReturnUser_WhenOk()
     {
         var request = _fixture.Create<UserRequestModel>();
         var userEntity = _fixture.Create<User>();
@@ -64,7 +64,7 @@ public class UserServiceTest
         _userRepositoryMock.Verify(m => m.AddAsync(userEntity, It.IsAny<CancellationToken>()), Times.Once);
     }
     [Fact]
-    public async Task GetUsersAsync_Should_ReturnUsers()
+    public async Task GetUsersAsync_Should_ReturnUsers_WhenOk()
     {
         var paginationFilter = _fixture.Create<PaginationFilter>();
         var userEntityList = _fixture.CreateMany<User>(paginationFilter.PageSize);
@@ -132,7 +132,7 @@ public class UserServiceTest
     }
 
     [Fact]
-    public async Task UpdateUserAsync_Should_ReturnUserModel()
+    public async Task UpdateUserAsync_Should_ReturnUserModel_WhenOk()
     {
         var request = _fixture.Create<UserUpdateRequestModel>();
         var requestEntity = _fixture.Create<User>();
