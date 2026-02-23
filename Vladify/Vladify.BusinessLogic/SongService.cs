@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Vladify.BusinessLogic.Exceptions;
 using Vladify.BusinessLogic.Models;
+using Vladify.BusinessLogic.Models.SongModels;
 using Vladify.BusinessLogic.ServiceInterfaces;
 using Vladify.DataAccess.Entities;
 using Vladify.DataAccess.Interfaces;
@@ -32,12 +33,12 @@ public class SongService(IRepository<Song> _songRepository, IMapper _mapper) : I
         return _mapper.Map<IEnumerable<SongModel>>(songs);
     }
 
-    public async Task<SongModel> UpdateSongAsync(SongModel SongModel, CancellationToken cancellationToken)
+    public async Task<SongModel> UpdateSongAsync(SongModel songModel, CancellationToken cancellationToken)
     {
-        var target = await GetSongByIdAsync(SongModel.Id, true, cancellationToken)
+        _ = await _songRepository.GetByIdAsync(songModel.Id, false, cancellationToken)
             ?? throw new NotFoundException("Song with such id not found!");
 
-        var song = _mapper.Map<Song>(SongModel);
+        var song = _mapper.Map<Song>(songModel);
 
         var updatedSong = await _songRepository.UpdateAsync(song, cancellationToken);
 

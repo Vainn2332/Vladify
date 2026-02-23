@@ -1,9 +1,11 @@
 ﻿using Vladify.DataAccess.Enums;
 
-namespace Vladify.BusinessLogic.Models;
+namespace Vladify.BusinessLogic.Models.UserModels;
 
-public class UserRequestModel
+public class UserUpdateRequestModel
 {
+    public Guid Id { get; set; }
+
     public required string Name { get; set; }
 
     public required string EmailAddress { get; set; }

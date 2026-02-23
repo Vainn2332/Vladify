@@ -1,4 +1,4 @@
-﻿namespace Vladify.BusinessLogic.Models;
+﻿namespace Vladify.BusinessLogic.Models.SongModels;
 
 public class SongRequestModel
 {

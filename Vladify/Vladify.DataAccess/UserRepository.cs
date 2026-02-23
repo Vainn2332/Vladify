@@ -4,7 +4,7 @@ using Vladify.DataAccess.Interfaces;
 
 namespace Vladify.DataAccess;
 
-public class UserRepository(ApplicationDbContext _context) : Repository<User>(_context), IUserRepository
+public class UserRepository(ApplicationDbContext context) : Repository<User>(context), IUserRepository
 {
     public async Task<User?> GetByEmailAsync(string email, bool isTracking, CancellationToken cancellationToken)
     {

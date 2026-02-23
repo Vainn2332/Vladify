@@ -11,11 +11,11 @@ public class SongDbConfig : IEntityTypeConfiguration<Song>
     public void Configure(EntityTypeBuilder<Song> builder)
     {
         builder.HasKey(x => x.Id);
-        builder.Property(p => p.Title).HasMaxLength(DALConstants.MaxStandartStringLength);
-        builder.Property(p => p.Album).HasMaxLength(DALConstants.MaxStandartStringLength);
-        builder.Property(p => p.Author).HasMaxLength(DALConstants.MaxStandartStringLength);
+        builder.Property(p => p.Title).HasMaxLength(DataAccessLayerConstants.MaxStandartStringLength);
+        builder.Property(p => p.Album).HasMaxLength(DataAccessLayerConstants.MaxStandartStringLength);
+        builder.Property(p => p.Author).HasMaxLength(DataAccessLayerConstants.MaxStandartStringLength);
 
-        var fakeSongs = new SongFaker().Generate(DALConstants.SongSeedDataAmount);
+        var fakeSongs = new SongFaker().Generate(DataAccessLayerConstants.SongSeedDataAmount);
 
         builder.HasData(fakeSongs);
     }

@@ -5,6 +5,7 @@ using Vladify.BusinessLogic.Exceptions;
 
 namespace Vladify.Filters;
 
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
 public class ValidationFilter : Attribute, IAsyncActionFilter
 {
     //for optimizational purposes

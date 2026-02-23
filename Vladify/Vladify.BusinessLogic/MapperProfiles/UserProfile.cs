@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using Vladify.BusinessLogic.Models;
+using Vladify.BusinessLogic.Models.UserModels;
 using Vladify.DataAccess.Entities;
 
 namespace Vladify.BusinessLogic.MapperProfiles;
