@@ -2,9 +2,9 @@
 
 public static class TestConstants
 {
-    public const string Songs = "/api/songs";
+    public const string SongsApiRoute = "/api/songs";
 
-    public const string Users = "/api/users";
+    public const string UsersApiRoute = "/api/users";
 
     public const string TestSecretKey = "superSecretTestKeyThatIsIntendedOnlyForTestPurposes!";
 

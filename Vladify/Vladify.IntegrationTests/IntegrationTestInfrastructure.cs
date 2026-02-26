@@ -1,10 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc.Testing;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.IdentityModel.Tokens;
+using Respawn;
+using Respawn.Graph;
+using System.Data.Common;
 using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using System.Text;
 using Testcontainers.MsSql;
 using Vladify.DataAccess;
@@ -14,7 +18,8 @@ namespace Vladify.IntegrationTests;
 public class IntegrationTestInfrastructure : IAsyncLifetime
 {
     private readonly MsSqlContainer _testDbContainer = new MsSqlBuilder().Build();
-
+    private Respawner _respawner = null!;
+    private DbConnection _connection = null!;
     public WebApplicationFactory<Program> Factory { get; private set; } = null!;
 
     public HttpClient Client { get; private set; } = null!;
@@ -31,22 +36,42 @@ public class IntegrationTestInfrastructure : IAsyncLifetime
                 services.AddDbContext<ApplicationDbContext>(options =>
                     options.UseSqlServer(_testDbContainer.GetConnectionString()));
 
-                services.Con
+                services.PostConfigure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateAudience = true,
+                    ValidAudience = TestConstants.Audience,
+                    ValidateIssuer = true,
+                    ValidIssuer = TestConstants.Issuer,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(TestConstants.TestSecretKey))
+                });
             });
         });
 
         Client = Factory.CreateClient();
+
+        using var scope = Factory.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        await dbContext.Database.MigrateAsync();
+
+        _connection = new SqlConnection(_testDbContainer.GetConnectionString());
+        await _connection.OpenAsync();
+        _respawner = await Respawner.CreateAsync(_connection, new RespawnerOptions
+        {
+            DbAdapter = DbAdapter.SqlServer,
+            SchemasToInclude = new[] { "dbo" },
+            TablesToIgnore = new Table[] { "__EFMigrationsHistory" },
+        });
+    }
+    public async Task ResetDataAsync()
+    {
+        await _respawner.ResetAsync(_connection);
     }
 
-    public async Task DisposeAsync()
+    public string GenerateTestJWT()
     {
-        Client.Dispose();
-        await Factory.DisposeAsync();
-        await _testDbContainer.DisposeAsync();
-    }
-    public static string GenerateTestJWT()
-    {
-        var claims = new List<Claim>();
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(TestConstants.TestSecretKey));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
@@ -58,5 +83,11 @@ public class IntegrationTestInfrastructure : IAsyncLifetime
             );
 
         return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+    public async Task DisposeAsync()
+    {
+        Client.Dispose();
+        await Factory.DisposeAsync();
+        await _testDbContainer.DisposeAsync();
     }
 }
