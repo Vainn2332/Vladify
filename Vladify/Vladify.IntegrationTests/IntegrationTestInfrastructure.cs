@@ -6,7 +6,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.IdentityModel.Tokens;
 using Respawn;
-using Respawn.Graph;
 using System.Data.Common;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
@@ -61,8 +60,8 @@ public class IntegrationTestInfrastructure : IAsyncLifetime
         _respawner = await Respawner.CreateAsync(_connection, new RespawnerOptions
         {
             DbAdapter = DbAdapter.SqlServer,
-            SchemasToInclude = new[] { "dbo" },
-            TablesToIgnore = new Table[] { "__EFMigrationsHistory" },
+            SchemasToInclude = ["dbo"],
+            TablesToIgnore = ["__EFMigrationsHistory"],
         });
     }
     public async Task ResetDataAsync()
@@ -70,7 +69,7 @@ public class IntegrationTestInfrastructure : IAsyncLifetime
         await _respawner.ResetAsync(_connection);
     }
 
-    public string GenerateTestJWT()
+    public static string GenerateTestJWT()
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(TestConstants.TestSecretKey));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

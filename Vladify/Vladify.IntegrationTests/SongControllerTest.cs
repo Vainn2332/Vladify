@@ -27,7 +27,7 @@ public class SongControllerTest : IClassFixture<IntegrationTestInfrastructure>
             Author = "ENMY",
             Duration = TimeSpan.FromMinutes(8)
         };
-        var token = _infrastructure.GenerateTestJWT();
+        var token = IntegrationTestInfrastructure.GenerateTestJWT();
         _infrastructure.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
         using var response = await _infrastructure.Client.PostAsJsonAsync(TestConstants.SongsApiRoute, request);
@@ -69,7 +69,7 @@ public class SongControllerTest : IClassFixture<IntegrationTestInfrastructure>
             await dbContext.SaveChangesAsync();
         }
 
-        var jwt = _infrastructure.GenerateTestJWT();
+        var jwt = IntegrationTestInfrastructure.GenerateTestJWT();
         _infrastructure.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
 
         using var response = await _infrastructure.Client.GetAsync($"{TestConstants.SongsApiRoute}/{existingSong.Id}");
@@ -86,7 +86,7 @@ public class SongControllerTest : IClassFixture<IntegrationTestInfrastructure>
     public async Task GetSongAsync_Should_ReturnNotFoundException_When_NotFound()
     {
         var invalidSongId = Guid.NewGuid();
-        var jwt = _infrastructure.GenerateTestJWT();
+        var jwt = IntegrationTestInfrastructure.GenerateTestJWT();
         _infrastructure.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
 
         using var response = await _infrastructure.Client.GetAsync($"{TestConstants.SongsApiRoute}/{invalidSongId}");
@@ -124,7 +124,7 @@ public class SongControllerTest : IClassFixture<IntegrationTestInfrastructure>
             await dbContext.SaveChangesAsync();
         }
 
-        var jwt = _infrastructure.GenerateTestJWT();
+        var jwt = IntegrationTestInfrastructure.GenerateTestJWT();
         _infrastructure.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
 
         using var response = await _infrastructure.Client.PutAsJsonAsync($"{TestConstants.SongsApiRoute}/{songId}", updateRequest);
@@ -157,7 +157,7 @@ public class SongControllerTest : IClassFixture<IntegrationTestInfrastructure>
             await dbContext.SaveChangesAsync();
         }
 
-        var jwt = _infrastructure.GenerateTestJWT();
+        var jwt = IntegrationTestInfrastructure.GenerateTestJWT();
         _infrastructure.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
 
         using var response = await _infrastructure.Client.DeleteAsync($"{TestConstants.SongsApiRoute}/{songId}");
