@@ -18,7 +18,7 @@ public class SongControllerTest : IClassFixture<IntegrationTestInfrastructure>
     }
 
     [Fact]
-    public async Task AddSongAsync_Should_SaveToDatabase()
+    public async Task AddSongAsync_Should_SaveToDatabase_When_ValidInput()
     {
         var request = new SongRequestModel
         {
@@ -51,23 +51,16 @@ public class SongControllerTest : IClassFixture<IntegrationTestInfrastructure>
     }
 
     [Fact]
-    public async Task GetSongAsync_Should_ReturnSong()
+    public async Task GetSongAsync_Should_ReturnSong_When_ValidInput()
     {
-        var existingSong = new Song()
+        var existingSong = await _infrastructure.SeedDataAsync(new Song()
         {
             Id = Guid.NewGuid(),
             Title = "Playing w fire",
             Album = "Slow Burn",
             Author = "Conquer Divide",
             Duration = TimeSpan.FromMinutes(4).Add(TimeSpan.FromSeconds(17))
-        };
-
-        using (var scope = _infrastructure.Factory.Services.CreateScope())
-        {
-            var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-            await dbContext.AddAsync(existingSong);
-            await dbContext.SaveChangesAsync();
-        }
+        });
 
         var jwt = IntegrationTestInfrastructure.GenerateTestJWT();
         _infrastructure.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
@@ -83,7 +76,7 @@ public class SongControllerTest : IClassFixture<IntegrationTestInfrastructure>
     }
 
     [Fact]
-    public async Task GetSongAsync_Should_ReturnNotFoundException_When_NotFound()
+    public async Task GetSongAsync_Should_ReturnNotFoundStatusCode_When_NotFound()
     {
         var invalidSongId = Guid.NewGuid();
         var jwt = IntegrationTestInfrastructure.GenerateTestJWT();
@@ -98,7 +91,7 @@ public class SongControllerTest : IClassFixture<IntegrationTestInfrastructure>
     }
 
     [Fact]
-    public async Task UpdateSongAsync_Should_UpdateSong()
+    public async Task UpdateSongAsync_Should_UpdateSong_When_ValidInput()
     {
         var songId = Guid.NewGuid();
         var updateRequest = new SongRequestModel()
@@ -109,20 +102,14 @@ public class SongControllerTest : IClassFixture<IntegrationTestInfrastructure>
             Duration = TimeSpan.FromMinutes(4).Add(TimeSpan.FromSeconds(17)),
         };
 
-        var existingSong = new Song()
+        var existingSong = await _infrastructure.SeedDataAsync(new Song()
         {
             Id = songId,
             Title = "Playing w fire",
             Album = "Slow Burn",
             Author = "Conquer Divide",
             Duration = TimeSpan.FromMinutes(4).Add(TimeSpan.FromSeconds(17))
-        };
-        using (var scope = _infrastructure.Factory.Services.CreateScope())
-        {
-            var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-            await dbContext.AddAsync(existingSong);
-            await dbContext.SaveChangesAsync();
-        }
+        });
 
         var jwt = IntegrationTestInfrastructure.GenerateTestJWT();
         _infrastructure.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
@@ -139,23 +126,17 @@ public class SongControllerTest : IClassFixture<IntegrationTestInfrastructure>
     }
 
     [Fact]
-    public async Task DeleteSongAsync_Should_DeleteSong()
+    public async Task DeleteSongAsync_Should_DeleteSong_When_ValidInput()
     {
         var songId = Guid.NewGuid();
-        var existingSong = new Song()
+        var existingSong = await _infrastructure.SeedDataAsync(new Song()
         {
             Id = songId,
             Title = "Take it to the edge",
             Album = "Godsmack",
             Author = "Godsmack",
             Duration = TimeSpan.FromMinutes(3).Add(TimeSpan.FromSeconds(49))
-        };
-        using (var scope = _infrastructure.Factory.Services.CreateScope())
-        {
-            var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-            await dbContext.AddAsync(existingSong);
-            await dbContext.SaveChangesAsync();
-        }
+        });
 
         var jwt = IntegrationTestInfrastructure.GenerateTestJWT();
         _infrastructure.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);

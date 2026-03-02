@@ -91,4 +91,15 @@ public class IntegrationTestInfrastructure : IAsyncLifetime
         await Factory.DisposeAsync();
         await _testDbContainer.DisposeAsync();
     }
+
+    public async Task<T> SeedDataAsync<T>(T entity) where T : class
+    {
+        using var scope = Factory.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+        await dbContext.Set<T>().AddAsync(entity);
+        await dbContext.SaveChangesAsync();
+
+        return entity;
+    }
 }
