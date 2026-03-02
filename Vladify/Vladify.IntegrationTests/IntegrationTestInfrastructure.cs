@@ -64,6 +64,7 @@ public class IntegrationTestInfrastructure : IAsyncLifetime
             TablesToIgnore = ["__EFMigrationsHistory"],
         });
     }
+
     public async Task ResetDataAsync()
     {
         await _respawner.ResetAsync(_connection);
@@ -83,6 +84,7 @@ public class IntegrationTestInfrastructure : IAsyncLifetime
 
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
+
     public async Task DisposeAsync()
     {
         Client.Dispose();
