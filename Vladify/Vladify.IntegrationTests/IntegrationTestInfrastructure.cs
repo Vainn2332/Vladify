@@ -19,6 +19,7 @@ public class IntegrationTestInfrastructure : IAsyncLifetime
     private readonly MsSqlContainer _testDbContainer = new MsSqlBuilder().Build();
     private Respawner _respawner = null!;
     private DbConnection _connection = null!;
+
     public WebApplicationFactory<Program> Factory { get; private set; } = null!;
 
     public HttpClient Client { get; private set; } = null!;
