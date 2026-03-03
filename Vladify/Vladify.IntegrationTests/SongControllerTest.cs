@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System.Net;
 using System.Net.Http.Headers;
@@ -41,13 +42,14 @@ public class SongControllerTest : IClassFixture<IntegrationTestInfrastructure>
         await _infrastructure.ResetDataAsync();
 
         response.EnsureSuccessStatusCode();
-        Assert.NotNull(response);
-        Assert.Equal(request.Album, result?.Album);
-        Assert.NotEqual(Guid.Empty, result?.Id);
+        response.Should().NotBeNull();
 
-        Assert.NotNull(songInDb);
-        Assert.NotEqual(Guid.Empty, songInDb.Id);
-        Assert.Equal(request.Title, songInDb.Title);
+        result!.Album.Should().Be(request.Album);
+        result!.Id.Should().NotBeEmpty();
+
+        songInDb.Should().NotBeNull();
+        songInDb!.Id.Should().NotBeEmpty();
+        songInDb.Title.Should().Be(request.Title);
     }
 
     [Fact]
@@ -71,8 +73,8 @@ public class SongControllerTest : IClassFixture<IntegrationTestInfrastructure>
         await _infrastructure.ResetDataAsync();
 
         response.EnsureSuccessStatusCode();
-        Assert.NotNull(response);
-        Assert.Equal(existingSong.Id, result?.Id);
+        response.Should().NotBeNull();
+        result!.Id.Should().Be(existingSong.Id);
     }
 
     [Fact]
@@ -86,8 +88,8 @@ public class SongControllerTest : IClassFixture<IntegrationTestInfrastructure>
 
         await _infrastructure.ResetDataAsync();
 
-        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
-        Assert.NotNull(response);
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        response.Should().NotBeNull();
     }
 
     [Fact]
@@ -120,9 +122,10 @@ public class SongControllerTest : IClassFixture<IntegrationTestInfrastructure>
         await _infrastructure.ResetDataAsync();
 
         response.EnsureSuccessStatusCode();
-        Assert.NotNull(response);
-        Assert.Equal(updateRequest.Title, result?.Title);
-        Assert.Equal(existingSong.Id, result?.Id);
+        response.Should().NotBeNull();
+
+        result?.Title.Should().Be(updateRequest.Title);
+        result?.Id.Should().Be(existingSong.Id);
     }
 
     [Fact]
@@ -150,7 +153,7 @@ public class SongControllerTest : IClassFixture<IntegrationTestInfrastructure>
         await _infrastructure.ResetDataAsync();
 
         response.EnsureSuccessStatusCode();
-        Assert.Null(oldSong);
-        Assert.NotNull(response);
+        oldSong.Should().BeNull();
+        response.Should().NotBeNull();
     }
 }
