@@ -11,4 +11,10 @@ public static class TestConstants
     public const string Issuer = "testIssuer";
 
     public const string Audience = "testAudience";
+
+    public const int TestDataStringValuesLength = 25;
+
+    public const int TestDataTimeSpanValuesMaxDurationInMinutes = 30;
+
+    public const int TestDataTimeSpanValuesMinDurationInSeconds = 10;
 }

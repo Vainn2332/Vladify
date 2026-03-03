@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using AutoFixture;
+using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System.Net;
@@ -12,10 +13,12 @@ namespace Vladify.IntegrationTests;
 public class SongControllerTest : IClassFixture<IntegrationTestInfrastructure>
 {
     private readonly IntegrationTestInfrastructure _infrastructure;
+    private readonly IFixture _fixture;
 
     public SongControllerTest(IntegrationTestInfrastructure infrastructure)
     {
         _infrastructure = infrastructure;
+        _fixture = AutoFixtureOptions.CreateFixture();
     }
 
     [Fact]
