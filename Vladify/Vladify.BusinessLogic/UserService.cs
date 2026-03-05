@@ -12,6 +12,11 @@ public class UserService(IUserRepository _userRepository, IMapper _mapper) : IUs
 {
     public async Task<UserModel> AddUserAsync(UserRequestModel userRequestModel, CancellationToken cancellationToken)
     {
+        var target = await _userRepository.GetByEmailAsync(userRequestModel.EmailAddress, false, cancellationToken);
+        if (target is not null)
+        {
+            throw new ArgumentException("User with such email already exists");
+        }
         var user = _mapper.Map<User>(userRequestModel);
 
         var newUser = await _userRepository.AddAsync(user, cancellationToken);
