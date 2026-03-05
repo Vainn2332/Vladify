@@ -15,7 +15,7 @@ public class UserService(IUserRepository _userRepository, IMapper _mapper) : IUs
         var target = await _userRepository.GetByEmailAsync(userRequestModel.EmailAddress, false, cancellationToken);
         if (target is not null)
         {
-            throw new ArgumentException("User with such email already exists");
+            throw new ArgumentException("User with such email already exists!");
         }
         var user = _mapper.Map<User>(userRequestModel);
 
