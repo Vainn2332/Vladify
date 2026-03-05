@@ -7,13 +7,13 @@ public class User : IEntity
 {
     public required Guid Id { get; set; }
 
-    public string Name { get; set; } = null!;
+    public required string Auth0Id { get; set; }
 
-    public string EmailAddress { get; set; } = null!;
+    public required string EmailAddress { get; set; }
 
-    public string PasswordHash { get; set; } = null!;
+    public required string Name { get; set; }
 
-    public required int Age { get; set; }
+    public int Age { get; set; }
 
     public Gender Gender { get; set; } = Gender.Undefined;
 }

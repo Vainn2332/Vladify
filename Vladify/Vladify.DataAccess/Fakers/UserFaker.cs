@@ -8,17 +8,16 @@ namespace Vladify.DataAccess.Fakers;
 
 public class UserFaker : Faker<User>
 {
-    private const string StaticPasswordHash = "$2a$11$bTZDAvzREGMgTpStdByHWudfzZE3u4hRIdkTdyy4Hkjqsj.q/lcey";
     public UserFaker()
     {
         RuleFor(property => property.Id, setter => setter.Random.Guid());
+
+        RuleFor(property => property.Auth0Id, setter => setter.Random.String(DataAccessLayerConstants.MaxStandartStringLength));
 
         RuleFor(property => property.Name, setter => setter.Name.FirstName()
             .ClampLength(max: DataAccessLayerConstants.MaxStandartStringLength));
 
         RuleFor(property => property.EmailAddress, setter => setter.Internet.Email());
-
-        RuleFor(property => property.PasswordHash, setter => StaticPasswordHash);
 
         RuleFor(property => property.Age, setter => setter.Random.Int(15, 100));
 
