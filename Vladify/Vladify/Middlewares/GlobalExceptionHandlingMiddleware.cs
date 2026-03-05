@@ -29,6 +29,7 @@ public class GlobalExceptionHandlingMiddleware(RequestDelegate _next, ILogger<Gl
             NotFoundException => HttpStatusCode.NotFound,
             ArgumentException => HttpStatusCode.BadRequest,
             ValidationFailedException => HttpStatusCode.UnprocessableContent,
+            UnauthorizedException => HttpStatusCode.Unauthorized,
             _ => HttpStatusCode.InternalServerError
         };
 
