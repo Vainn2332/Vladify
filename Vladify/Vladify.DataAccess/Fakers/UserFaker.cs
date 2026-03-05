@@ -12,7 +12,7 @@ public class UserFaker : Faker<User>
     {
         RuleFor(property => property.Id, setter => setter.Random.Guid());
 
-        RuleFor(property => property.Auth0Id, setter => setter.Random.String(DataAccessLayerConstants.MaxStandartStringLength));
+        RuleFor(p => p.Auth0Id, f => $"auth0|{f.Random.Hash(24)}");
 
         RuleFor(property => property.Name, setter => setter.Name.FirstName()
             .ClampLength(max: DataAccessLayerConstants.MaxStandartStringLength));

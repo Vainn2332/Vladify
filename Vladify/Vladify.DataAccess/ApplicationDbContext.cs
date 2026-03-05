@@ -14,8 +14,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     {
         Bogus.Randomizer.Seed = new Random(DataAccessLayerConstants.RandomSeedDataNumber);
 
-        modelBuilder.ApplyConfiguration(new SongDbConfig());
         modelBuilder.ApplyConfiguration(new UserDbConfig());
+        modelBuilder.ApplyConfiguration(new SongDbConfig());
 
         base.OnModelCreating(modelBuilder);
     }

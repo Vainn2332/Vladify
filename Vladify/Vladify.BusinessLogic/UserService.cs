@@ -8,7 +8,7 @@ using Vladify.DataAccess.Interfaces;
 
 namespace Vladify.BusinessLogic;
 
-public class UserService(IUserRepository _userRepository, IMapper _mapper) : IUserService
+public class UserService(IUserRepository _userRepository, IAuth0Service _authService, IMapper _mapper) : IUserService
 {
     public async Task<UserModel> AddUserAsync(UserRequestModel userRequestModel, CancellationToken cancellationToken)
     {
@@ -55,6 +55,7 @@ public class UserService(IUserRepository _userRepository, IMapper _mapper) : IUs
         var user = await _userRepository.GetByIdAsync(userId, true, cancellationToken)
             ?? throw new NotFoundException("User with such id not found!");
 
+        await _authService.DeleteUserAsync(user.Auth0Id);
         await _userRepository.DeleteAsync(user, cancellationToken);
     }
 }

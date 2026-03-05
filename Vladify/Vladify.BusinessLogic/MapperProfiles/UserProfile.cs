@@ -9,7 +9,9 @@ public class UserProfile : Profile
     public UserProfile()
     {
         CreateMap<UserRequestModel, User>()
-            .ForMember(dest => dest.Id, opt => opt.Ignore());
+            .ForMember(dest => dest.Id, opt => opt.Ignore())
+            .ForMember(dest => dest.Gender, opt => opt.Ignore())
+            .ForMember(dest => dest.Age, opt => opt.Ignore());
 
         CreateMap<UserUpdateRequestModel, UserUpdateDto>()
             .ForMember(dest => dest.Id, opt => opt.Ignore());
