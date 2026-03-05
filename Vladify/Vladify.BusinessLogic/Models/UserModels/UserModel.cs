@@ -6,9 +6,9 @@ public class UserModel
 {
     public Guid Id { get; set; }
 
-    public string Name { get; set; } = null!;
+    public required string Name { get; set; }
 
-    public string EmailAddress { get; set; } = null!;
+    public required string EmailAddress { get; set; }
 
     public required int Age { get; set; }
 

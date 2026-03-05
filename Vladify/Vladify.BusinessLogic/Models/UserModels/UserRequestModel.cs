@@ -1,6 +1,4 @@
-﻿using Vladify.DataAccess.Enums;
-
-namespace Vladify.BusinessLogic.Models.UserModels;
+﻿namespace Vladify.BusinessLogic.Models.UserModels;
 
 public class UserRequestModel
 {
@@ -8,9 +6,5 @@ public class UserRequestModel
 
     public required string EmailAddress { get; set; }
 
-    public required string Password { get; set; }
-
-    public required int Age { get; set; }
-
-    public required Gender Gender { get; set; }
+    public required string Auth0Id { get; set; }
 }
