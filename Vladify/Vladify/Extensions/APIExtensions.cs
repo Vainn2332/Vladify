@@ -84,6 +84,7 @@ public static class ApiExtensions
     public static IServiceCollection ConfigureOptions(this IServiceCollection services, IConfiguration configuration)
     {
         services.Configure<Auth0Options>(configuration.GetSection(Auth0Options.SectionName));
+        services.Configure<ApiKeysOptions>(configuration.GetSection(ApiKeysOptions.SectionName));
 
         return services;
     }

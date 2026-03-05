@@ -1,25 +1,34 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Vladify.BusinessLogic.Exceptions;
 using Vladify.BusinessLogic.Models;
 using Vladify.BusinessLogic.Models.UserModels;
 using Vladify.BusinessLogic.ServiceInterfaces;
 using Vladify.Filters;
+using Vladify.Options;
 
 namespace Vladify.Controllers;
 
 [Route("api/users")]
 [ApiController]
-[Authorize]
-public class UsersController(IUserService _userService, IMapper _mapper) : ControllerBase
+public class UsersController(IUserService _userService, IMapper _mapper, IOptions<ApiKeysOptions> _options) : ControllerBase
 {
+    private readonly ApiKeysOptions _apiKeys = _options.Value;
+
     [HttpPost, ValidationFilter]
-    public Task<UserModel> CreateUser(UserRequestModel userRequestModel, CancellationToken cancellationToken = default)
+    public Task<UserModel> CreateUser(UserRequestModel userRequestModel, [FromHeader(Name = "X-AuthApiKey")] string auth0ApiKey, CancellationToken cancellationToken = default)
     {
+        if (_apiKeys.Auth0SyncInDb != auth0ApiKey)
+        {
+            throw new UnauthorizedException("Invalid ApiKey!");
+        }
+
         return _userService.AddUserAsync(userRequestModel, cancellationToken);
     }
 
+    [Authorize]
     [HttpGet, ValidationFilter]
     public Task<IEnumerable<UserModel>> GetUsers(
         [FromQuery] PaginationFilter paginationFilter,
@@ -28,6 +37,7 @@ public class UsersController(IUserService _userService, IMapper _mapper) : Contr
         return _userService.GetUsersAsync(paginationFilter, cancellationToken);
     }
 
+    [Authorize]
     [HttpGet("{id}")]
     public async Task<UserModel> GetUserById(Guid id, CancellationToken cancellationToken = default)
     {
@@ -37,18 +47,20 @@ public class UsersController(IUserService _userService, IMapper _mapper) : Contr
         return user;
     }
 
+    [Authorize]
     [HttpPut("{id}"), ValidationFilter]
     public Task<UserModel> UpdateUser(
         Guid id,
-        UserRequestModel userRequestModel,
+        UserUpdateRequestModel userUpdateRequestModel,
         CancellationToken cancellationToken = default)
     {
-        var userUpdateModel = _mapper.Map<UserUpdateRequestModel>(userRequestModel);
-        userUpdateModel.Id = id;
+        var userUpdateDto = _mapper.Map<UserUpdateDto>(userUpdateRequestModel);
+        userUpdateDto.Id = id;
 
-        return _userService.UpdateUserAsync(userUpdateModel, cancellationToken);
+        return _userService.UpdateUserAsync(userUpdateDto, cancellationToken);
     }
 
+    [Authorize]
     [HttpDelete("{id}")]
     public Task DeleteUser(Guid id, CancellationToken cancellationToken = default)
     {
