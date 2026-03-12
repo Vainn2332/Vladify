@@ -54,7 +54,7 @@ public class IntegrationTestInfrastructure : IAsyncLifetime
 
         using var scope = Factory.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        await dbContext.Database.MigrateAsync();
+        dbContext.Database.Migrate();
 
         _connection = new SqlConnection(_testDbContainer.GetConnectionString());
         await _connection.OpenAsync();
