@@ -6,8 +6,6 @@ public class UserUpdateDto
 {
     public required Guid Id { get; set; }
 
-    public required string Auth0Id { get; set; }
-
     public required string Name { get; set; }
 
     public required string EmailAddress { get; set; }

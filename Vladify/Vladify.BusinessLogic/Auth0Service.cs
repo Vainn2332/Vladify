@@ -18,7 +18,7 @@ public class Auth0Service(IOptions<Auth0Options> _options) : IAuth0Service
         response.EnsureSuccessStatusCode();
     }
 
-    public async Task<string> GetManagementTokenAsync()
+    private async Task<string> GetManagementTokenAsync()
     {
         var httpClient = new HttpClient();
 

@@ -40,10 +40,11 @@ public class UserService(IUserRepository _userRepository, IAuth0Service _authSer
 
     public async Task<UserModel> UpdateUserAsync(UserUpdateDto userUpdateDto, CancellationToken cancellationToken)
     {
-        _ = await _userRepository.GetByIdAsync(userUpdateDto.Id, false, cancellationToken)
+        var target = await _userRepository.GetByIdAsync(userUpdateDto.Id, false, cancellationToken)
             ?? throw new NotFoundException("User with such id not found!");
 
         var user = _mapper.Map<User>(userUpdateDto);
+        user.Auth0Id = target.Auth0Id;
 
         var updatedUser = await _userRepository.UpdateAsync(user, cancellationToken);
 

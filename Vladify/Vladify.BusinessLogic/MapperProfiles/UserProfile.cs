@@ -16,7 +16,9 @@ public class UserProfile : Profile
         CreateMap<UserUpdateRequestModel, UserUpdateDto>()
             .ForMember(dest => dest.Id, opt => opt.Ignore());
 
-        CreateMap<UserUpdateDto, User>();
+        CreateMap<UserUpdateDto, User>()
+            .ForMember(dest => dest.Auth0Id, opt => opt.Ignore());
+
 
         CreateMap<User, UserModel>();
     }
