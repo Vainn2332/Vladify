@@ -15,10 +15,12 @@ namespace Vladify.Controllers;
 [ApiController]
 public class UsersController(IUserService _userService, IMapper _mapper, IOptions<ApiKeysOptions> _options, IAuth0Service _auth0Service) : ControllerBase
 {
+    private readonly string _apiKey = _options.Value.Auth0SyncInDb;
+
     [HttpPost, ValidationFilter]
     public Task<UserModel> CreateUser(UserRequestModel userRequestModel, [FromHeader(Name = "X-AuthApiKey")] string auth0ApiKey, CancellationToken cancellationToken = default)
     {
-        if (_options.Value.Auth0SyncInDb != auth0ApiKey)
+        if (_apiKey != auth0ApiKey)
         {
             throw new UnauthorizedException("Invalid ApiKey!");
         }
