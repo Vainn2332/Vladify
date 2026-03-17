@@ -1,8 +1,10 @@
 ﻿using Microsoft.Extensions.Options;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using Vladify.BusinessLogic.Models;
 using Vladify.BusinessLogic.ServiceInterfaces;
 using Vladify.Options;
+
 namespace Vladify.BusinessLogic;
 
 public class Auth0Service(IOptions<Auth0Options> _options) : IAuth0Service
@@ -11,10 +13,12 @@ public class Auth0Service(IOptions<Auth0Options> _options) : IAuth0Service
     public async Task DeleteUserFromAuth0Async(string authId)
     {
         var token = await GetManagementTokenAsync();
+
         var httpClient = new HttpClient();
         httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        var encodedId = Uri.EscapeDataString(authId);
 
-        using var response = await httpClient.DeleteAsync($"https://{_authOptions.Domain}/api/v2/users/{authId}");
+        using var response = await httpClient.DeleteAsync($"https://{_authOptions.Domain}/api/v2/users/{encodedId}");
         response.EnsureSuccessStatusCode();
     }
 
@@ -29,8 +33,9 @@ public class Auth0Service(IOptions<Auth0Options> _options) : IAuth0Service
             audience = $"https://{_authOptions.Domain}/api/v2/",
             grant_type = "client_credentials"
         });
+        response.EnsureSuccessStatusCode();
 
-        var token = await response.Content.ReadFromJsonAsync<string>();
-        return token!;
+        var token = await response.Content.ReadFromJsonAsync<Auth0TokenResponse>();
+        return token!.AccessToken;
     }
 }
