@@ -33,7 +33,7 @@ if (app.Environment.IsDevelopment())
                 var auth0Options = builder.Configuration.GetSection(Auth0Options.SectionName).Get<Auth0Options>()
                     ?? throw new NotFoundException($"Configuration section{Auth0Options.SectionName} not found!");
 
-                flow.ClientId = auth0Options.ClientId;
+                flow.ClientId = auth0Options.PublicClient.ClientId;
                 flow.Pkce = Pkce.Sha256;
                 flow.AddQueryParameter("audience", auth0Options.Audience);
             });

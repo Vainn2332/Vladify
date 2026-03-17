@@ -173,7 +173,7 @@ public class UserServiceTest
 
         Assert.Equal("User with such id not found!", exception.Message);
 
-        _authServiceMock.Verify(m => m.DeleteUserAsync(It.IsAny<string>()), Times.Never);
+        _authServiceMock.Verify(m => m.DeleteUserFromAuth0Async(It.IsAny<string>()), Times.Never);
         _userRepositoryMock.Verify(m => m.GetByIdAsync(invalidUserId, It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Once);
         _userRepositoryMock.Verify(m => m.DeleteAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()), Times.Never);
     }
@@ -189,7 +189,7 @@ public class UserServiceTest
 
         await _userService.DeleteUserAsync(userEntity.Id, CancellationToken.None);
 
-        _authServiceMock.Verify(m => m.DeleteUserAsync(userEntity.Auth0Id), Times.Once);
+        _authServiceMock.Verify(m => m.DeleteUserFromAuth0Async(userEntity.Auth0Id), Times.Once);
         _userRepositoryMock.Verify(m => m.GetByIdAsync(userEntity.Id, true, It.IsAny<CancellationToken>()), Times.Once);
         _userRepositoryMock.Verify(m => m.DeleteAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()), Times.Once);
     }

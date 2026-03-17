@@ -26,10 +26,10 @@ public class Auth0Service(IOptions<Auth0Options> _options) : IAuth0Service
     {
         var httpClient = new HttpClient();
 
-        using var response = await httpClient.PostAsJsonAsync($"https://{_options.Value.Domain}/oauth/token", new
+        using var response = await httpClient.PostAsJsonAsync($"https://{_authOptions.Domain}/oauth/token", new
         {
-            client_id = _authOptions.ClientId,
-            client_secret = _authOptions.ClientSecret,
+            client_id = _authOptions.M2MClient.ClientId,
+            client_secret = _authOptions.M2MClient.ClientSecret,
             audience = $"https://{_authOptions.Domain}/api/v2/",
             grant_type = "client_credentials"
         });
