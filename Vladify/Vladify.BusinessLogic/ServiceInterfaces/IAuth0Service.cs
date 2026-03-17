@@ -2,5 +2,5 @@
 
 public interface IAuth0Service
 {
-    public Task DeleteUserAsync(string authId);
+    public Task DeleteUserFromAuth0Async(string authId);
 }

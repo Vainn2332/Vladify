@@ -8,7 +8,7 @@ namespace Vladify.BusinessLogic;
 public class Auth0Service(IOptions<Auth0Options> _options) : IAuth0Service
 {
     private readonly Auth0Options _authOptions = _options.Value;
-    public async Task DeleteUserAsync(string authId)
+    public async Task DeleteUserFromAuth0Async(string authId)
     {
         var token = await GetManagementTokenAsync();
         var httpClient = new HttpClient();

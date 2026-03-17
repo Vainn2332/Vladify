@@ -13,7 +13,7 @@ namespace Vladify.Controllers;
 
 [Route("api/users")]
 [ApiController]
-public class UsersController(IUserService _userService, IMapper _mapper, IOptions<ApiKeysOptions> _options, IAuth0Service _auth0Service) : ControllerBase
+public class UsersController(IUserService _userService, IMapper _mapper, IOptions<ApiKeysOptions> _options) : ControllerBase
 {
     private readonly string _apiKey = _options.Value.Auth0SyncInDb;
 
@@ -66,7 +66,6 @@ public class UsersController(IUserService _userService, IMapper _mapper, IOption
     {
         var target = await _userService.GetUserByIdAsync(id, false, cancellationToken);
 
-        await _auth0Service.DeleteUserAsync(target!.Auth0Id);
         await _userService.DeleteUserAsync(id, cancellationToken);
     }
 }
