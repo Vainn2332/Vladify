@@ -62,10 +62,8 @@ public class UsersController(IUserService _userService, IMapper _mapper, IOption
 
     [Authorize]
     [HttpDelete("{id}")]
-    public async Task DeleteUser(Guid id, CancellationToken cancellationToken = default)
+    public Task DeleteUser(Guid id, CancellationToken cancellationToken = default)
     {
-        var target = await _userService.GetUserByIdAsync(id, false, cancellationToken);
-
-        await _userService.DeleteUserAsync(id, cancellationToken);
+        return _userService.DeleteUserAsync(id, cancellationToken);
     }
 }
