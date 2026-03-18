@@ -14,7 +14,10 @@ builder.Services.AddJwtBasedAuthentication(builder.Configuration);
 
 builder.Services.AddAuthorization();
 
+builder.Services.AddHttpClient();
+
 builder.Services.ConfigureOptions(builder.Configuration);
+
 builder.Services.AddBusinessLogicLayer(builder.Configuration);
 
 var app = builder.Build();
