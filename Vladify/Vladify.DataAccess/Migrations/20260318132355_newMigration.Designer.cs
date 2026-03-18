@@ -12,7 +12,7 @@ using Vladify.DataAccess;
 namespace Vladify.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260317134445_newMigration")]
+    [Migration("20260318132355_newMigration")]
     partial class newMigration
     {
         /// <inheritdoc />
