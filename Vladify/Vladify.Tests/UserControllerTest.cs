@@ -56,11 +56,9 @@ public class UserControllerTest
         var request = _fixture.Create<UserRequestModel>();
         var wrongApiKey = "wrongApiKey";
 
-
         var act = () => _usersController.CreateUser(request, wrongApiKey);
 
         await act.Should().ThrowAsync<UnauthorizedException>();
         _userServiceMock.Verify(m => m.AddUserAsync(It.IsAny<UserRequestModel>(), It.IsAny<CancellationToken>()), Times.Never);
     }
-
 }
