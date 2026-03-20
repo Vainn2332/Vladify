@@ -1,30 +1,21 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 using Vladify.BusinessLogic.Exceptions;
 using Vladify.BusinessLogic.Models;
 using Vladify.BusinessLogic.Models.UserModels;
 using Vladify.BusinessLogic.ServiceInterfaces;
 using Vladify.Filters;
-using Vladify.Options;
 
 namespace Vladify.Controllers;
 
 [Route("api/users")]
 [ApiController]
-public class UsersController(IUserService _userService, IMapper _mapper, IOptions<ApiKeysOptions> _options) : ControllerBase
+public class UsersController(IUserService _userService, IMapper _mapper) : ControllerBase
 {
-    private readonly string _apiKey = _options.Value.Auth0SyncInDb;
-
-    [HttpPost, ValidationFilter]
-    public Task<UserModel> CreateUser(UserRequestModel userRequestModel, [FromHeader(Name = "X-AuthApiKey")] string auth0ApiKey, CancellationToken cancellationToken = default)
+    [HttpPost, ValidationFilter, ApiKeyFilter("Auth0SyncInDb")]
+    public Task<UserModel> CreateUser(UserRequestModel userRequestModel, CancellationToken cancellationToken = default)
     {
-        if (_apiKey != auth0ApiKey)
-        {
-            throw new UnauthorizedException("Invalid ApiKey!");
-        }
-
         return _userService.AddUserAsync(userRequestModel, cancellationToken);
     }
 

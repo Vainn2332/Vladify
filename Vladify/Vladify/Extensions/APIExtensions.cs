@@ -3,6 +3,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Scalar.AspNetCore;
 using Vladify.BusinessLogic.Exceptions;
+using Vladify.BusinessLogic.Options;
 using Vladify.Middlewares;
 using Vladify.Options;
 
