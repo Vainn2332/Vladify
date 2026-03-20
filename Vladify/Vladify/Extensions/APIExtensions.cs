@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Scalar.AspNetCore;
 using Vladify.BusinessLogic.Exceptions;
 using Vladify.Middlewares;
 using Vladify.Options;
@@ -12,6 +13,27 @@ public static class ApiExtensions
     public static IApplicationBuilder UseGlobalExceptionHandler(this IApplicationBuilder app)
     {
         return app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
+    }
+
+    public static IEndpointRouteBuilder MapScalar(this IEndpointRouteBuilder app, IConfiguration configuration)
+    {
+        app.MapScalarApiReference(options =>
+        {
+            options.WithTheme(ScalarTheme.BluePlanet);
+
+            options.AddPreferredSecuritySchemes("Auth0")
+                .AddAuthorizationCodeFlow("Auth0", flow =>
+                {
+                    var auth0Options = configuration.GetSection(Auth0Options.SectionName).Get<Auth0Options>()
+                        ?? throw new NotFoundException($"Configuration section{Auth0Options.SectionName} not found!");
+
+                    flow.ClientId = auth0Options.PublicClient.ClientId;
+                    flow.Pkce = Pkce.Sha256;
+                    flow.AddQueryParameter("audience", auth0Options.Audience);
+                });
+        });
+
+        return app;
     }
 
     public static IServiceCollection AddOpenApiDocumentation(this IServiceCollection services, IConfiguration configuration)
