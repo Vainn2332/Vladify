@@ -3,8 +3,8 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using Vladify.BusinessLogic.Exceptions;
 using Vladify.BusinessLogic.Models;
+using Vladify.BusinessLogic.Options;
 using Vladify.BusinessLogic.ServiceInterfaces;
-using Vladify.Options;
 
 namespace Vladify.BusinessLogic;
 

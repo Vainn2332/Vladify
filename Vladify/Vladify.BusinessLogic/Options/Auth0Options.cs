@@ -1,6 +1,4 @@
-﻿using Vladify.BusinessLogic.Options;
-
-namespace Vladify.Options;
+﻿namespace Vladify.BusinessLogic.Options;
 
 public class Auth0Options
 {
