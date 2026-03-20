@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using Vladify.BusinessLogic.Exceptions;
 using Vladify.BusinessLogic.Models;
 using Vladify.BusinessLogic.ServiceInterfaces;
 using Vladify.Options;
@@ -37,8 +38,8 @@ public class Auth0Service(IOptions<Auth0Options> _options, IHttpClientFactory _h
         response.EnsureSuccessStatusCode();
 
         var token = await response.Content.ReadFromJsonAsync<Auth0TokenResponse>()
-            ?? throw new ;
+            ?? throw new ExternalServiceException("Failed to retrieve management token from Auth0!");
 
-        return token!.AccessToken;
+        return token.AccessToken;
     }
 }
