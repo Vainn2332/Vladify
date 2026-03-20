@@ -7,38 +7,37 @@ using Vladify.Options;
 
 namespace Vladify.BusinessLogic;
 
-public class Auth0Service(IOptions<Auth0Options> _options, IHttpClientFactory _httpClient) : IAuth0Service
+public class Auth0Service(IOptions<Auth0Options> _options, IHttpClientFactory _httpFactory) : IAuth0Service
 {
     private readonly Auth0Options _authOptions = _options.Value;
+    private readonly HttpClient _httpClient = _httpFactory.CreateClient();
 
     public async Task DeleteUserFromAuth0Async(string authId)
     {
         var token = await GetManagementTokenAsync();
 
-        var httpClient = _httpClient.CreateClient();
-        httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
         var encodedId = Uri.EscapeDataString(authId);
 
-        using var response = await httpClient.DeleteAsync($"https://{_authOptions.Domain}/api/v2/users/{encodedId}");
+        using var response = await _httpClient.DeleteAsync($"https://{_authOptions.Domain}/api/v2/users/{encodedId}");
 
         response.EnsureSuccessStatusCode();
     }
 
     private async Task<string> GetManagementTokenAsync()
     {
-        var httpClient = _httpClient.CreateClient();
-
-        using var response = await httpClient.PostAsJsonAsync($"https://{_authOptions.Domain}/oauth/token", new
+        using var response = await _httpClient.PostAsJsonAsync(_authOptions.TokenUrl, new
         {
             client_id = _authOptions.M2MClient.ClientId,
             client_secret = _authOptions.M2MClient.ClientSecret,
-            audience = $"https://{_authOptions.Domain}/api/v2/",
+            audience = _authOptions.ManagementApiAudience,
             grant_type = "client_credentials"
         });
 
         response.EnsureSuccessStatusCode();
 
-        var token = await response.Content.ReadFromJsonAsync<Auth0TokenResponse>();
+        var token = await response.Content.ReadFromJsonAsync<Auth0TokenResponse>()
+            ?? throw new ;
 
         return token!.AccessToken;
     }
