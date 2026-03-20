@@ -189,7 +189,7 @@ public class UserServiceTest
 
         await _userService.DeleteUserAsync(userEntity.Id, CancellationToken.None);
 
-        _authServiceMock.Verify(m => m.DeleteUserFromAuth0Async(userEntity.Auth0Id), Times.Once);
+        _authServiceMock.Verify(m => m.DeleteUserFromAuth0Async(userEntity.ExternalId), Times.Once);
         _userRepositoryMock.Verify(m => m.GetByIdAsync(userEntity.Id, true, It.IsAny<CancellationToken>()), Times.Once);
         _userRepositoryMock.Verify(m => m.DeleteAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()), Times.Once);
     }

@@ -44,7 +44,7 @@ public class UserService(IUserRepository _userRepository, IAuth0Service _authSer
             ?? throw new NotFoundException("User with such id not found!");
 
         var user = _mapper.Map<User>(userUpdateDto);
-        user.Auth0Id = target.Auth0Id;
+        user.ExternalId = target.ExternalId;
 
         var updatedUser = await _userRepository.UpdateAsync(user, cancellationToken);
 
@@ -56,7 +56,7 @@ public class UserService(IUserRepository _userRepository, IAuth0Service _authSer
         var user = await _userRepository.GetByIdAsync(userId, true, cancellationToken)
             ?? throw new NotFoundException("User with such id not found!");
 
-        await _authService.DeleteUserFromAuth0Async(user.Auth0Id);
+        await _authService.DeleteUserFromAuth0Async(user.ExternalId);
         await _userRepository.DeleteAsync(user, cancellationToken);
     }
 }

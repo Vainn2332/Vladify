@@ -12,7 +12,7 @@ public class UserDbConfig : IEntityTypeConfiguration<User>
     {
         builder.HasKey(p => p.Id);
         builder.HasIndex(p => p.EmailAddress).IsUnique();
-        builder.HasIndex(p => p.Auth0Id).IsUnique();
+        builder.HasIndex(p => p.ExternalId).IsUnique();
         builder.Property(p => p.Gender).HasConversion<string>();//saving Male instead of 1 in Db
         builder.Property(p => p.Name).HasMaxLength(DataAccessLayerConstants.MaxStandartStringLength);
 

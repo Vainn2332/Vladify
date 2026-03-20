@@ -6,7 +6,7 @@ public class UserModel
 {
     public Guid Id { get; set; }
 
-    public required string Auth0Id { get; set; }
+    public required string ExternalId { get; set; }
 
     public required string Name { get; set; }
 

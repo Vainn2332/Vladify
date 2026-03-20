@@ -7,7 +7,7 @@ public class User : IEntity
 {
     public required Guid Id { get; set; }
 
-    public required string Auth0Id { get; set; }
+    public required string ExternalId { get; set; }
 
     public required string EmailAddress { get; set; }
 
