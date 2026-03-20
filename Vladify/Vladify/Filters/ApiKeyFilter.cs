@@ -17,7 +17,7 @@ public class ApiKeyFilter(string apiKeyName) : Attribute, IAsyncActionFilter
         var property = typeof(ApiKeysOptions).GetProperty(apiKeyName)
             ?? throw new NotFoundException($"property{apiKeyName} is not found");
 
-        var apiKey = property.GetValue(options)?.ToString();
+        var apiKey = property.GetValue(options.Value)?.ToString();
 
         if (!context.HttpContext.Request.Headers.TryGetValue(HeaderName, out var extractedApiKey) ||
             apiKey != extractedApiKey)
