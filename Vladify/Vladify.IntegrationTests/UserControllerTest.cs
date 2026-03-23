@@ -25,7 +25,7 @@ public class UserControllerTest
     }
 
     [Fact]
-    public async Task AddUserAsync_Should_SaveToDatabase_When_ValidInput()
+    public async Task CreateUser_Should_SaveToDatabase_When_ValidInput()
     {
         var requestBody = _fixture.Create<UserRequestModel>();
         using var scope = _infrastructure.Factory.Services.CreateScope();
@@ -49,7 +49,7 @@ public class UserControllerTest
     }
 
     [Fact]
-    public async Task AddUserAsync_Should_ThrowUnauthorizedException_When_InvalidApiKey()
+    public async Task CreateUser_Should_ThrowUnauthorizedException_When_InvalidApiKey()
     {
         var requestBody = _fixture.Create<UserRequestModel>();
         var request = new HttpRequestMessage(HttpMethod.Post, TestConstants.UsersApiRoute);
