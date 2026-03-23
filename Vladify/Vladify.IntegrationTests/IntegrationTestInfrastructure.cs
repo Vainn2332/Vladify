@@ -4,6 +4,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Moq;
 using Respawn;
@@ -14,6 +15,7 @@ using Testcontainers.MsSql;
 using Vladify.BusinessLogic;
 using Vladify.BusinessLogic.ServiceInterfaces;
 using Vladify.DataAccess;
+using Vladify.Options;
 
 namespace Vladify.IntegrationTests;
 
@@ -106,13 +108,22 @@ public class IntegrationTestInfrastructure : IAsyncLifetime
 
     public void ConfigureTestServices(IServiceCollection services)
     {
-        services.RemoveAll<DbContextOptions<ApplicationDbContext>>();
-        services.RemoveAll<Auth0Service>();
+        services
+            .RemoveAll<DbContextOptions<ApplicationDbContext>>()
+            .RemoveAll<Auth0Service>()
+            .RemoveAll<IOptions<ApiKeysOptions>>();
 
         var authServiceMock = new Mock<IAuth0Service>();
         authServiceMock.Setup(m => m.DeleteUserFromAuth0Async(It.IsAny<string>())).Returns(Task.CompletedTask);
 
-        services.AddScoped(serviceProvider => authServiceMock.Object);
+        var testApiKeys = new ApiKeysOptions() { Auth0SyncInDb = "testApiKey" };
+        var apiKeysOptionsMock = new Mock<IOptions<ApiKeysOptions>>();
+        apiKeysOptionsMock.Setup(m => m.Value).Returns(testApiKeys);
+
+        services
+            .AddScoped(serviceProvider => authServiceMock.Object)
+            .AddScoped(serviceProvider => apiKeysOptionsMock.Object);
+
         services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(_testDbContainer.GetConnectionString()));
     }
