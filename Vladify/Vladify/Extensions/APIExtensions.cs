@@ -43,7 +43,7 @@ public static class ApiExtensions
 
                     flow.ClientId = auth0Options.PublicClient.ClientId;
                     flow.Pkce = Pkce.Sha256;
-                    flow.AddQueryParameter("audience", auth0Options.Audience);
+                    flow.AddQueryParameter("audience", auth0Options.PublicClient.Audience);
                 });
         });
 
@@ -96,7 +96,7 @@ public static class ApiExtensions
             ?? throw new NotFoundException($"Configuration section{Auth0Options.SectionName} not found!");
 
         var domain = auth0Options.Domain;
-        var audience = auth0Options.Audience;
+        var audience = auth0Options.PublicClient.Audience;
 
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
@@ -119,7 +119,8 @@ public static class ApiExtensions
 
     public static IServiceCollection ConfigureOptions(this IServiceCollection services, IConfiguration configuration)
     {
-        services.Configure<Auth0Options>(configuration.GetSection(Auth0Options.SectionName));
+        services.Configure<Auth0Options>(configuration.GetSection("Auth0"));
+
         services.Configure<ApiKeysOptions>("Auth0", options =>
             options.Value = configuration["ApiKeys:Auth0SyncInDb"] ?? throw new ArgumentException("Failed to get Auth0ApiKey from configuration!"));
 

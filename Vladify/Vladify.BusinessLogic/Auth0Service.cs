@@ -20,7 +20,7 @@ public class Auth0Service(IOptions<Auth0Options> _options, IHttpClientFactory _h
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
         var encodedId = Uri.EscapeDataString(authId);
 
-        using var response = await _httpClient.DeleteAsync($"{_authOptions.ManagementApiAudience}/users/{encodedId}");
+        using var response = await _httpClient.DeleteAsync($"{_authOptions.M2MClient.Audience}/users/{encodedId}");
 
         response.EnsureSuccessStatusCode();
     }
@@ -31,7 +31,7 @@ public class Auth0Service(IOptions<Auth0Options> _options, IHttpClientFactory _h
         {
             client_id = _authOptions.M2MClient.ClientId,
             client_secret = _authOptions.M2MClient.ClientSecret,
-            audience = _authOptions.ManagementApiAudience,
+            audience = _authOptions.M2MClient.Audience,
             grant_type = "client_credentials"
         });
 
