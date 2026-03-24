@@ -13,9 +13,9 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using Testcontainers.MsSql;
 using Vladify.BusinessLogic;
+using Vladify.BusinessLogic.Options;
 using Vladify.BusinessLogic.ServiceInterfaces;
 using Vladify.DataAccess;
-using Vladify.Options;
 
 namespace Vladify.IntegrationTests;
 

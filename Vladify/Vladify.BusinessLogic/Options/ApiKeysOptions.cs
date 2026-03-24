@@ -1,8 +1,6 @@
-﻿namespace Vladify.Options;
+﻿namespace Vladify.BusinessLogic.Options;
 
 public class ApiKeysOptions
 {
-    public const string SectionName = "ApiKeys";
-
-    public string Auth0SyncInDb { get; set; } = string.Empty;
+    public required string Value { get; set; }
 }

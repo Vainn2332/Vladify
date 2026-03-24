@@ -5,7 +5,6 @@ using Scalar.AspNetCore;
 using Vladify.BusinessLogic.Exceptions;
 using Vladify.BusinessLogic.Options;
 using Vladify.Middlewares;
-using Vladify.Options;
 
 namespace Vladify.Extensions;
 
@@ -107,7 +106,8 @@ public static class ApiExtensions
     public static IServiceCollection ConfigureOptions(this IServiceCollection services, IConfiguration configuration)
     {
         services.Configure<Auth0Options>(configuration.GetSection(Auth0Options.SectionName));
-        services.Configure<ApiKeysOptions>(configuration.GetSection(ApiKeysOptions.SectionName));
+        services.Configure<ApiKeysOptions>("Auth0", options =>
+            options.Value = configuration["ApiKeys:Auth0SyncInDb"] ?? throw new ArgumentException("Failed to get Auth0iKey from configuration!"));
 
         return services;
     }

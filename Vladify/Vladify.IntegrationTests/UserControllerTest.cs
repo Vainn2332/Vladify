@@ -6,9 +6,9 @@ using Microsoft.Extensions.Options;
 using System.Net;
 using System.Net.Http.Json;
 using Vladify.BusinessLogic.Models.UserModels;
+using Vladify.BusinessLogic.Options;
 using Vladify.DataAccess;
 using Vladify.DataAccess.Entities;
-using Vladify.Options;
 
 namespace Vladify.IntegrationTests;
 
@@ -29,8 +29,8 @@ public class UserControllerTest
     {
         var requestBody = _fixture.Create<UserRequestModel>();
         using var scope = _infrastructure.Factory.Services.CreateScope();
-        var options = scope.ServiceProvider.GetRequiredService<IOptions<ApiKeysOptions>>();
-        var apiKey = options.Value.Auth0SyncInDb;
+        var options = scope.ServiceProvider.GetRequiredService<IOptionsMonitor<ApiKeysOptions>>();
+        var apiKey = options.Get("Auth0").Value;
         var request = new HttpRequestMessage(HttpMethod.Post, TestConstants.UsersApiRoute);
         request.Headers.Add("X-Api-Key", apiKey);
         request.Content = JsonContent.Create(requestBody);
@@ -49,7 +49,7 @@ public class UserControllerTest
     }
 
     [Fact]
-    public async Task CreateUser_Should_ThrowUnauthorizedException_When_InvalidApiKey()
+    public async Task CreateUser_Should_ReturnUnauthorizedStatusCode_When_InvalidApiKey()
     {
         var requestBody = _fixture.Create<UserRequestModel>();
         var request = new HttpRequestMessage(HttpMethod.Post, TestConstants.UsersApiRoute);
@@ -93,7 +93,7 @@ public class UserControllerTest
     }
 
     [Fact]
-    public async Task DeleteUser_Should_ThrowUnauthorizedException_When_NotAuthorized()
+    public async Task DeleteUser_Should_ReturnUnauthorizedStatusCode_When_NotAuthorized()
     {
         var existingUser = _fixture.Create<User>();
         await _infrastructure.SeedDataAsync(existingUser);
