@@ -3,6 +3,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Scalar.AspNetCore;
 using Vladify.BusinessLogic.Exceptions;
+using Vladify.BusinessLogic.Extensions;
 using Vladify.BusinessLogic.Options;
 using Vladify.Middlewares;
 
@@ -10,6 +11,19 @@ namespace Vladify.Extensions;
 
 public static class ApiExtensions
 {
+    public static IServiceCollection AddAppServices(this IServiceCollection services, IConfiguration configuration)
+    {
+        services
+            .AddOpenApiDocumentation(configuration)
+            .AddJwtBasedAuthentication(configuration)
+            .AddAuthorization()
+            .AddHttpClient()
+            .ConfigureOptions(configuration)
+            .AddBusinessLogicLayer(configuration);
+
+        return services;
+    }
+
     public static IApplicationBuilder UseGlobalExceptionHandler(this IApplicationBuilder app)
     {
         return app.UseMiddleware<GlobalExceptionHandlingMiddleware>();

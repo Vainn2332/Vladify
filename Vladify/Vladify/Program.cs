@@ -1,17 +1,10 @@
-using Vladify.BusinessLogic.Extensions;
 using Vladify.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
-builder.Services
-    .AddOpenApiDocumentation(builder.Configuration)
-    .AddJwtBasedAuthentication(builder.Configuration)
-    .AddAuthorization()
-    .AddHttpClient()
-    .ConfigureOptions(builder.Configuration)
-    .AddBusinessLogicLayer(builder.Configuration);
+builder.Services.AddAppServices(builder.Configuration);
 
 var app = builder.Build();
 
