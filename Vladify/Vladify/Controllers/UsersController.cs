@@ -13,7 +13,7 @@ namespace Vladify.Controllers;
 [ApiController]
 public class UsersController(IUserService _userService, IMapper _mapper) : ControllerBase
 {
-    [HttpPost, ValidationFilter, ApiKeyFilter("Auth0SyncInDb")]
+    [HttpPost, ValidationFilter, ApiKeyFilter("Auth0")]
     public Task<UserModel> CreateUser(UserRequestModel userRequestModel, CancellationToken cancellationToken = default)
     {
         return _userService.AddUserAsync(userRequestModel, cancellationToken);
