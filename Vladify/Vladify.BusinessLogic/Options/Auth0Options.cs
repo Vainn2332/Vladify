@@ -2,6 +2,9 @@
 
 public class Auth0Options
 {
+    private const string TokenEndpointPath = "oauth/token";
+    private const string ManagementApiPath = "api/v2/";
+
     public const string SectionName = "Auth0";
 
     public required string Domain { get; set; }
@@ -12,7 +15,7 @@ public class Auth0Options
 
     public required ClientCredentials M2MClient { get; set; }
 
-    public string TokenUrl => $"https://{Domain}/oauth/token";
+    public string TokenUrl => $"https://{Domain}/{TokenEndpointPath}";
 
-    public string ManagementApiAudience => $"https://{Domain}/api/v2/";
+    public string ManagementApiAudience => $"https://{Domain}/{ManagementApiPath}";
 }
