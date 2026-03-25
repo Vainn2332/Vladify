@@ -1,17 +1,53 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Scalar.AspNetCore;
 using Vladify.BusinessLogic.Exceptions;
+using Vladify.BusinessLogic.Extensions;
+using Vladify.BusinessLogic.Options;
 using Vladify.Middlewares;
-using Vladify.Options;
 
 namespace Vladify.Extensions;
 
 public static class ApiExtensions
 {
+    public static IServiceCollection AddAppServices(this IServiceCollection services, IConfiguration configuration)
+    {
+        services
+            .AddOpenApiDocumentation(configuration)
+            .AddJwtBasedAuthentication(configuration)
+            .AddAuthorization()
+            .AddHttpClient()
+            .ConfigureOptions(configuration)
+            .AddBusinessLogicLayer(configuration);
+
+        return services;
+    }
+
     public static IApplicationBuilder UseGlobalExceptionHandler(this IApplicationBuilder app)
     {
         return app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
+    }
+
+    public static IEndpointRouteBuilder MapScalar(this IEndpointRouteBuilder app, IConfiguration configuration)
+    {
+        app.MapScalarApiReference(options =>
+        {
+            options.WithTheme(ScalarTheme.BluePlanet);
+
+            options.AddPreferredSecuritySchemes("Auth0")
+                .AddAuthorizationCodeFlow("Auth0", flow =>
+                {
+                    var auth0Options = configuration.GetSection(Auth0Options.SectionName).Get<Auth0Options>()
+                        ?? throw new NotFoundException($"Configuration section{Auth0Options.SectionName} not found!");
+
+                    flow.ClientId = auth0Options.PublicClient.ClientId;
+                    flow.Pkce = Pkce.Sha256;
+                    flow.AddQueryParameter("audience", auth0Options.PublicClient.Audience);
+                });
+        });
+
+        return app;
     }
 
     public static IServiceCollection AddOpenApiDocumentation(this IServiceCollection services, IConfiguration configuration)
@@ -60,7 +96,7 @@ public static class ApiExtensions
             ?? throw new NotFoundException($"Configuration section{Auth0Options.SectionName} not found!");
 
         var domain = auth0Options.Domain;
-        var audience = auth0Options.Audience;
+        var audience = auth0Options.PublicClient.Audience;
 
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
@@ -83,7 +119,10 @@ public static class ApiExtensions
 
     public static IServiceCollection ConfigureOptions(this IServiceCollection services, IConfiguration configuration)
     {
-        services.Configure<Auth0Options>(configuration.GetSection(Auth0Options.SectionName));
+        services.Configure<Auth0Options>(configuration.GetSection("Auth0"));
+
+        services.Configure<ApiKeysOptions>("Auth0", options =>
+            options.Value = configuration["ApiKeys:Auth0SyncInDb"] ?? throw new ArgumentException("Failed to get Auth0ApiKey from configuration!"));
 
         return services;
     }

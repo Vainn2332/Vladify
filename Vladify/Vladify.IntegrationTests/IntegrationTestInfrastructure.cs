@@ -4,12 +4,16 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Moq;
 using Respawn;
 using System.Data.Common;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using Testcontainers.MsSql;
+using Vladify.BusinessLogic.Options;
+using Vladify.BusinessLogic.ServiceInterfaces;
 using Vladify.DataAccess;
 
 namespace Vladify.IntegrationTests;
@@ -31,10 +35,7 @@ public class IntegrationTestInfrastructure : IAsyncLifetime
         {
             builder.ConfigureServices(services =>
             {
-                services.RemoveAll<DbContextOptions<ApplicationDbContext>>();
-
-                services.AddDbContext<ApplicationDbContext>(options =>
-                    options.UseSqlServer(_testDbContainer.GetConnectionString()));
+                ConfigureTestServices(services);
 
                 services.PostConfigure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
                 options.TokenValidationParameters = new TokenValidationParameters
@@ -102,5 +103,23 @@ public class IntegrationTestInfrastructure : IAsyncLifetime
         await dbContext.SaveChangesAsync();
 
         return entity;
+    }
+
+    public void ConfigureTestServices(IServiceCollection services)
+    {
+        services
+            .RemoveAll<DbContextOptions<ApplicationDbContext>>()
+            .RemoveAll<IAuth0Service>()
+            .RemoveAll<IOptionsMonitor<ApiKeysOptions>>();
+
+        var authServiceMock = new Mock<IAuth0Service>();
+        authServiceMock.Setup(m => m.DeleteUserFromAuth0Async(It.IsAny<string>())).Returns(Task.CompletedTask);
+
+        services.AddScoped(serviceProvider => authServiceMock.Object);
+
+        services.Configure<ApiKeysOptions>("Auth0", opt => opt.Value = "testApiKey");
+
+        services.AddDbContext<ApplicationDbContext>(options =>
+            options.UseSqlServer(_testDbContainer.GetConnectionString()));
     }
 }

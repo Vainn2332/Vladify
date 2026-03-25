@@ -9,6 +9,8 @@ public class SongFaker : Faker<Song>
 {
     public SongFaker()
     {
+        this.UseSeed(DataAccessLayerConstants.RandomSeedDataNumber);
+
         RuleFor(property => property.Id, setter => setter.Random.Guid());
 
         RuleFor(property => property.Title, setter =>

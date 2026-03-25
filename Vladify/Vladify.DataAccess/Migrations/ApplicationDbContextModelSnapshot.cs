@@ -866,6 +866,10 @@ namespace Vladify.DataAccess.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("ExternalId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("Gender")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -875,13 +879,12 @@ namespace Vladify.DataAccess.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<string>("PasswordHash")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("Id");
 
                     b.HasIndex("EmailAddress")
+                        .IsUnique();
+
+                    b.HasIndex("ExternalId")
                         .IsUnique();
 
                     b.ToTable("Users");
@@ -889,273 +892,273 @@ namespace Vladify.DataAccess.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("82e5c7d8-ceef-d06d-e09e-fd983c59520e"),
-                            Age = 77,
-                            EmailAddress = "Hailee_Conn@gmail.com",
-                            Gender = "Male",
-                            Name = "Darion",
-                            PasswordHash = "$2a$11$bTZDAvzREGMgTpStdByHWudfzZE3u4hRIdkTdyy4Hkjqsj.q/lcey"
-                        },
-                        new
-                        {
-                            Id = new Guid("61ccd198-1526-8b56-3eaf-f33418273c06"),
-                            Age = 30,
-                            EmailAddress = "Darren75@hotmail.com",
-                            Gender = "Male",
-                            Name = "Shana",
-                            PasswordHash = "$2a$11$bTZDAvzREGMgTpStdByHWudfzZE3u4hRIdkTdyy4Hkjqsj.q/lcey"
-                        },
-                        new
-                        {
-                            Id = new Guid("400a742c-223a-eb51-c8c6-e91d020ca9ca"),
-                            Age = 22,
-                            EmailAddress = "Adella.Kilback@yahoo.com",
+                            Id = new Guid("49bb0990-7c20-0dcf-fce5-3793219f6047"),
+                            Age = 19,
+                            EmailAddress = "Sabina.Marvin26@gmail.com",
+                            ExternalId = "auth0|d8b0d2646f930a379fe684d8",
                             Gender = "Female",
-                            Name = "Micheal",
-                            PasswordHash = "$2a$11$bTZDAvzREGMgTpStdByHWudfzZE3u4hRIdkTdyy4Hkjqsj.q/lcey"
+                            Name = "Marianne"
                         },
                         new
                         {
-                            Id = new Guid("d4fda984-c6aa-37e6-6b9c-34b20a15511c"),
-                            Age = 97,
-                            EmailAddress = "Vallie95@gmail.com",
-                            Gender = "Male",
-                            Name = "Malcolm",
-                            PasswordHash = "$2a$11$bTZDAvzREGMgTpStdByHWudfzZE3u4hRIdkTdyy4Hkjqsj.q/lcey"
-                        },
-                        new
-                        {
-                            Id = new Guid("c5f0777c-d807-0ec9-7ea6-bc90257c4002"),
-                            Age = 82,
-                            EmailAddress = "Reba_Abernathy82@hotmail.com",
-                            Gender = "Female",
-                            Name = "Reynold",
-                            PasswordHash = "$2a$11$bTZDAvzREGMgTpStdByHWudfzZE3u4hRIdkTdyy4Hkjqsj.q/lcey"
-                        },
-                        new
-                        {
-                            Id = new Guid("b25d2f3d-25a4-a565-e358-33d5202f92d3"),
-                            Age = 85,
-                            EmailAddress = "Sandy_Gusikowski@hotmail.com",
-                            Gender = "Male",
-                            Name = "Newton",
-                            PasswordHash = "$2a$11$bTZDAvzREGMgTpStdByHWudfzZE3u4hRIdkTdyy4Hkjqsj.q/lcey"
-                        },
-                        new
-                        {
-                            Id = new Guid("6c8c7069-429d-b784-bea4-c9a86c5bd981"),
-                            Age = 43,
-                            EmailAddress = "Gardner.Fay41@gmail.com",
-                            Gender = "Male",
-                            Name = "Gavin",
-                            PasswordHash = "$2a$11$bTZDAvzREGMgTpStdByHWudfzZE3u4hRIdkTdyy4Hkjqsj.q/lcey"
-                        },
-                        new
-                        {
-                            Id = new Guid("5bc3b192-61d8-4e47-9648-3399f907a0d4"),
-                            Age = 29,
-                            EmailAddress = "Elnora_McLaughlin@gmail.com",
-                            Gender = "Female",
-                            Name = "Felicia",
-                            PasswordHash = "$2a$11$bTZDAvzREGMgTpStdByHWudfzZE3u4hRIdkTdyy4Hkjqsj.q/lcey"
-                        },
-                        new
-                        {
-                            Id = new Guid("b4d501e2-b9bc-b03d-0a4b-0b91c05be642"),
-                            Age = 37,
-                            EmailAddress = "Carley.Zulauf@hotmail.com",
-                            Gender = "Male",
-                            Name = "Rickie",
-                            PasswordHash = "$2a$11$bTZDAvzREGMgTpStdByHWudfzZE3u4hRIdkTdyy4Hkjqsj.q/lcey"
-                        },
-                        new
-                        {
-                            Id = new Guid("159250a1-1c44-2b37-e569-79d68b9292dc"),
-                            Age = 27,
-                            EmailAddress = "Bernardo.Kassulke@hotmail.com",
-                            Gender = "Female",
-                            Name = "Vida",
-                            PasswordHash = "$2a$11$bTZDAvzREGMgTpStdByHWudfzZE3u4hRIdkTdyy4Hkjqsj.q/lcey"
-                        },
-                        new
-                        {
-                            Id = new Guid("8fe23930-b890-fab3-a3f1-126c27286ced"),
-                            Age = 97,
-                            EmailAddress = "Darrin_Harvey@gmail.com",
-                            Gender = "Male",
-                            Name = "Marcelina",
-                            PasswordHash = "$2a$11$bTZDAvzREGMgTpStdByHWudfzZE3u4hRIdkTdyy4Hkjqsj.q/lcey"
-                        },
-                        new
-                        {
-                            Id = new Guid("2308f9c7-b058-92e6-3d72-e40a39a79b2d"),
-                            Age = 57,
-                            EmailAddress = "Stanford_Bechtelar22@hotmail.com",
-                            Gender = "Male",
-                            Name = "Delbert",
-                            PasswordHash = "$2a$11$bTZDAvzREGMgTpStdByHWudfzZE3u4hRIdkTdyy4Hkjqsj.q/lcey"
-                        },
-                        new
-                        {
-                            Id = new Guid("641d98a1-3dbb-8221-f2c7-97b08fa1f20b"),
+                            Id = new Guid("fa333e3f-3b75-cd02-7ce7-2b77e1e700a2"),
                             Age = 99,
-                            EmailAddress = "Janice.Blick6@yahoo.com",
-                            Gender = "Male",
-                            Name = "Karelle",
-                            PasswordHash = "$2a$11$bTZDAvzREGMgTpStdByHWudfzZE3u4hRIdkTdyy4Hkjqsj.q/lcey"
-                        },
-                        new
-                        {
-                            Id = new Guid("1cdc63a1-a170-2544-0db7-18c92d8135c3"),
-                            Age = 55,
-                            EmailAddress = "Ralph_Carter@yahoo.com",
-                            Gender = "Male",
-                            Name = "Dereck",
-                            PasswordHash = "$2a$11$bTZDAvzREGMgTpStdByHWudfzZE3u4hRIdkTdyy4Hkjqsj.q/lcey"
-                        },
-                        new
-                        {
-                            Id = new Guid("00f6ff8f-b49e-2bee-d9e6-1ad944658226"),
-                            Age = 36,
-                            EmailAddress = "Destiny_Fadel63@yahoo.com",
+                            EmailAddress = "Jeanette.Bartoletti@hotmail.com",
+                            ExternalId = "auth0|d8d5248b2594d52b85cd5352",
                             Gender = "Female",
-                            Name = "Lorenzo",
-                            PasswordHash = "$2a$11$bTZDAvzREGMgTpStdByHWudfzZE3u4hRIdkTdyy4Hkjqsj.q/lcey"
+                            Name = "Joanie"
                         },
                         new
                         {
-                            Id = new Guid("8d6cd980-ff3f-857a-9c8d-70ab438758c8"),
-                            Age = 95,
-                            EmailAddress = "Asha.Kub72@gmail.com",
-                            Gender = "Female",
-                            Name = "Giovanny",
-                            PasswordHash = "$2a$11$bTZDAvzREGMgTpStdByHWudfzZE3u4hRIdkTdyy4Hkjqsj.q/lcey"
-                        },
-                        new
-                        {
-                            Id = new Guid("f3a4f3b1-4d65-48ac-811d-db829e99e7a0"),
-                            Age = 68,
-                            EmailAddress = "Lottie_Pagac47@yahoo.com",
+                            Id = new Guid("1c8575f0-6194-339d-ad3e-2e7c3866a80f"),
+                            Age = 94,
+                            EmailAddress = "Larue46@hotmail.com",
+                            ExternalId = "auth0|1b95a2b93ad5c83c5c75374d",
                             Gender = "Male",
-                            Name = "Reginald",
-                            PasswordHash = "$2a$11$bTZDAvzREGMgTpStdByHWudfzZE3u4hRIdkTdyy4Hkjqsj.q/lcey"
+                            Name = "Marley"
                         },
                         new
                         {
-                            Id = new Guid("470b51ee-0123-a7b6-d38e-0cd6923740c3"),
-                            Age = 64,
-                            EmailAddress = "Hannah_Jakubowski@hotmail.com",
+                            Id = new Guid("b471b00d-f7ee-acf9-e226-1fd24d76e93c"),
+                            Age = 41,
+                            EmailAddress = "Kacie.Renner92@hotmail.com",
+                            ExternalId = "auth0|e486a6697cad876bc62f970b",
+                            Gender = "Female",
+                            Name = "Louie"
+                        },
+                        new
+                        {
+                            Id = new Guid("a8c435d2-a3ab-8813-de0e-ac5fab782189"),
+                            Age = 44,
+                            EmailAddress = "Darron70@yahoo.com",
+                            ExternalId = "auth0|c0734263ccfdaafd54b28c4a",
+                            Gender = "Female",
+                            Name = "Greyson"
+                        },
+                        new
+                        {
+                            Id = new Guid("3a4637ab-0383-947a-860b-598de7e62046"),
+                            Age = 88,
+                            EmailAddress = "Clotilde_Swaniawski@gmail.com",
+                            ExternalId = "auth0|52a0838fcdcce32176a06863",
                             Gender = "Male",
-                            Name = "Alessia",
-                            PasswordHash = "$2a$11$bTZDAvzREGMgTpStdByHWudfzZE3u4hRIdkTdyy4Hkjqsj.q/lcey"
+                            Name = "Vernice"
                         },
                         new
                         {
-                            Id = new Guid("4bd707c6-3eb3-efa2-7ad1-76fca1005e1c"),
-                            Age = 25,
-                            EmailAddress = "Tamia21@gmail.com",
-                            Gender = "Female",
-                            Name = "Jensen",
-                            PasswordHash = "$2a$11$bTZDAvzREGMgTpStdByHWudfzZE3u4hRIdkTdyy4Hkjqsj.q/lcey"
-                        },
-                        new
-                        {
-                            Id = new Guid("4d174d97-ac9a-a0da-faab-811b296bf394"),
-                            Age = 76,
-                            EmailAddress = "Edythe.Rosenbaum@gmail.com",
-                            Gender = "Female",
-                            Name = "Roscoe",
-                            PasswordHash = "$2a$11$bTZDAvzREGMgTpStdByHWudfzZE3u4hRIdkTdyy4Hkjqsj.q/lcey"
-                        },
-                        new
-                        {
-                            Id = new Guid("6b584d62-4b83-fb85-4667-b365275555ce"),
-                            Age = 86,
-                            EmailAddress = "Bettie_Rodriguez40@yahoo.com",
+                            Id = new Guid("0e51d9f0-3e16-1570-8751-8bfcad3c76b7"),
+                            Age = 50,
+                            EmailAddress = "Thaddeus_Doyle90@yahoo.com",
+                            ExternalId = "auth0|71464b4db7170a63f5f66302",
                             Gender = "Male",
-                            Name = "Dameon",
-                            PasswordHash = "$2a$11$bTZDAvzREGMgTpStdByHWudfzZE3u4hRIdkTdyy4Hkjqsj.q/lcey"
+                            Name = "Guadalupe"
                         },
                         new
                         {
-                            Id = new Guid("6ebd1f36-af00-2a52-b5ea-4c536f1daf25"),
-                            Age = 54,
-                            EmailAddress = "Trudie48@gmail.com",
+                            Id = new Guid("d922e44d-ba77-e400-0a2a-26212685a3c3"),
+                            Age = 90,
+                            EmailAddress = "Ines_Balistreri@gmail.com",
+                            ExternalId = "auth0|7af854402fac00e8a384ef82",
                             Gender = "Female",
-                            Name = "Kennedi",
-                            PasswordHash = "$2a$11$bTZDAvzREGMgTpStdByHWudfzZE3u4hRIdkTdyy4Hkjqsj.q/lcey"
+                            Name = "Tressa"
                         },
                         new
                         {
-                            Id = new Guid("43e9c98c-e32c-5a1f-a084-4c2cc88d46b8"),
-                            Age = 34,
-                            EmailAddress = "Stephania.Farrell89@yahoo.com",
-                            Gender = "Female",
-                            Name = "Berenice",
-                            PasswordHash = "$2a$11$bTZDAvzREGMgTpStdByHWudfzZE3u4hRIdkTdyy4Hkjqsj.q/lcey"
-                        },
-                        new
-                        {
-                            Id = new Guid("306ff9cf-5901-88c8-f5e2-36c50ffed1ca"),
-                            Age = 58,
-                            EmailAddress = "Else27@gmail.com",
-                            Gender = "Female",
-                            Name = "Yazmin",
-                            PasswordHash = "$2a$11$bTZDAvzREGMgTpStdByHWudfzZE3u4hRIdkTdyy4Hkjqsj.q/lcey"
-                        },
-                        new
-                        {
-                            Id = new Guid("fb535609-be2b-4111-30f1-5deaaf2a9f2a"),
-                            Age = 59,
-                            EmailAddress = "Talon_Swaniawski64@gmail.com",
-                            Gender = "Male",
-                            Name = "Terrill",
-                            PasswordHash = "$2a$11$bTZDAvzREGMgTpStdByHWudfzZE3u4hRIdkTdyy4Hkjqsj.q/lcey"
-                        },
-                        new
-                        {
-                            Id = new Guid("9cc816a0-cee8-0072-e126-aa05cd5d36d0"),
-                            Age = 68,
-                            EmailAddress = "Ramiro28@hotmail.com",
-                            Gender = "Male",
-                            Name = "Christiana",
-                            PasswordHash = "$2a$11$bTZDAvzREGMgTpStdByHWudfzZE3u4hRIdkTdyy4Hkjqsj.q/lcey"
-                        },
-                        new
-                        {
-                            Id = new Guid("8ae04cc0-7d4d-0516-175b-8aa849a54823"),
+                            Id = new Guid("062f3c05-dd11-1323-10db-7e8ac0b8ef7e"),
                             Age = 73,
-                            EmailAddress = "Natasha_Kuphal@yahoo.com",
+                            EmailAddress = "Cesar.Kertzmann58@gmail.com",
+                            ExternalId = "auth0|409472f82d94d3841f5bacac",
                             Gender = "Female",
-                            Name = "Estefania",
-                            PasswordHash = "$2a$11$bTZDAvzREGMgTpStdByHWudfzZE3u4hRIdkTdyy4Hkjqsj.q/lcey"
+                            Name = "Ephraim"
                         },
                         new
                         {
-                            Id = new Guid("5d1ada9c-9b33-85b9-4fb3-dc9beee8b363"),
-                            Age = 25,
-                            EmailAddress = "Amir_Anderson21@yahoo.com",
+                            Id = new Guid("8717fef3-a26b-e361-ca4b-173b514b256b"),
+                            Age = 74,
+                            EmailAddress = "Norbert_Schroeder@gmail.com",
+                            ExternalId = "auth0|e58f8575cf3f8b24e6571f8d",
                             Gender = "Female",
-                            Name = "Alison",
-                            PasswordHash = "$2a$11$bTZDAvzREGMgTpStdByHWudfzZE3u4hRIdkTdyy4Hkjqsj.q/lcey"
+                            Name = "William"
                         },
                         new
                         {
-                            Id = new Guid("4dfdb6fa-1fc4-969a-9aee-7363b8d17ba2"),
-                            Age = 16,
-                            EmailAddress = "Marcia96@gmail.com",
-                            Gender = "Male",
-                            Name = "Tommie",
-                            PasswordHash = "$2a$11$bTZDAvzREGMgTpStdByHWudfzZE3u4hRIdkTdyy4Hkjqsj.q/lcey"
+                            Id = new Guid("1e2c23c9-1e0f-d13a-4cac-27078dac190f"),
+                            Age = 91,
+                            EmailAddress = "Delia_Weissnat@gmail.com",
+                            ExternalId = "auth0|dc5306dedbf39ac445bfd733",
+                            Gender = "Female",
+                            Name = "Bridget"
                         },
                         new
                         {
-                            Id = new Guid("374ff369-7344-520d-ca11-39e4bb378a94"),
-                            Age = 31,
-                            EmailAddress = "Albertha.Crooks8@hotmail.com",
+                            Id = new Guid("65ff82bb-8d09-8e6c-0f2b-c4d489d94086"),
+                            Age = 52,
+                            EmailAddress = "Domenick_Steuber@hotmail.com",
+                            ExternalId = "auth0|535aae56811c2e6ed5cfb00c",
                             Gender = "Male",
-                            Name = "Kailyn",
-                            PasswordHash = "$2a$11$bTZDAvzREGMgTpStdByHWudfzZE3u4hRIdkTdyy4Hkjqsj.q/lcey"
+                            Name = "Jada"
+                        },
+                        new
+                        {
+                            Id = new Guid("552d18c2-86b9-4773-0253-becbc4f9f3a7"),
+                            Age = 49,
+                            EmailAddress = "Manley_Cronin40@gmail.com",
+                            ExternalId = "auth0|8e7649d4282d97b9af274259",
+                            Gender = "Male",
+                            Name = "Gerhard"
+                        },
+                        new
+                        {
+                            Id = new Guid("de35e4ee-1a3c-5790-7777-f1ec1069e422"),
+                            Age = 38,
+                            EmailAddress = "Stephen48@yahoo.com",
+                            ExternalId = "auth0|966e3969e00ea631cb22f2a2",
+                            Gender = "Male",
+                            Name = "Arne"
+                        },
+                        new
+                        {
+                            Id = new Guid("62974f26-824a-80f7-bdb5-31fe456909ca"),
+                            Age = 43,
+                            EmailAddress = "Daniella_Senger@gmail.com",
+                            ExternalId = "auth0|ff55cad7b4daa656cc153a24",
+                            Gender = "Female",
+                            Name = "Shirley"
+                        },
+                        new
+                        {
+                            Id = new Guid("17f3f721-c6c8-7b79-2791-0c615bb1d678"),
+                            Age = 73,
+                            EmailAddress = "Sammie.Kilback58@hotmail.com",
+                            ExternalId = "auth0|c2300db4d17770e0fd3b514d",
+                            Gender = "Male",
+                            Name = "Elisa"
+                        },
+                        new
+                        {
+                            Id = new Guid("ffd23d02-4eb5-4217-2b43-f9b46c4a45c7"),
+                            Age = 43,
+                            EmailAddress = "Leslie44@yahoo.com",
+                            ExternalId = "auth0|bccf82be5b1f4667c6b098af",
+                            Gender = "Male",
+                            Name = "Marcia"
+                        },
+                        new
+                        {
+                            Id = new Guid("f4c5bb92-c504-dc74-c969-fbb76ae50f7e"),
+                            Age = 28,
+                            EmailAddress = "Miller.Carter@gmail.com",
+                            ExternalId = "auth0|0998f7431d4181ce6e9a5bb1",
+                            Gender = "Male",
+                            Name = "Rhoda"
+                        },
+                        new
+                        {
+                            Id = new Guid("eb5aa860-01f1-f11d-eb28-7b3747c1dca7"),
+                            Age = 75,
+                            EmailAddress = "Elmer76@yahoo.com",
+                            ExternalId = "auth0|a41e05f4e8bbb2dfa3a3731a",
+                            Gender = "Male",
+                            Name = "Lester"
+                        },
+                        new
+                        {
+                            Id = new Guid("e1863474-f4ae-c7e2-12bb-a8f909512da9"),
+                            Age = 65,
+                            EmailAddress = "Timmy_Considine@yahoo.com",
+                            ExternalId = "auth0|1932dbc737460922d683bbf7",
+                            Gender = "Male",
+                            Name = "Brennon"
+                        },
+                        new
+                        {
+                            Id = new Guid("7775e280-c280-eecf-54f4-31fbbf49b93b"),
+                            Age = 53,
+                            EmailAddress = "Jett.Robel53@gmail.com",
+                            ExternalId = "auth0|287a0086ac05cae7e30e4994",
+                            Gender = "Male",
+                            Name = "Sterling"
+                        },
+                        new
+                        {
+                            Id = new Guid("7fc71309-41a9-f4e3-287b-8345ecad8131"),
+                            Age = 42,
+                            EmailAddress = "Halle_Pfannerstill73@gmail.com",
+                            ExternalId = "auth0|7aba268e3c08c9249e9ad2f2",
+                            Gender = "Male",
+                            Name = "Maryam"
+                        },
+                        new
+                        {
+                            Id = new Guid("9c2b1595-45f8-672e-e24d-46b081cda8ed"),
+                            Age = 58,
+                            EmailAddress = "Mariano.Braun85@gmail.com",
+                            ExternalId = "auth0|7e41734a9fdfdf60a11356ca",
+                            Gender = "Male",
+                            Name = "Pearline"
+                        },
+                        new
+                        {
+                            Id = new Guid("2349b3e1-f845-5b61-fa8e-fbef8c8a9b57"),
+                            Age = 67,
+                            EmailAddress = "Corine.Cormier98@gmail.com",
+                            ExternalId = "auth0|26bc1501a4483e815ee97872",
+                            Gender = "Female",
+                            Name = "Lelah"
+                        },
+                        new
+                        {
+                            Id = new Guid("d82de857-522c-c556-b013-d78f474f9287"),
+                            Age = 72,
+                            EmailAddress = "Letha_Ratke@gmail.com",
+                            ExternalId = "auth0|c1ea939e82e2e265a0c4df9e",
+                            Gender = "Male",
+                            Name = "Ernie"
+                        },
+                        new
+                        {
+                            Id = new Guid("d9ace6d5-3d01-ab77-48e3-ab1f26334575"),
+                            Age = 86,
+                            EmailAddress = "Elizabeth_Braun@yahoo.com",
+                            ExternalId = "auth0|69fe1fec7f569e507938043b",
+                            Gender = "Female",
+                            Name = "Brenda"
+                        },
+                        new
+                        {
+                            Id = new Guid("d14d8488-392a-c224-376c-9545523ef9d7"),
+                            Age = 28,
+                            EmailAddress = "Amelie.Pollich@gmail.com",
+                            ExternalId = "auth0|59183f9253c8ad6726aa967b",
+                            Gender = "Female",
+                            Name = "Enrique"
+                        },
+                        new
+                        {
+                            Id = new Guid("28a25f0e-dfa5-dc8a-9ec7-db94ad90e67d"),
+                            Age = 66,
+                            EmailAddress = "Emery.Kunde76@hotmail.com",
+                            ExternalId = "auth0|e2f2df7f262fee8312871a9d",
+                            Gender = "Female",
+                            Name = "Monique"
+                        },
+                        new
+                        {
+                            Id = new Guid("89d22fe4-5532-ac42-0f6e-976e2e92da05"),
+                            Age = 100,
+                            EmailAddress = "Earnest67@hotmail.com",
+                            ExternalId = "auth0|53d2d94826faf10990721115",
+                            Gender = "Female",
+                            Name = "Julien"
+                        },
+                        new
+                        {
+                            Id = new Guid("455357b3-ab37-7d3b-8ddd-aa4a9b035760"),
+                            Age = 61,
+                            EmailAddress = "Lizzie52@hotmail.com",
+                            ExternalId = "auth0|9d8a637327a243676fb0a2a2",
+                            Gender = "Male",
+                            Name = "Zaria"
                         });
                 });
 #pragma warning restore 612, 618

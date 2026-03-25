@@ -8,7 +8,7 @@ using Vladify.DataAccess.Interfaces;
 
 namespace Vladify.BusinessLogic;
 
-public class UserService(IUserRepository _userRepository, IMapper _mapper) : IUserService
+public class UserService(IUserRepository _userRepository, IAuth0Service _authService, IMapper _mapper) : IUserService
 {
     public async Task<UserModel> AddUserAsync(UserRequestModel userRequestModel, CancellationToken cancellationToken)
     {
@@ -17,8 +17,6 @@ public class UserService(IUserRepository _userRepository, IMapper _mapper) : IUs
         {
             throw new ArgumentException("User with such email already exists!");
         }
-
-        userRequestModel.Password = HashPassword(userRequestModel.Password);
         var user = _mapper.Map<User>(userRequestModel);
 
         var newUser = await _userRepository.AddAsync(user, cancellationToken);
@@ -40,13 +38,13 @@ public class UserService(IUserRepository _userRepository, IMapper _mapper) : IUs
         return _mapper.Map<IEnumerable<UserModel>>(users);
     }
 
-    public async Task<UserModel> UpdateUserAsync(UserUpdateRequestModel userUpdateRequestModel, CancellationToken cancellationToken)
+    public async Task<UserModel> UpdateUserAsync(UserUpdateDto userUpdateDto, CancellationToken cancellationToken)
     {
-        _ = await _userRepository.GetByIdAsync(userUpdateRequestModel.Id, false, cancellationToken)
+        var target = await _userRepository.GetByIdAsync(userUpdateDto.Id, false, cancellationToken)
             ?? throw new NotFoundException("User with such id not found!");
 
-        userUpdateRequestModel.Password = HashPassword(userUpdateRequestModel.Password);
-        var user = _mapper.Map<User>(userUpdateRequestModel);
+        var user = _mapper.Map<User>(userUpdateDto);
+        user.ExternalId = target.ExternalId;
 
         var updatedUser = await _userRepository.UpdateAsync(user, cancellationToken);
 
@@ -58,11 +56,7 @@ public class UserService(IUserRepository _userRepository, IMapper _mapper) : IUs
         var user = await _userRepository.GetByIdAsync(userId, true, cancellationToken)
             ?? throw new NotFoundException("User with such id not found!");
 
+        await _authService.DeleteUserFromAuth0Async(user.ExternalId);
         await _userRepository.DeleteAsync(user, cancellationToken);
-    }
-
-    private static string HashPassword(string password)
-    {
-        return BCrypt.Net.BCrypt.EnhancedHashPassword(password);
     }
 }

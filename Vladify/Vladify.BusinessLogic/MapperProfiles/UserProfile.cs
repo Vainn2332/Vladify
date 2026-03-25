@@ -10,13 +10,15 @@ public class UserProfile : Profile
     {
         CreateMap<UserRequestModel, User>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())
-            .ForMember(dest => dest.PasswordHash, opt => opt.MapFrom(src => src.Password));
+            .ForMember(dest => dest.Gender, opt => opt.Ignore())
+            .ForMember(dest => dest.Age, opt => opt.Ignore());
 
-        CreateMap<UserRequestModel, UserUpdateRequestModel>()
+        CreateMap<UserUpdateRequestModel, UserUpdateDto>()
             .ForMember(dest => dest.Id, opt => opt.Ignore());
 
-        CreateMap<UserUpdateRequestModel, User>()
-            .ForMember(dest => dest.PasswordHash, opt => opt.MapFrom(src => src.Password));
+        CreateMap<UserUpdateDto, User>()
+            .ForMember(dest => dest.ExternalId, opt => opt.Ignore());
+
 
         CreateMap<User, UserModel>();
     }

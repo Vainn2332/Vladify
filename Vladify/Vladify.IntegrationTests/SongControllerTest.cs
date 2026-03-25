@@ -10,7 +10,8 @@ using Vladify.DataAccess;
 using Vladify.DataAccess.Entities;
 namespace Vladify.IntegrationTests;
 
-public class SongControllerTest : IClassFixture<IntegrationTestInfrastructure>
+[Collection("FixtureCollection")]
+public class SongControllerTest
 {
     private readonly IntegrationTestInfrastructure _infrastructure;
     private readonly IFixture _fixture;

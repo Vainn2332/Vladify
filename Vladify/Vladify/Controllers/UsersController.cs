@@ -11,15 +11,15 @@ namespace Vladify.Controllers;
 
 [Route("api/users")]
 [ApiController]
-[Authorize]
 public class UsersController(IUserService _userService, IMapper _mapper) : ControllerBase
 {
-    [HttpPost, ValidationFilter]
+    [HttpPost, ValidationFilter, ApiKeyFilter("Auth0")]
     public Task<UserModel> CreateUser(UserRequestModel userRequestModel, CancellationToken cancellationToken = default)
     {
         return _userService.AddUserAsync(userRequestModel, cancellationToken);
     }
 
+    [Authorize]
     [HttpGet, ValidationFilter]
     public Task<IEnumerable<UserModel>> GetUsers(
         [FromQuery] PaginationFilter paginationFilter,
@@ -28,6 +28,7 @@ public class UsersController(IUserService _userService, IMapper _mapper) : Contr
         return _userService.GetUsersAsync(paginationFilter, cancellationToken);
     }
 
+    [Authorize]
     [HttpGet("{id}")]
     public async Task<UserModel> GetUserById(Guid id, CancellationToken cancellationToken = default)
     {
@@ -37,18 +38,20 @@ public class UsersController(IUserService _userService, IMapper _mapper) : Contr
         return user;
     }
 
+    [Authorize]
     [HttpPut("{id}"), ValidationFilter]
     public Task<UserModel> UpdateUser(
         Guid id,
-        UserRequestModel userRequestModel,
+        UserUpdateRequestModel userUpdateRequestModel,
         CancellationToken cancellationToken = default)
     {
-        var userUpdateModel = _mapper.Map<UserUpdateRequestModel>(userRequestModel);
-        userUpdateModel.Id = id;
+        var userUpdateDto = _mapper.Map<UserUpdateDto>(userUpdateRequestModel);
+        userUpdateDto.Id = id;
 
-        return _userService.UpdateUserAsync(userUpdateModel, cancellationToken);
+        return _userService.UpdateUserAsync(userUpdateDto, cancellationToken);
     }
 
+    [Authorize]
     [HttpDelete("{id}")]
     public Task DeleteUser(Guid id, CancellationToken cancellationToken = default)
     {

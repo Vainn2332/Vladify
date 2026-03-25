@@ -2,11 +2,9 @@
 
 namespace Vladify.BusinessLogic.Models.UserModels;
 
-public class UserModel
+public class UserUpdateDto
 {
-    public Guid Id { get; set; }
-
-    public required string ExternalId { get; set; }
+    public required Guid Id { get; set; }
 
     public required string Name { get; set; }
 
@@ -14,5 +12,5 @@ public class UserModel
 
     public required int Age { get; set; }
 
-    public Gender Gender { get; set; } = Gender.Undefined;
+    public required Gender Gender { get; set; }
 }

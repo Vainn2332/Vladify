@@ -6,6 +6,7 @@ using Vladify.BusinessLogic;
 using Vladify.BusinessLogic.Exceptions;
 using Vladify.BusinessLogic.Models;
 using Vladify.BusinessLogic.Models.UserModels;
+using Vladify.BusinessLogic.ServiceInterfaces;
 using Vladify.DataAccess.Entities;
 using Vladify.DataAccess.Interfaces;
 
@@ -15,6 +16,7 @@ public class UserServiceTest
 {
     private readonly IFixture _fixture;
     private readonly Mock<IUserRepository> _userRepositoryMock;
+    private readonly Mock<IAuth0Service> _authServiceMock;
     private readonly Mock<IMapper> _mapperMock;
     private readonly UserService _userService;
 
@@ -22,9 +24,11 @@ public class UserServiceTest
     {
         _fixture = new Fixture().Customize(new AutoMoqCustomization());
         _userRepositoryMock = _fixture.Freeze<Mock<IUserRepository>>();
+        _authServiceMock = _fixture.Freeze<Mock<IAuth0Service>>();
         _mapperMock = _fixture.Freeze<Mock<IMapper>>();
         _userService = _fixture.Create<UserService>();
     }
+
     [Fact]
     public async Task AddUserAsync_Should_ReturnArgumentException_WithError_UserWithSuchEmailAlreadyExists()
     {
@@ -118,7 +122,7 @@ public class UserServiceTest
     [Fact]
     public async Task UpdateUserAsync_Should_ReturnNotFoundException_WhenNotFound()
     {
-        var request = _fixture.Create<UserUpdateRequestModel>();
+        var request = _fixture.Create<UserUpdateDto>();
         _userRepositoryMock.Setup(m => m.GetByIdAsync(request.Id, It.IsAny<bool>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((User?)null);
 
@@ -134,7 +138,7 @@ public class UserServiceTest
     [Fact]
     public async Task UpdateUserAsync_Should_ReturnUserModel_WhenOk()
     {
-        var request = _fixture.Create<UserUpdateRequestModel>();
+        var request = _fixture.Create<UserUpdateDto>();
         var requestEntity = _fixture.Create<User>();
         var oldUserEntity = _fixture.Create<User>();
         var updatedUserEntity = _fixture.Create<User>();
@@ -169,6 +173,7 @@ public class UserServiceTest
 
         Assert.Equal("User with such id not found!", exception.Message);
 
+        _authServiceMock.Verify(m => m.DeleteUserFromAuth0Async(It.IsAny<string>()), Times.Never);
         _userRepositoryMock.Verify(m => m.GetByIdAsync(invalidUserId, It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Once);
         _userRepositoryMock.Verify(m => m.DeleteAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()), Times.Never);
     }
@@ -184,6 +189,7 @@ public class UserServiceTest
 
         await _userService.DeleteUserAsync(userEntity.Id, CancellationToken.None);
 
+        _authServiceMock.Verify(m => m.DeleteUserFromAuth0Async(userEntity.ExternalId), Times.Once);
         _userRepositoryMock.Verify(m => m.GetByIdAsync(userEntity.Id, true, It.IsAny<CancellationToken>()), Times.Once);
         _userRepositoryMock.Verify(m => m.DeleteAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()), Times.Once);
     }
