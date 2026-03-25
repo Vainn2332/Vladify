@@ -6,11 +6,11 @@ using Vladify.BusinessLogic.Options;
 namespace Vladify.Filters;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
-public class ApiKeyFilter(string apiKeyName) : Attribute, IActionFilter
+public class ApiKeyFilter(string apiKeyName) : Attribute, IAsyncActionFilter
 {
     private const string HeaderName = "X-Api-Key";
 
-    public void OnActionExecuting(ActionExecutingContext context)
+    public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {
         var optionsMonitor = context.HttpContext.RequestServices.GetRequiredService<IOptionsMonitor<ApiKeysOptions>>();
         var apiKey = optionsMonitor.Get(apiKeyName).Value;
@@ -20,9 +20,7 @@ public class ApiKeyFilter(string apiKeyName) : Attribute, IActionFilter
         {
             throw new UnauthorizedException("Invalid ApiKey!");
         }
-    }
 
-    public void OnActionExecuted(ActionExecutedContext context)
-    {
+        await next();
     }
 }
