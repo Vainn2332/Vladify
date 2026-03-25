@@ -11,5 +11,4 @@ public class Auth0Options
     public required ClientCredentials PublicClient { get; set; }
 
     public required ClientCredentials M2MClient { get; set; }
-
 }
