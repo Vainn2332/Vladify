@@ -8,11 +8,13 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 {
     public DbSet<User> Users { get; set; }
     public DbSet<Song> Songs { get; set; }
+    public DbSet<Playlist> Playlists { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfiguration(new UserDbConfig());
         modelBuilder.ApplyConfiguration(new SongDbConfig());
+        modelBuilder.ApplyConfiguration(new PlaylistDbConfig());
 
         base.OnModelCreating(modelBuilder);
     }

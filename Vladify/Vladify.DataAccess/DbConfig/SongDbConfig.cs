@@ -13,7 +13,6 @@ public class SongDbConfig : IEntityTypeConfiguration<Song>
         builder.HasKey(x => x.Id);
         builder.Property(p => p.Title).HasMaxLength(DataAccessLayerConstants.MaxStandartStringLength);
         builder.Property(p => p.Album).HasMaxLength(DataAccessLayerConstants.MaxStandartStringLength);
-        builder.Property(p => p.Author).HasMaxLength(DataAccessLayerConstants.MaxStandartStringLength);
 
         var fakeSongs = new SongFaker().Generate(DataAccessLayerConstants.SongSeedDataAmount);
 
