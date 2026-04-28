@@ -25,8 +25,7 @@ public class SongFaker : Faker<Song>
         RuleFor(property => property.Album, setter => setter.Commerce.ProductName()
             .ClampLength(max: DataAccessLayerConstants.MaxStandartStringLength));
 
-        RuleFor(property => property.Author, setter => $"{setter.Name.FirstName()} {setter.Name.LastName()}"
-            .ClampLength(max: DataAccessLayerConstants.MaxStandartStringLength));
+        RuleFor(property => property.AuthorId, setter => setter.Random.Guid());
 
         RuleFor(property => property.Duration, setter => TimeSpan.FromSeconds(setter.Random.Int(150, 210)));
     }

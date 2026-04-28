@@ -4,7 +4,7 @@ namespace Vladify.DataAccess.Entities;
 
 public class Song : IEntity
 {
-    public required Guid Id { get; set; }
+    public Guid Id { get; set; }
 
     public string Title { get; set; } = null!;
 
