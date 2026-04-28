@@ -16,13 +16,13 @@ public class UserDbConfig : IEntityTypeConfiguration<User>
         builder.Property(p => p.Gender).HasConversion<string>();//saving Male instead of 1 in Db
         builder.Property(p => p.Name).HasMaxLength(DataAccessLayerConstants.MaxStandartStringLength);
 
-        builder.HasMany(p => p.Songs)
+        builder.HasMany(p => p.OwnedSongs)
             .WithOne(p => p.User)
             .HasForeignKey(k => k.AuthorId)
             .OnDelete(DeleteBehavior.NoAction);
         builder.HasMany(p => p.Playlists)
-            .WithOne(p => p.User)
-            .HasForeignKey(k => k.UserId)
+            .WithOne(p => p.Owner)
+            .HasForeignKey(k => k.AuthorId)
             .OnDelete(DeleteBehavior.Cascade);
 
         var fakeUsers = new UserFaker().Generate(DataAccessLayerConstants.UserSeedDataAmount);
