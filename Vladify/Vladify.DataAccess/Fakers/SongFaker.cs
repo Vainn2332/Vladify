@@ -7,7 +7,7 @@ namespace Vladify.DataAccess.Fakers;
 
 public class SongFaker : Faker<Song>
 {
-    public SongFaker()
+    public SongFaker(List<Guid> userGuids)
     {
         this.UseSeed(DataAccessLayerConstants.RandomSeedDataNumber);
 
@@ -25,7 +25,7 @@ public class SongFaker : Faker<Song>
         RuleFor(property => property.Album, setter => setter.Commerce.ProductName()
             .ClampLength(max: DataAccessLayerConstants.MaxStandartStringLength));
 
-        RuleFor(property => property.AuthorId, setter => setter.Random.Guid());
+        RuleFor(property => property.AuthorId, setter => setter.PickRandom(userGuids));
 
         RuleFor(property => property.Duration, setter => TimeSpan.FromSeconds(setter.Random.Int(150, 210)));
     }

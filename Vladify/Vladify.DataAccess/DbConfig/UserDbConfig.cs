@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Vladify.DataAccess.Constants;
 using Vladify.DataAccess.Entities;
-using Vladify.DataAccess.Fakers;
 
 namespace Vladify.DataAccess.DbConfig;
 
@@ -24,9 +23,5 @@ public class UserDbConfig : IEntityTypeConfiguration<User>
             .WithOne(p => p.Owner)
             .HasForeignKey(k => k.AuthorId)
             .OnDelete(DeleteBehavior.Cascade);
-
-        var fakeUsers = new UserFaker().Generate(DataAccessLayerConstants.UserSeedDataAmount);
-
-        builder.HasData(fakeUsers);
     }
 }
