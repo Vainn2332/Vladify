@@ -4,11 +4,13 @@ public class SongModel
 {
     public Guid Id { get; set; }
 
-    public string Title { get; set; } = null!;
+    public required string Title { get; set; }
 
-    public string Album { get; set; } = null!;
+    public required string Album { get; set; }
 
-    public string Author { get; set; } = null!;
+    public required string Author { get; set; }
+
+    public Guid AuthorId { get; set; }
 
     public TimeSpan Duration { get; set; } = TimeSpan.Zero;
 }

@@ -17,7 +17,7 @@ public class UserDbConfig : IEntityTypeConfiguration<User>
         builder.Property(p => p.Name).HasMaxLength(DataAccessLayerConstants.MaxStandartStringLength);
 
         builder.HasMany(p => p.OwnedSongs)
-            .WithOne(p => p.User)
+            .WithOne(p => p.Owner)
             .HasForeignKey(k => k.AuthorId)
             .OnDelete(DeleteBehavior.NoAction);
         builder.HasMany(p => p.Playlists)
