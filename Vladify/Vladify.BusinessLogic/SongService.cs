@@ -8,7 +8,7 @@ using Vladify.DataAccess.Interfaces;
 
 namespace Vladify.BusinessLogic;
 
-public class SongService(IRepository<Song> _songRepository, IMapper _mapper) : ISongService
+public class SongService(ISongRepository _songRepository, IMapper _mapper) : ISongService
 {
     public async Task<SongModel> AddSongAsync(SongRequestModel songRequestModel, CancellationToken cancellationToken)
     {
@@ -21,14 +21,14 @@ public class SongService(IRepository<Song> _songRepository, IMapper _mapper) : I
 
     public async Task<SongModel?> GetSongByIdAsync(Guid songId, bool isTracking, CancellationToken cancellationToken)
     {
-        var song = await _songRepository.GetByIdAsync(songId, isTracking, cancellationToken);
+        var song = await _songRepository.GetSongWithUserInfoByIdAsync(songId, isTracking, cancellationToken);
 
         return _mapper.Map<SongModel>(song);
     }
 
     public async Task<IEnumerable<SongModel>> GetSongsAsync(PaginationFilter filter, CancellationToken cancellationToken)
     {
-        var songs = await _songRepository.GetAllAsync(filter.PageNumber, filter.PageSize, cancellationToken);
+        var songs = await _songRepository.GetSongsWithUserInfoByIdAsync(filter.PageNumber, filter.PageSize, cancellationToken);
 
         return _mapper.Map<IEnumerable<SongModel>>(songs);
     }
