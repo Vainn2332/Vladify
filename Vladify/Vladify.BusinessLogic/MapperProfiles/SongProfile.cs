@@ -9,11 +9,21 @@ public class SongProfile : Profile
     public SongProfile()
     {
         CreateMap<SongRequestModel, Song>()
-            .ForMember(dest => dest.Id, opt => opt.Ignore());
+            .ForMember(dest => dest.Id, opt => opt.Ignore())
+            .ForMember(dest => dest.Owner, opt => opt.Ignore())
+            .ForMember(dest => dest.Playlists, opt => opt.Ignore());
+
 
         CreateMap<SongRequestModel, SongModel>()
-            .ForMember(dest => dest.Id, opt => opt.Ignore());
+            .ForMember(dest => dest.Id, opt => opt.Ignore())
+            .ForMember(dest => dest.Author, opt => opt.Ignore());
 
-        CreateMap<SongModel, Song>().ReverseMap();
+        CreateMap<Song, SongModel>()
+           .ForMember(dest => dest.Author,
+               opt => opt.MapFrom(src => src.Owner.Name));
+
+        CreateMap<SongModel, Song>()
+           .ForMember(dest => dest.Owner, opt => opt.Ignore())
+           .ForMember(dest => dest.Playlists, opt => opt.Ignore());
     }
 }
