@@ -8,19 +8,20 @@ using Vladify.BusinessLogic.Models;
 using Vladify.BusinessLogic.Models.SongModels;
 using Vladify.DataAccess.Entities;
 using Vladify.DataAccess.Interfaces;
+using Vladify.IntegrationTests;
 
 namespace Vladify.UnitTests;
 
 public class SongServiceTest
 {
     private readonly IFixture _fixture;
-    private readonly Mock<IRepository<Song>> _songRepositoryMock;
+    private readonly Mock<ISongRepository> _songRepositoryMock;
     private readonly Mock<IMapper> _mapperMock;
     private readonly SongService _songService;
     public SongServiceTest()
     {
-        _fixture = new Fixture().Customize(new AutoMoqCustomization());
-        _songRepositoryMock = _fixture.Freeze<Mock<IRepository<Song>>>();
+        _fixture = AutoFixtureOptions.CreateFixture().Customize(new AutoMoqCustomization());
+        _songRepositoryMock = _fixture.Freeze<Mock<ISongRepository>>();
         _mapperMock = _fixture.Freeze<Mock<IMapper>>();
         _songService = _fixture.Create<SongService>();
     }
@@ -51,7 +52,7 @@ public class SongServiceTest
         var paginationFilter = _fixture.Create<PaginationFilter>();
         var songEntityList = _fixture.CreateMany<Song>(paginationFilter.PageSize);
         var expectedModels = _fixture.CreateMany<SongModel>(paginationFilter.PageSize);
-        _songRepositoryMock.Setup(m => m.GetAllAsync(paginationFilter.PageNumber, paginationFilter.PageSize, It.IsAny<CancellationToken>()))
+        _songRepositoryMock.Setup(m => m.GetSongsWithUserInfoByIdAsync(paginationFilter.PageNumber, paginationFilter.PageSize, It.IsAny<CancellationToken>()))
             .ReturnsAsync(songEntityList);
         _mapperMock.Setup(m => m.Map<IEnumerable<SongModel>>(songEntityList))
             .Returns(expectedModels);
@@ -61,7 +62,7 @@ public class SongServiceTest
         Assert.NotNull(result);
         Assert.Equal(paginationFilter.PageSize, expectedModels.Count());
 
-        _songRepositoryMock.Verify(m => m.GetAllAsync(paginationFilter.PageNumber, paginationFilter.PageSize, It.IsAny<CancellationToken>()), Times.Once);
+        _songRepositoryMock.Verify(m => m.GetSongsWithUserInfoByIdAsync(paginationFilter.PageNumber, paginationFilter.PageSize, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -69,7 +70,7 @@ public class SongServiceTest
     {
         var songEntity = _fixture.Create<Song>();
         var songModel = _fixture.Create<SongModel>();
-        _songRepositoryMock.Setup(m => m.GetByIdAsync(songEntity.Id, It.IsAny<bool>(), It.IsAny<CancellationToken>()))
+        _songRepositoryMock.Setup(m => m.GetSongWithUserInfoByIdAsync(songEntity.Id, It.IsAny<bool>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(songEntity);
         _mapperMock.Setup(m => m.Map<SongModel>(songEntity))
             .Returns(songModel);
@@ -79,14 +80,14 @@ public class SongServiceTest
         Assert.NotNull(result);
         Assert.IsType<SongModel>(result);
 
-        _songRepositoryMock.Verify(m => m.GetByIdAsync(songEntity.Id, It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Once);
+        _songRepositoryMock.Verify(m => m.GetSongWithUserInfoByIdAsync(songEntity.Id, It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
     public async Task GetSongById_Should_ReturnNull_WhenNotFound()
     {
         var invalidSongId = Guid.NewGuid();
-        _songRepositoryMock.Setup(m => m.GetByIdAsync(invalidSongId, It.IsAny<bool>(), It.IsAny<CancellationToken>()))
+        _songRepositoryMock.Setup(m => m.GetSongWithUserInfoByIdAsync(invalidSongId, It.IsAny<bool>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((Song?)null);
         _mapperMock.Setup(m => m.Map<SongModel>(null))
             .Returns((SongModel)null!);
@@ -95,7 +96,7 @@ public class SongServiceTest
 
         Assert.Null(result);
 
-        _songRepositoryMock.Verify(m => m.GetByIdAsync(invalidSongId, It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Once);
+        _songRepositoryMock.Verify(m => m.GetSongWithUserInfoByIdAsync(invalidSongId, It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]

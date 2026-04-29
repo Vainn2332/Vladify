@@ -30,10 +30,6 @@ public class SongValidator : AbstractValidator<SongRequestModel>
             .NotEmpty().WithMessage(Constraints.FieldRequiredMessage)
             .MaximumLength(Constraints.MaxDefaultStringLength).WithMessage(Constraints.LengthExceededMessage);
 
-        RuleFor(song => song.Author)
-            .NotEmpty().WithMessage(Constraints.FieldRequiredMessage)
-            .MaximumLength(Constraints.MaxDefaultStringLength).WithMessage(Constraints.LengthExceededMessage);
-
         RuleFor(song => song.Duration)
             .NotEmpty().WithMessage(Constraints.FieldRequiredMessage)
             .InclusiveBetween(Constraints.MinSongDuration, Constraints.MaxSongDuration).WithMessage(Constraints.BetweenValueMessage);
