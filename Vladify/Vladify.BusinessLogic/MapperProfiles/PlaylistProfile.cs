@@ -16,6 +16,5 @@ public class PlaylistProfile : Profile
         CreateMap<Playlist, PlaylistModel>()
             .ForMember(dest => dest.AuthorName,
                 opt => opt.MapFrom(src => src.Owner.Name));
-
     }
 }
