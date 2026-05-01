@@ -3,6 +3,7 @@ using FluentValidation;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Vladify.BusinessLogic.MapperProfiles;
+using Vladify.BusinessLogic.Models.PlaylistModels;
 using Vladify.BusinessLogic.Models.SongModels;
 using Vladify.BusinessLogic.ServiceInterfaces;
 using Vladify.BusinessLogic.Services;
@@ -45,7 +46,11 @@ public static class BusinessLogicLayerExtensions
 
     private static IServiceCollection AddValidators(this IServiceCollection services)
     {
-        services.AddScoped<IValidator<SongRequestModel>, SongValidator>();
+        services
+            .AddScoped<IValidator<SongRequestModel>, SongValidator>()
+            .AddScoped<IValidator<PlaylistRequestModel>, PlaylistValidator>();
+
+
 
         return services;
     }
