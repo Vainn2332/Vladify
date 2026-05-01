@@ -6,7 +6,7 @@ using Vladify.BusinessLogic.ServiceInterfaces;
 using Vladify.DataAccess.Entities;
 using Vladify.DataAccess.Interfaces;
 
-namespace Vladify.BusinessLogic;
+namespace Vladify.BusinessLogic.Services;
 
 public class SongService(ISongRepository _songRepository, IMapper _mapper) : ISongService
 {
