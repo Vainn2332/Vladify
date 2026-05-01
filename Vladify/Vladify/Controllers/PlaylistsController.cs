@@ -15,29 +15,21 @@ public class PlaylistsController(IPlaylistService _playlistService) : Controller
 {
     [HttpPost, ValidationFilter]
     public Task<PlaylistModel> CreatePlaylist(
-    PlaylistRequestModel playRequestModel,
-    CancellationToken cancellationToken = default)
+        PlaylistRequestModel playRequestModel,
+        CancellationToken cancellationToken = default
+        )
     {
         return _playlistService.AddPlaylistAsync(playRequestModel, cancellationToken);
     }
 
-    [HttpGet]
-    public Task<IEnumerable<PlaylistModel>> GetAllPlaylistsOfUser(
-       [FromQuery] PaginationFilter filter,
-       Guid userId,
-       CancellationToken cancellationToken = default
-       )
+    [HttpPost("{playlistId}/songs/{songId}")]
+    public Task<PlaylistModel> AddSongToPlaylist(
+        Guid playlistId,
+        Guid songId,
+        CancellationToken cancellationToken
+        )
     {
-        return _playlistService.GetPlaylistsOfUserAsync(userId, filter, cancellationToken);
-    }
-
-    [HttpGet]
-    public Task<IEnumerable<PlaylistModel>> GetAllPlaylists(
-       [FromQuery] PaginationFilter filter,
-       CancellationToken cancellationToken = default
-       )
-    {
-        return _playlistService.GetPlaylistsAsync(filter, cancellationToken);
+        return _playlistService.AddSongToPlaylistAsync(playlistId, songId, cancellationToken);
     }
 
     [HttpGet("{id}")]
@@ -49,9 +41,29 @@ public class PlaylistsController(IPlaylistService _playlistService) : Controller
         return playlist;
     }
 
+    [HttpGet]
+    public Task<IEnumerable<PlaylistModel>> GetAllPlaylistsOfUser(
+        [FromQuery] PaginationFilter filter,
+        Guid userId,
+        CancellationToken cancellationToken = default
+        )
+    {
+        return _playlistService.GetPlaylistsOfUserAsync(userId, filter, cancellationToken);
+    }
+
     [HttpDelete("{id}")]
     public Task DeletePlaylist(Guid id, CancellationToken cancellationToken = default)
     {
         return _playlistService.DeletePlaylistAsync(id, cancellationToken);
+    }
+
+    [HttpDelete("{playlistId}/songs/{songId}")]
+    public Task<PlaylistModel> DeleteSongInPlaylist(
+        Guid playlistId,
+        Guid songId,
+        CancellationToken cancellationToken
+        )
+    {
+        return _playlistService.DeleteSongFromPlaylistAsync(playlistId, songId, cancellationToken);
     }
 }
