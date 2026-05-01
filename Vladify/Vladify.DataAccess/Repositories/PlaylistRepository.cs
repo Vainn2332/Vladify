@@ -10,6 +10,7 @@ public class PlaylistRepository(ApplicationDbContext _context) : Repository<Play
     {
         return (isTracking ? _context.Playlists : _context.Playlists.AsNoTracking())
             .Include(p => p.Songs)
+            .ThenInclude(p => p.Owner)
             .FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
     }
 
@@ -17,6 +18,7 @@ public class PlaylistRepository(ApplicationDbContext _context) : Repository<Play
     {
         return await _context.Playlists
             .Include(p => p.Songs)
+            .ThenInclude(p => p.Owner)
             .OrderBy(p => p.Id)
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
