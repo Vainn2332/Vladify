@@ -8,13 +8,29 @@ using Vladify.DataAccess.Interfaces;
 
 namespace Vladify.BusinessLogic.Services;
 
-public class PlaylistService(IPlaylistRepository _repository, IMapper _mapper) : IPlaylistService
+public class PlaylistService(IPlaylistRepository _repository, ISongRepository _songRepository, IMapper _mapper) : IPlaylistService
 {
     public async Task<PlaylistModel> AddPlaylistAsync(PlaylistRequestModel playlistRequestModel, CancellationToken cancellationToken)
     {
-        var playlist = _mapper.Map<Playlist>(playlistRequestModel);
+        var entityPlaylist = _mapper.Map<Playlist>(playlistRequestModel);
 
-        var newPlaylist = await _repository.AddAsync(playlist, cancellationToken);
+        var playlist = await _repository.AddAsync(entityPlaylist, cancellationToken);
+
+        var newPlaylist = await _repository.GetPlaylistAsync(playlist.Id, false, cancellationToken);
+
+        return _mapper.Map<PlaylistModel>(newPlaylist);
+    }
+
+    public async Task<PlaylistModel> AddSongToPlaylistAsync(Guid playlistId, Guid songId, CancellationToken cancellationToken)
+    {
+        var playlist = await _repository.GetPlaylistAsync(playlistId, true, cancellationToken)
+            ?? throw new NotFoundException("Playlist with such id doesn't exist!");
+        var song = await _songRepository.GetByIdAsync(songId, true, cancellationToken)
+            ?? throw new NotFoundException("Song with such id doesn't exist!");
+
+        await _repository.AddSongToPlaylistAsync(playlist, song, cancellationToken);
+
+        var newPlaylist = await _repository.GetPlaylistAsync(playlistId, false, cancellationToken);
 
         return _mapper.Map<PlaylistModel>(newPlaylist);
     }
@@ -33,18 +49,25 @@ public class PlaylistService(IPlaylistRepository _repository, IMapper _mapper) :
         return _mapper.Map<IEnumerable<PlaylistModel>>(playlists);
     }
 
-    public async Task<IEnumerable<PlaylistModel>> GetPlaylistsAsync(PaginationFilter filter, CancellationToken cancellationToken)
-    {
-        var playlists = await _repository.GetPlaylistsAsync(filter.PageNumber, filter.PageSize, cancellationToken);
-
-        return _mapper.Map<IEnumerable<PlaylistModel>>(playlists);
-    }
-
     public async Task DeletePlaylistAsync(Guid playlistId, CancellationToken cancellationToken)
     {
         var playlist = await _repository.GetByIdAsync(playlistId, true, cancellationToken)
             ?? throw new NotFoundException("Playlist with such id not found!");
 
         await _repository.DeleteAsync(playlist, cancellationToken);
+    }
+
+    public async Task<PlaylistModel> DeleteSongFromPlaylistAsync(Guid playlistId, Guid songId, CancellationToken cancellationToken)
+    {
+        var playlist = await _repository.GetPlaylistAsync(playlistId, true, cancellationToken)
+          ?? throw new NotFoundException("Playlist with such id doesn't exist!");
+        var song = await _songRepository.GetByIdAsync(songId, true, cancellationToken)
+            ?? throw new NotFoundException("Song with such id doesn't exist!");
+
+        await _repository.DeleteSongFromPlaylistAsync(playlist, song, cancellationToken);
+
+        var newPlaylist = await _repository.GetPlaylistAsync(playlistId, false, cancellationToken);
+
+        return _mapper.Map<PlaylistModel>(newPlaylist);
     }
 }
