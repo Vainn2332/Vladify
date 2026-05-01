@@ -16,7 +16,9 @@ public class SongService(ISongRepository _songRepository, IMapper _mapper) : ISo
 
         var newSong = await _songRepository.AddAsync(song, cancellationToken);
 
-        return _mapper.Map<SongModel>(newSong);
+        var songWithOwner = await _songRepository.GetSongWithUserInfoByIdAsync(newSong.Id, false, cancellationToken);
+
+        return _mapper.Map<SongModel>(songWithOwner);
     }
 
     public async Task<SongModel?> GetSongByIdAsync(Guid songId, bool isTracking, CancellationToken cancellationToken)
