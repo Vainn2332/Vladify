@@ -4,7 +4,7 @@ using Vladify.DataAccess.Interfaces;
 
 namespace Vladify.DataAccess.Repositories;
 
-public class PlaylistRepository(ApplicationDbContext _context) : Repository<Playlist>(_context), IPlaylistRepopsitory
+public class PlaylistRepository(ApplicationDbContext _context) : Repository<Playlist>(_context), IPlaylistRepository
 {
     public Task<Playlist?> GetPlaylistAsync(Guid id, bool isTracking, CancellationToken cancellationToken)
     {
