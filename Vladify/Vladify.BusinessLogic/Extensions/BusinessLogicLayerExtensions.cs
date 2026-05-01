@@ -50,8 +50,6 @@ public static class BusinessLogicLayerExtensions
             .AddScoped<IValidator<SongRequestModel>, SongValidator>()
             .AddScoped<IValidator<PlaylistRequestModel>, PlaylistValidator>();
 
-
-
         return services;
     }
 
