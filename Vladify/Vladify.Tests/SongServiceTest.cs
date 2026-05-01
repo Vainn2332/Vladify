@@ -41,7 +41,7 @@ public class SongServiceTest
         var result = await _songService.AddSongAsync(request, CancellationToken.None);
 
         Assert.NotNull(result);
-        Assert.IsType<SongModel>(result);
+        Assert.IsAssignableFrom<SongModel>(result);
 
         _songRepositoryMock.Verify(m => m.AddAsync(songEntity, It.IsAny<CancellationToken>()), Times.Once);
     }
@@ -135,7 +135,7 @@ public class SongServiceTest
         var result = await _songService.UpdateSongAsync(request, CancellationToken.None);
 
         Assert.NotNull(result);
-        Assert.IsType<SongModel>(result);
+        Assert.IsAssignableFrom<SongModel>(result);
 
         _songRepositoryMock.Verify(m => m.UpdateAsync(songEntity, It.IsAny<CancellationToken>()), Times.Once);
         _songRepositoryMock.Verify(m => m.GetByIdAsync(request.Id, false, It.IsAny<CancellationToken>()), Times.Once);

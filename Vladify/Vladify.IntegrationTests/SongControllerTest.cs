@@ -123,7 +123,6 @@ public class SongControllerTest
         var existingSong = await _infrastructure.SeedDataAsync(testSong);
 
         var updateRequest = _fixture.Create<SongUpdateRequestModel>();
-        updateRequest.AuthorId = existingUser.Id;
         var jwt = IntegrationTestInfrastructure.GenerateTestJWT();
         _infrastructure.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
 
