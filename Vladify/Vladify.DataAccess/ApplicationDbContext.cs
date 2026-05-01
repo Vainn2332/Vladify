@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Bogus;
+using Microsoft.EntityFrameworkCore;
 using Vladify.DataAccess.Constants;
 using Vladify.DataAccess.DbConfig;
 using Vladify.DataAccess.Entities;
@@ -18,13 +19,15 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         modelBuilder.ApplyConfiguration(new SongDbConfig());
         modelBuilder.ApplyConfiguration(new PlaylistDbConfig());
 
-        //SeedData(modelBuilder);
+        SeedData(modelBuilder);
 
         base.OnModelCreating(modelBuilder);
     }
 
     private void SeedData(ModelBuilder modelBuilder)
     {
+        Randomizer.Seed = new Random(DataAccessLayerConstants.RandomSeedDataNumber);
+
         var users = new UserFaker().Generate(DataAccessLayerConstants.UserSeedDataAmount);
         var userIds = users.Select(u => u.Id).ToList();
 
