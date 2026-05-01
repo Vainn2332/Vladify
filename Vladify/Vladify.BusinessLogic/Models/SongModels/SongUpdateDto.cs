@@ -1,6 +1,6 @@
 ﻿namespace Vladify.BusinessLogic.Models.SongModels;
 
-public class SongModel
+public class SongUpdateDto
 {
     public Guid Id { get; set; }
 
@@ -8,7 +8,7 @@ public class SongModel
 
     public required string Album { get; set; }
 
-    public required string Author { get; set; }
+    public Guid AuthorId { get; set; }
 
     public TimeSpan Duration { get; set; } = TimeSpan.Zero;
 }
