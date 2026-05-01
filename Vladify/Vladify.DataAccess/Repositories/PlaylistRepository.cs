@@ -24,4 +24,16 @@ public class PlaylistRepository(ApplicationDbContext _context) : Repository<Play
             .Take(pageSize)
             .ToListAsync(cancellationToken);
     }
+
+    public async Task<IEnumerable<Playlist>> GetPlaylistsOfUserAsync(Guid userId, int pageNumber, int pageSize, CancellationToken cancellationToken)
+    {
+        return await _context.Playlists
+            .Where(s => s.AuthorId == userId)
+            .Include(p => p.Songs)
+            .ThenInclude(p => p.Owner)
+            .OrderBy(p => p.Id)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+    }
 }

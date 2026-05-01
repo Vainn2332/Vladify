@@ -26,6 +26,13 @@ public class PlaylistService(IPlaylistRepository _repository, IMapper _mapper) :
         return _mapper.Map<PlaylistModel>(playlist);
     }
 
+    public async Task<IEnumerable<PlaylistModel>> GetPlaylistsOfUserAsync(Guid userId, PaginationFilter filter, CancellationToken cancellationToken)
+    {
+        var playlists = await _repository.GetPlaylistsOfUserAsync(userId, filter.PageNumber, filter.PageSize, cancellationToken);
+
+        return _mapper.Map<IEnumerable<PlaylistModel>>(playlists);
+    }
+
     public async Task<IEnumerable<PlaylistModel>> GetPlaylistsAsync(PaginationFilter filter, CancellationToken cancellationToken)
     {
         var playlists = await _repository.GetPlaylistsAsync(filter.PageNumber, filter.PageSize, cancellationToken);
@@ -40,5 +47,4 @@ public class PlaylistService(IPlaylistRepository _repository, IMapper _mapper) :
 
         await _repository.DeleteAsync(playlist, cancellationToken);
     }
-
 }
