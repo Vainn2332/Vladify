@@ -37,7 +37,8 @@ public static class BusinessLogicLayerExtensions
             .AddRepositories()
             .AddScoped<ISongService, SongService>()
             .AddScoped<IUserService, UserService>()
-            .AddScoped<IAuth0Service, Auth0Service>();
+            .AddScoped<IAuth0Service, Auth0Service>()
+            .AddScoped<IPlaylistService, PlaylistService>();
 
         return services;
     }
