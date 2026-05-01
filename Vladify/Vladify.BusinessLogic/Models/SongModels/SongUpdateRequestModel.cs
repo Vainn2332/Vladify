@@ -6,7 +6,5 @@ public class SongUpdateRequestModel
 
     public required string Album { get; set; }
 
-    public Guid AuthorId { get; set; }
-
     public TimeSpan Duration { get; set; } = TimeSpan.Zero;
 }

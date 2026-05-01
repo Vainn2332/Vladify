@@ -37,14 +37,17 @@ public class SongService(ISongRepository _songRepository, IMapper _mapper) : ISo
 
     public async Task<SongModel> UpdateSongAsync(SongUpdateDto songUpdateDto, CancellationToken cancellationToken)
     {
-        _ = await _songRepository.GetByIdAsync(songUpdateDto.Id, false, cancellationToken)
+        var existingSong = await _songRepository.GetByIdAsync(songUpdateDto.Id, false, cancellationToken)
             ?? throw new NotFoundException("Song with such id not found!");
 
         var song = _mapper.Map<Song>(songUpdateDto);
+        song.AuthorId = existingSong.AuthorId;
 
         var updatedSong = await _songRepository.UpdateAsync(song, cancellationToken);
 
-        return _mapper.Map<SongModel>(updatedSong);
+        var songWithOwner = await _songRepository.GetSongWithUserInfoByIdAsync(updatedSong.Id, false, cancellationToken);
+
+        return _mapper.Map<SongModel>(songWithOwner);
     }
 
     public async Task DeleteSongAsync(Guid songId, CancellationToken cancellationToken)

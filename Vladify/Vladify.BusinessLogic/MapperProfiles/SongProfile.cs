@@ -32,6 +32,7 @@ public class SongProfile : Profile
 
         CreateMap<SongUpdateDto, Song>()
             .ForMember(dest => dest.Owner, opt => opt.Ignore())
-            .ForMember(dest => dest.Playlists, opt => opt.Ignore());
+            .ForMember(dest => dest.Playlists, opt => opt.Ignore())
+            .ForMember(dest => dest.AuthorId, opt => opt.Ignore());
     }
 }
