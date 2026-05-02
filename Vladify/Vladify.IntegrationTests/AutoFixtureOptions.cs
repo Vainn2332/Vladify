@@ -29,6 +29,11 @@ public static class AutoFixtureOptions
         .With(s => s.Playlists, () => null!)
         );
 
+        fixture.Customize<Playlist>(builder => builder
+        .With(s => s.Owner, () => null!)
+        .With(s => s.Songs, () => null!)
+        );
+
         return fixture;
     }
 }
