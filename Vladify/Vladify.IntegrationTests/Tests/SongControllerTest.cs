@@ -9,7 +9,7 @@ using Vladify.BusinessLogic.Models;
 using Vladify.BusinessLogic.Models.SongModels;
 using Vladify.DataAccess;
 using Vladify.DataAccess.Entities;
-namespace Vladify.IntegrationTests;
+namespace Vladify.IntegrationTests.Tests;
 
 [Collection("FixtureCollection")]
 public class SongControllerTest
