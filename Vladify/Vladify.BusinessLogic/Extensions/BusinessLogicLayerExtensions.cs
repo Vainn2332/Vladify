@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
 using FluentValidation;
+using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Vladify.BusinessLogic.MapperProfiles;
 using Vladify.BusinessLogic.Models.SongModels;
+using Vladify.BusinessLogic.Options;
 using Vladify.BusinessLogic.ServiceInterfaces;
 using Vladify.BusinessLogic.Services;
 using Vladify.BusinessLogic.Validators;
@@ -19,6 +21,7 @@ public static class BusinessLogicLayerExtensions
             .AddSqlServerDb(configuration)
             .AddServices()
             .AddValidators()
+            .AddRabbitMQ(configuration)
             .AddMapping();
     }
 
@@ -56,6 +59,28 @@ public static class BusinessLogicLayerExtensions
         var mapper = sp.GetRequiredService<IMapper>();
 
         mapper.ConfigurationProvider.AssertConfigurationIsValid();
+
+        return services;
+    }
+
+    public static IServiceCollection AddRabbitMQ(this IServiceCollection services, IConfiguration configuration)
+    {
+        var rabbitOptions = configuration.GetSection(RabbitMqOptions.SectionName).Get<RabbitMqOptions>()
+            ?? throw new ArgumentException($"Failed to bind section {RabbitMqOptions.SectionName}!");
+
+        services.AddMassTransit(x =>
+        {
+            x.UsingRabbitMq((context, cfg) =>
+            {
+                cfg.Host(rabbitOptions.ServerHost, h =>
+                {
+                    h.Username(rabbitOptions.Username);
+                    h.Password(rabbitOptions.Password);
+                });
+
+                cfg.ConfigureEndpoints(context);
+            });
+        });
 
         return services;
     }
