@@ -10,7 +10,7 @@ public class PlaylistRepository(ApplicationDbContext _context) : Repository<Play
     {
         playlist.Songs.Add(song);
 
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(cancellationToken);
 
         return playlist;
     }
@@ -53,7 +53,7 @@ public class PlaylistRepository(ApplicationDbContext _context) : Repository<Play
     {
         playlist.Songs.Remove(song);
 
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(cancellationToken);
 
         return playlist;
     }
