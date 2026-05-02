@@ -9,14 +9,13 @@ using Vladify.BusinessLogic.Models.PlaylistModels;
 using Vladify.DataAccess;
 using Vladify.DataAccess.Entities;
 
-namespace Vladify.IntegrationTests;
+namespace Vladify.IntegrationTests.Tests;
 
 [Collection("FixtureCollection")]
 public class PlaylistControllerTest
 {
     private readonly IntegrationTestInfrastructure _infrastructure;
     private readonly IFixture _fixture;
-    private const string PlaylistsApiRoute = "api/playlists";
 
     public PlaylistControllerTest(IntegrationTestInfrastructure infrastructure)
     {
@@ -36,7 +35,7 @@ public class PlaylistControllerTest
         var token = IntegrationTestInfrastructure.GenerateTestJWT();
         _infrastructure.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-        using var response = await _infrastructure.Client.PostAsJsonAsync(PlaylistsApiRoute, request);
+        using var response = await _infrastructure.Client.PostAsJsonAsync(TestConstants.PlaylistsApiRoute, request);
         var result = await response.Content.ReadFromJsonAsync<PlaylistModel>();
 
         using var scope = _infrastructure.Factory.Services.CreateScope();
@@ -72,7 +71,7 @@ public class PlaylistControllerTest
         var token = IntegrationTestInfrastructure.GenerateTestJWT();
         _infrastructure.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-        using var response = await _infrastructure.Client.PostAsync($"{PlaylistsApiRoute}/{existingPlaylist.Id}/songs/{existingSong.Id}", null);
+        using var response = await _infrastructure.Client.PostAsync($"{TestConstants.PlaylistsApiRoute}/{existingPlaylist.Id}/songs/{existingSong.Id}", null);
         var result = await response.Content.ReadFromJsonAsync<PlaylistModel>();
 
         using var scope = _infrastructure.Factory.Services.CreateScope();
@@ -101,7 +100,7 @@ public class PlaylistControllerTest
         var jwt = IntegrationTestInfrastructure.GenerateTestJWT();
         _infrastructure.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
 
-        using var response = await _infrastructure.Client.GetAsync($"{PlaylistsApiRoute}/{existingPlaylist.Id}");
+        using var response = await _infrastructure.Client.GetAsync($"{TestConstants.PlaylistsApiRoute}/{existingPlaylist.Id}");
         var result = await response.Content.ReadFromJsonAsync<PlaylistModel>();
 
         await _infrastructure.ResetDataAsync();
@@ -118,7 +117,7 @@ public class PlaylistControllerTest
         var jwt = IntegrationTestInfrastructure.GenerateTestJWT();
         _infrastructure.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
 
-        using var response = await _infrastructure.Client.GetAsync($"{PlaylistsApiRoute}/{invalidPlaylistId}");
+        using var response = await _infrastructure.Client.GetAsync($"{TestConstants.PlaylistsApiRoute}/{invalidPlaylistId}");
 
         await _infrastructure.ResetDataAsync();
 
@@ -141,7 +140,7 @@ public class PlaylistControllerTest
         var jwt = IntegrationTestInfrastructure.GenerateTestJWT();
         _infrastructure.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
 
-        var queryUrl = $"{PlaylistsApiRoute}?userId={testUser.Id}&PageNumber=1&PageSize=10";
+        var queryUrl = $"{TestConstants.PlaylistsApiRoute}?userId={testUser.Id}&PageNumber=1&PageSize=10";
         using var response = await _infrastructure.Client.GetAsync(queryUrl);
         var result = await response.Content.ReadFromJsonAsync<IEnumerable<PlaylistModel>>();
 
@@ -164,7 +163,7 @@ public class PlaylistControllerTest
         var jwt = IntegrationTestInfrastructure.GenerateTestJWT();
         _infrastructure.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
 
-        using var response = await _infrastructure.Client.DeleteAsync($"{PlaylistsApiRoute}/{existingPlaylist.Id}");
+        using var response = await _infrastructure.Client.DeleteAsync($"{TestConstants.PlaylistsApiRoute}/{existingPlaylist.Id}");
 
         using var scope = _infrastructure.Factory.Services.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
@@ -198,7 +197,7 @@ public class PlaylistControllerTest
         var jwt = IntegrationTestInfrastructure.GenerateTestJWT();
         _infrastructure.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
 
-        using var response = await _infrastructure.Client.DeleteAsync($"{PlaylistsApiRoute}/{playlist.Id}/songs/{song.Id}");
+        using var response = await _infrastructure.Client.DeleteAsync($"{TestConstants.PlaylistsApiRoute}/{playlist.Id}/songs/{song.Id}");
         var result = await response.Content.ReadFromJsonAsync<PlaylistModel>();
 
         using (var scope = _infrastructure.Factory.Services.CreateScope())
