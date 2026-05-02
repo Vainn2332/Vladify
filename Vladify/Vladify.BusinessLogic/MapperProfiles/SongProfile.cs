@@ -13,7 +13,6 @@ public class SongProfile : Profile
             .ForMember(dest => dest.Owner, opt => opt.Ignore())
             .ForMember(dest => dest.Playlists, opt => opt.Ignore());
 
-
         CreateMap<SongRequestModel, SongModel>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())
             .ForMember(dest => dest.Author, opt => opt.Ignore());
