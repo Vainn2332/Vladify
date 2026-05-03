@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
+using MassTransit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Vladify.BusinessLogic.Exceptions;
+using Vladify.BusinessLogic.Messages;
 using Vladify.BusinessLogic.Models;
 using Vladify.BusinessLogic.Models.UserModels;
 using Vladify.BusinessLogic.ServiceInterfaces;
@@ -11,12 +13,16 @@ namespace Vladify.Controllers;
 
 [Route("api/users")]
 [ApiController]
-public class UsersController(IUserService _userService, IMapper _mapper) : ControllerBase
+public class UsersController(IUserService _userService, IMapper _mapper, IPublishEndpoint _publishEndpoint) : ControllerBase
 {
     [HttpPost, ValidationFilter, ApiKeyFilter("Auth0")]
-    public Task<UserModel> CreateUser(UserRequestModel userRequestModel, CancellationToken cancellationToken = default)
+    public async Task CreateUser(UserRequestModel userRequestModel, CancellationToken cancellationToken = default)
     {
-        return _userService.AddUserAsync(userRequestModel, cancellationToken);
+        var response = await _userService.AddUserAsync(userRequestModel, cancellationToken);
+
+        var message = _mapper.Map<UserCreatedMessage>(response);
+
+        await _publishEndpoint.Publish(message);
     }
 
     [Authorize]
