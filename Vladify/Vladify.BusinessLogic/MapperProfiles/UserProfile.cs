@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Vladify.BusinessLogic.Messages;
 using Vladify.BusinessLogic.Models.UserModels;
 using Vladify.DataAccess.Entities;
 
@@ -23,7 +24,9 @@ public class UserProfile : Profile
             .ForMember(dest => dest.OwnedSongs, opt => opt.Ignore())
             .ForMember(dest => dest.Playlists, opt => opt.Ignore());
 
-
         CreateMap<User, UserModel>();
+
+        CreateMap<UserModel, UserCreatedMessage>()
+            .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.Id));
     }
 }
