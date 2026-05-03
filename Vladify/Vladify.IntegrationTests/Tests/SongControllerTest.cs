@@ -5,10 +5,11 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using Vladify.BusinessLogic.Models;
 using Vladify.BusinessLogic.Models.SongModels;
 using Vladify.DataAccess;
 using Vladify.DataAccess.Entities;
-namespace Vladify.IntegrationTests;
+namespace Vladify.IntegrationTests.Tests;
 
 [Collection("FixtureCollection")]
 public class SongControllerTest
@@ -25,7 +26,10 @@ public class SongControllerTest
     [Fact]
     public async Task AddSongAsync_Should_SaveToDatabase_When_ValidInput()
     {
+        var testUser = _fixture.Create<User>();
+        var existingUser = await _infrastructure.SeedDataAsync(testUser);
         var request = _fixture.Create<SongRequestModel>();
+        request.AuthorId = existingUser.Id;
         var token = IntegrationTestInfrastructure.GenerateTestJWT();
         _infrastructure.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
@@ -51,9 +55,35 @@ public class SongControllerTest
     }
 
     [Fact]
+    public async Task AddSongAsync_ShouldThrowError_When_OrphanRecordInput()
+    {
+        var request = _fixture.Create<SongRequestModel>();
+        var token = IntegrationTestInfrastructure.GenerateTestJWT();
+        _infrastructure.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        using var response = await _infrastructure.Client.PostAsJsonAsync(TestConstants.SongsApiRoute, request);
+        var error = await response.Content.ReadFromJsonAsync<ErrorDetails>();
+
+        using var scope = _infrastructure.Factory.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        var songInDb = await dbContext.Songs
+            .FirstOrDefaultAsync(s => s.Title == request.Title);
+
+        await _infrastructure.ResetDataAsync();
+
+        response.Should().NotBeNull();
+        error?.StatusCode.Should().Be((int)HttpStatusCode.InternalServerError);
+        songInDb.Should().BeNull();
+    }
+
+    [Fact]
     public async Task GetSongAsync_Should_ReturnSong_When_ValidInput()
     {
-        var existingSong = await _infrastructure.SeedDataAsync(_fixture.Create<Song>());
+        var testUser = _fixture.Create<User>();
+        var existingUser = await _infrastructure.SeedDataAsync(testUser);
+        var song = _fixture.Create<Song>();
+        song.AuthorId = existingUser.Id;
+        var existingSong = await _infrastructure.SeedDataAsync(song);
 
         var jwt = IntegrationTestInfrastructure.GenerateTestJWT();
         _infrastructure.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
@@ -86,8 +116,13 @@ public class SongControllerTest
     [Fact]
     public async Task UpdateSongAsync_Should_UpdateSong_When_ValidInput()
     {
-        var updateRequest = _fixture.Create<SongRequestModel>();
-        var existingSong = await _infrastructure.SeedDataAsync(_fixture.Create<Song>());
+        var testUser = _fixture.Create<User>();
+        var existingUser = await _infrastructure.SeedDataAsync(testUser);
+        var testSong = _fixture.Create<Song>();
+        testSong.AuthorId = existingUser.Id;
+        var existingSong = await _infrastructure.SeedDataAsync(testSong);
+
+        var updateRequest = _fixture.Create<SongUpdateRequestModel>();
         var jwt = IntegrationTestInfrastructure.GenerateTestJWT();
         _infrastructure.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
 
@@ -106,7 +141,12 @@ public class SongControllerTest
     [Fact]
     public async Task DeleteSongAsync_Should_DeleteSong_When_ValidInput()
     {
-        var existingSong = await _infrastructure.SeedDataAsync(_fixture.Create<Song>());
+        var testUser = _fixture.Create<User>();
+        var existingUser = await _infrastructure.SeedDataAsync(testUser);
+        var testSong = _fixture.Create<Song>();
+        testSong.AuthorId = existingUser.Id;
+        var existingSong = await _infrastructure.SeedDataAsync(testSong);
+
         var jwt = IntegrationTestInfrastructure.GenerateTestJWT();
         _infrastructure.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
 

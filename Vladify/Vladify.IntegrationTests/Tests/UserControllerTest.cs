@@ -10,7 +10,7 @@ using Vladify.BusinessLogic.Options;
 using Vladify.DataAccess;
 using Vladify.DataAccess.Entities;
 
-namespace Vladify.IntegrationTests;
+namespace Vladify.IntegrationTests.Tests;
 
 [Collection("FixtureCollection")]
 public class UserControllerTest

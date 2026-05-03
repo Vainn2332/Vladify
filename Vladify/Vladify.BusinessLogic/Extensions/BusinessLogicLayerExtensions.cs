@@ -4,9 +4,11 @@ using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Vladify.BusinessLogic.MapperProfiles;
+using Vladify.BusinessLogic.Models.PlaylistModels;
 using Vladify.BusinessLogic.Models.SongModels;
 using Vladify.BusinessLogic.Options;
 using Vladify.BusinessLogic.ServiceInterfaces;
+using Vladify.BusinessLogic.Services;
 using Vladify.BusinessLogic.Validators;
 using Vladify.DataAccess.Extensions;
 
@@ -39,14 +41,17 @@ public static class BusinessLogicLayerExtensions
             .AddRepositories()
             .AddScoped<ISongService, SongService>()
             .AddScoped<IUserService, UserService>()
-            .AddScoped<IAuth0Service, Auth0Service>();
+            .AddScoped<IAuth0Service, Auth0Service>()
+            .AddScoped<IPlaylistService, PlaylistService>();
 
         return services;
     }
 
     private static IServiceCollection AddValidators(this IServiceCollection services)
     {
-        services.AddScoped<IValidator<SongRequestModel>, SongValidator>();
+        services
+            .AddScoped<IValidator<SongRequestModel>, SongValidator>()
+            .AddScoped<IValidator<PlaylistRequestModel>, PlaylistValidator>();
 
         return services;
     }

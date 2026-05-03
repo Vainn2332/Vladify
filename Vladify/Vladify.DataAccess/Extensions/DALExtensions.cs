@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Vladify.DataAccess.Interfaces;
+using Vladify.DataAccess.Repositories;
 
 namespace Vladify.DataAccess.Extensions;
 
@@ -22,7 +23,10 @@ public static class DalExtensions
     {
         services
             .AddScoped(typeof(IRepository<>), typeof(Repository<>))
-            .AddScoped<IUserRepository, UserRepository>();
+            .AddScoped<IUserRepository, UserRepository>()
+            .AddScoped<ISongRepository, SongRepository>()
+            .AddScoped<IPlaylistRepository, PlaylistRepository>();
+
         return services;
     }
 }

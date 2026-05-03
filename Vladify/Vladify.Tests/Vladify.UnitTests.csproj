@@ -20,6 +20,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Vladify.BusinessLogic\Vladify.BusinessLogic.csproj" />
+    <ProjectReference Include="..\Vladify.IntegrationTests\Vladify.IntegrationTests.csproj" />
     <ProjectReference Include="..\Vladify\Vladify.csproj" />
   </ItemGroup>
 

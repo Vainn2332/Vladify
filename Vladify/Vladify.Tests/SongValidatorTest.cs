@@ -8,7 +8,6 @@ public class SongValidatorTest
 {
     [Theory]
     [InlineData(nameof(SongRequestModel.Title))]
-    [InlineData(nameof(SongRequestModel.Author))]
     [InlineData(nameof(SongRequestModel.Album))]
     public void SongValidator_Should_ReturnError_When_Field_IsEmpty(string propertyName)
     {
@@ -17,7 +16,7 @@ public class SongValidatorTest
         {
             Title = "Valid",
             Album = "Valid",
-            Author = "Valid",
+            AuthorId = Guid.NewGuid(),
             Duration = TimeSpan.FromMinutes(2)
         };
         typeof(SongRequestModel).GetProperty(propertyName)!.SetValue(model, "");
@@ -36,7 +35,7 @@ public class SongValidatorTest
         {
             Title = "Valid",
             Album = "Valid",
-            Author = "Valid",
+            AuthorId = Guid.NewGuid(),
             Duration = TimeSpan.Zero
         };
 
@@ -48,7 +47,6 @@ public class SongValidatorTest
 
     [Theory]
     [InlineData(nameof(SongRequestModel.Title))]
-    [InlineData(nameof(SongRequestModel.Author))]
     [InlineData(nameof(SongRequestModel.Album))]
     public void SongValidator_Should_ReturnError_When_MaxLength_Exceeded(string propertyName)
     {
@@ -57,7 +55,7 @@ public class SongValidatorTest
         var model = new SongRequestModel()
         {
             Album = "valid",
-            Author = "valid",
+            AuthorId = Guid.NewGuid(),
             Title = "valid",
             Duration = TimeSpan.FromMinutes(2)
         };
@@ -79,7 +77,7 @@ public class SongValidatorTest
         {
             Title = "valid",
             Album = "valid",
-            Author = "valid",
+            AuthorId = Guid.NewGuid(),
             Duration = TimeSpan.FromSeconds(seconds)
         };
 
@@ -96,7 +94,7 @@ public class SongValidatorTest
         var model = new SongRequestModel()
         {
             Album = "Break the horizon",
-            Author = "ENMY",
+            AuthorId = Guid.NewGuid(),
             Title = "Clarity",
             Duration = TimeSpan.FromMinutes(3).Add(TimeSpan.FromSeconds(19))
         };
