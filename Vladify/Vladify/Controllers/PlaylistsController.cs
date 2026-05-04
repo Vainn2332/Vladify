@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Vladify.BusinessLogic.Exceptions;
+using Vladify.BusinessLogic.Extensions;
 using Vladify.BusinessLogic.Models;
 using Vladify.BusinessLogic.Models.PlaylistModels;
 using Vladify.BusinessLogic.ServiceInterfaces;
@@ -11,15 +13,21 @@ namespace Vladify.Controllers;
 [Route("api/playlists")]
 [ApiController]
 [Authorize]
-public class PlaylistsController(IPlaylistService _playlistService) : ControllerBase
+public class PlaylistsController(IPlaylistService _playlistService, IMapper _mapper, IUserService _userService) : ControllerBase
 {
     [HttpPost, ValidationFilter]
-    public Task<PlaylistModel> CreatePlaylist(
-        PlaylistRequestModel playRequestModel,
+    public async Task<PlaylistModel> CreatePlaylist(
+        PlaylistAddDto playlistAddDto,
         CancellationToken cancellationToken = default
         )
     {
-        return _playlistService.AddPlaylistAsync(playRequestModel, cancellationToken);
+        var userEmail = User.GetEmail();
+        var user = await _userService.GetUserByEmailAsync(userEmail, false, cancellationToken);
+
+        var playlistRequestModel = _mapper.Map<PlaylistRequestModel>(playlistAddDto);
+        playlistRequestModel.AuthorId = user!.Id;
+
+        return await _playlistService.AddPlaylistAsync(playlistRequestModel, cancellationToken);
     }
 
     [HttpPost("{playlistId}/songs/{songId}")]
