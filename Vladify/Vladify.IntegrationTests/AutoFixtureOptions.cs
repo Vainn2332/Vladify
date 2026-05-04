@@ -25,6 +25,7 @@ public static class AutoFixtureOptions
        );
 
         fixture.Customize<User>(builder => builder
+        .With(s => s.EmailAddress, () => TestConstants.TestJwtEmailClaimValue)
         .With(s => s.OwnedSongs, () => null!)
         .With(s => s.Playlists, () => null!)
         );

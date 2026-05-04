@@ -29,8 +29,7 @@ public class PlaylistControllerTest
         var testUser = _fixture.Create<User>();
         var existingUser = await _infrastructure.SeedDataAsync(testUser);
 
-        var request = _fixture.Create<PlaylistRequestModel>();
-        request.AuthorId = testUser.Id;
+        var request = _fixture.Create<PlaylistAddDto>();
 
         var token = IntegrationTestInfrastructure.GenerateTestJWT();
         _infrastructure.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);

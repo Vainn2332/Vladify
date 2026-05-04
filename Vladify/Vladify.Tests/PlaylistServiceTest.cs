@@ -59,11 +59,12 @@ public class PlaylistServiceTest
     {
         var playlistId = Guid.NewGuid();
         var songId = Guid.NewGuid();
+        var requesterId = Guid.NewGuid();
 
         _playlistRepositoryMock.Setup(m => m.GetPlaylistAsync(playlistId, true, It.IsAny<CancellationToken>()))
             .ReturnsAsync((Playlist?)null);
 
-        var act = async () => await _playlistService.AddSongToPlaylistAsync(playlistId, songId, CancellationToken.None);
+        var act = async () => await _playlistService.AddSongToPlaylistAsync(playlistId, songId, requesterId, CancellationToken.None);
 
         await act.Should().ThrowAsync<NotFoundException>()
             .WithMessage("Playlist with such id doesn't exist!");
@@ -75,6 +76,7 @@ public class PlaylistServiceTest
     [Fact]
     public async Task AddSongToPlaylistAsync_Should_ThrowNotFoundException_WhenSongNotFound()
     {
+        var requesterId = Guid.NewGuid();
         var playlistId = Guid.NewGuid();
         var songId = Guid.NewGuid();
         var playlistEntity = _fixture.Create<Playlist>();
@@ -84,7 +86,7 @@ public class PlaylistServiceTest
         _songRepositoryMock.Setup(m => m.GetByIdAsync(songId, true, It.IsAny<CancellationToken>()))
             .ReturnsAsync((Song?)null);
 
-        var act = async () => await _playlistService.AddSongToPlaylistAsync(playlistId, songId, CancellationToken.None);
+        var act = async () => await _playlistService.AddSongToPlaylistAsync(playlistId, songId, requesterId, CancellationToken.None);
 
         await act.Should().ThrowAsync<NotFoundException>()
             .WithMessage("Song with such id doesn't exist!");
@@ -96,9 +98,11 @@ public class PlaylistServiceTest
     [Fact]
     public async Task AddSongToPlaylistAsync_Should_ReturnPlaylistModel_WhenOk()
     {
+        var requesterId = Guid.NewGuid();
         var playlistId = Guid.NewGuid();
         var songId = Guid.NewGuid();
         var playlistEntity = _fixture.Create<Playlist>();
+        playlistEntity.AuthorId = requesterId;
         var songEntity = _fixture.Create<Song>();
         var newPlaylistEntity = _fixture.Create<Playlist>();
         var expectedModel = _fixture.Create<PlaylistModel>();
@@ -113,7 +117,7 @@ public class PlaylistServiceTest
             .ReturnsAsync(newPlaylistEntity);
         _mapperMock.Setup(m => m.Map<PlaylistModel>(newPlaylistEntity)).Returns(expectedModel);
 
-        var result = await _playlistService.AddSongToPlaylistAsync(playlistId, songId, CancellationToken.None);
+        var result = await _playlistService.AddSongToPlaylistAsync(playlistId, songId, requesterId, CancellationToken.None);
 
         result.Should().NotBeNull();
         result.Should().BeOfType<PlaylistModel>();
@@ -181,11 +185,11 @@ public class PlaylistServiceTest
     public async Task DeletePlaylistAsync_Should_ThrowNotFoundException_WhenNotFound()
     {
         var invalidPlaylistId = Guid.NewGuid();
-
+        var requesterId = Guid.NewGuid();
         _playlistRepositoryMock.Setup(m => m.GetByIdAsync(invalidPlaylistId, true, It.IsAny<CancellationToken>()))
             .ReturnsAsync((Playlist?)null);
 
-        var act = async () => await _playlistService.DeletePlaylistAsync(invalidPlaylistId, CancellationToken.None);
+        var act = async () => await _playlistService.DeletePlaylistAsync(invalidPlaylistId, requesterId, CancellationToken.None);
 
         await act.Should().ThrowAsync<NotFoundException>()
             .WithMessage("Playlist with such id not found!");
@@ -197,14 +201,15 @@ public class PlaylistServiceTest
     [Fact]
     public async Task DeletePlaylistAsync_Should_Delete_WhenExists()
     {
+        var requesterId = Guid.NewGuid();
         var playlistEntity = _fixture.Create<Playlist>();
-
+        playlistEntity.AuthorId = requesterId;
         _playlistRepositoryMock.Setup(m => m.GetByIdAsync(playlistEntity.Id, true, It.IsAny<CancellationToken>()))
             .ReturnsAsync(playlistEntity);
         _playlistRepositoryMock.Setup(m => m.DeleteAsync(playlistEntity, It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
-        var act = async () => await _playlistService.DeletePlaylistAsync(playlistEntity.Id, CancellationToken.None);
+        var act = async () => await _playlistService.DeletePlaylistAsync(playlistEntity.Id, requesterId, CancellationToken.None);
 
         await act.Should().NotThrowAsync();
 
@@ -217,11 +222,12 @@ public class PlaylistServiceTest
     {
         var playlistId = Guid.NewGuid();
         var songId = Guid.NewGuid();
+        var requesterId = Guid.NewGuid();
 
         _playlistRepositoryMock.Setup(m => m.GetPlaylistAsync(playlistId, true, It.IsAny<CancellationToken>()))
             .ReturnsAsync((Playlist?)null);
 
-        var act = async () => await _playlistService.DeleteSongFromPlaylistAsync(playlistId, songId, CancellationToken.None);
+        var act = async () => await _playlistService.DeleteSongFromPlaylistAsync(playlistId, songId, requesterId, CancellationToken.None);
 
         await act.Should().ThrowAsync<NotFoundException>()
             .WithMessage("Playlist with such id doesn't exist!");
@@ -233,16 +239,18 @@ public class PlaylistServiceTest
     [Fact]
     public async Task DeleteSongFromPlaylistAsync_Should_ThrowNotFoundException_WhenSongNotFound()
     {
+        var requesterId = Guid.NewGuid();
         var playlistId = Guid.NewGuid();
         var songId = Guid.NewGuid();
         var playlistEntity = _fixture.Create<Playlist>();
+        playlistEntity.AuthorId = requesterId;
 
         _playlistRepositoryMock.Setup(m => m.GetPlaylistAsync(playlistId, true, It.IsAny<CancellationToken>()))
             .ReturnsAsync(playlistEntity);
         _songRepositoryMock.Setup(m => m.GetByIdAsync(songId, true, It.IsAny<CancellationToken>()))
             .ReturnsAsync((Song?)null);
 
-        var act = async () => await _playlistService.DeleteSongFromPlaylistAsync(playlistId, songId, CancellationToken.None);
+        var act = async () => await _playlistService.DeleteSongFromPlaylistAsync(playlistId, songId, requesterId, CancellationToken.None);
 
         await act.Should().ThrowAsync<NotFoundException>()
             .WithMessage("Song with such id doesn't exist!");
@@ -254,9 +262,11 @@ public class PlaylistServiceTest
     [Fact]
     public async Task DeleteSongFromPlaylistAsync_Should_ReturnPlaylistModel_WhenOk()
     {
+        var requesterId = Guid.NewGuid();
         var playlistId = Guid.NewGuid();
         var songId = Guid.NewGuid();
         var playlistEntity = _fixture.Create<Playlist>();
+        playlistEntity.AuthorId = requesterId;
         var songEntity = _fixture.Create<Song>();
         var newPlaylistEntity = _fixture.Create<Playlist>();
         var expectedModel = _fixture.Create<PlaylistModel>();
@@ -271,7 +281,7 @@ public class PlaylistServiceTest
             .ReturnsAsync(newPlaylistEntity);
         _mapperMock.Setup(m => m.Map<PlaylistModel>(newPlaylistEntity)).Returns(expectedModel);
 
-        var result = await _playlistService.DeleteSongFromPlaylistAsync(playlistId, songId, CancellationToken.None);
+        var result = await _playlistService.DeleteSongFromPlaylistAsync(playlistId, songId, requesterId, CancellationToken.None);
 
         result.Should().NotBeNull();
         result.Should().BeOfType<PlaylistModel>();
