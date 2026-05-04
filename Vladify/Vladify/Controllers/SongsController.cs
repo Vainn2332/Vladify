@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Vladify.BusinessLogic.Exceptions;
+using Vladify.BusinessLogic.Extensions;
 using Vladify.BusinessLogic.Models;
 using Vladify.BusinessLogic.Models.SongModels;
 using Vladify.BusinessLogic.ServiceInterfaces;
@@ -11,14 +12,21 @@ namespace Vladify.Controllers;
 [Route("api/songs")]
 [ApiController]
 [Authorize]
-public class SongsController(ISongService _songService, IMapper _mapper) : ControllerBase
+public class SongsController(ISongService _songService, IMapper _mapper, IUserService _userService) : ControllerBase
 {
     [HttpPost, ValidationFilter]
-    public Task<SongModel> CreateSong(
-        SongRequestModel songRequestModel,
+    public async Task<SongModel> CreateSong(
+        SongAddDto songAddDto,
         CancellationToken cancellationToken = default)
     {
-        return _songService.AddSongAsync(songRequestModel, cancellationToken);
+        var userEmail = User.GetEmail();
+        var user = await _userService.GetUserByEmailAsync(userEmail, false, cancellationToken)
+            ?? throw new NotFoundException("User with such email not found!");
+
+        var songRequestModel = _mapper.Map<SongRequestModel>(songAddDto);
+        songRequestModel.AuthorId = user.Id;
+
+        return await _songService.AddSongAsync(songRequestModel, cancellationToken);
     }
 
     [HttpGet]
@@ -45,15 +53,24 @@ public class SongsController(ISongService _songService, IMapper _mapper) : Contr
         SongUpdateRequestModel songRequestModel,
         CancellationToken cancellationToken = default)
     {
+        var userEmail = User.GetEmail();
+        var user = await _userService.GetUserByEmailAsync(userEmail, false, cancellationToken)
+            ?? throw new NotFoundException("User with such email not found!");
+
+
         var songUpdateDto = _mapper.Map<SongUpdateDto>(songRequestModel);
         songUpdateDto.Id = id;
 
-        return await _songService.UpdateSongAsync(songUpdateDto, cancellationToken);
+        return await _songService.UpdateSongAsync(songUpdateDto, user.Id, cancellationToken);
     }
 
     [HttpDelete("{id}")]
-    public Task DeleteSong(Guid id, CancellationToken cancellationToken = default)
+    public async Task DeleteSong(Guid id, CancellationToken cancellationToken = default)
     {
-        return _songService.DeleteSongAsync(id, cancellationToken);
+        var userEmail = User.GetEmail();
+        var user = await _userService.GetUserByEmailAsync(userEmail, false, cancellationToken)
+            ?? throw new NotFoundException("User with such email not found!");
+
+        await _songService.DeleteSongAsync(id, user.Id, cancellationToken);
     }
 }

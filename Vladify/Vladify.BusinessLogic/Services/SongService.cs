@@ -35,10 +35,14 @@ public class SongService(ISongRepository _songRepository, IMapper _mapper) : ISo
         return _mapper.Map<IEnumerable<SongModel>>(songs);
     }
 
-    public async Task<SongModel> UpdateSongAsync(SongUpdateDto songUpdateDto, CancellationToken cancellationToken)
+    public async Task<SongModel> UpdateSongAsync(SongUpdateDto songUpdateDto, Guid requesterId, CancellationToken cancellationToken)
     {
         var existingSong = await _songRepository.GetByIdAsync(songUpdateDto.Id, false, cancellationToken)
             ?? throw new NotFoundException("Song with such id not found!");
+        if (existingSong.AuthorId != requesterId)
+        {
+            throw new ForbiddenException("You don't have permisiions to modify this song!");
+        }
 
         var song = _mapper.Map<Song>(songUpdateDto);
         song.AuthorId = existingSong.AuthorId;
@@ -50,10 +54,14 @@ public class SongService(ISongRepository _songRepository, IMapper _mapper) : ISo
         return _mapper.Map<SongModel>(songWithOwner);
     }
 
-    public async Task DeleteSongAsync(Guid songId, CancellationToken cancellationToken)
+    public async Task DeleteSongAsync(Guid songId, Guid requesterId, CancellationToken cancellationToken)
     {
         var song = await _songRepository.GetByIdAsync(songId, true, cancellationToken)
             ?? throw new NotFoundException("Song with such id not found!");
+        if (song.AuthorId != requesterId)
+        {
+            throw new ForbiddenException("You don't have permisiions to modify this song!");
+        }
 
         await _songRepository.DeleteAsync(song, cancellationToken);
     }
