@@ -21,12 +21,16 @@ public class PlaylistService(IPlaylistRepository _repository, ISongRepository _s
         return _mapper.Map<PlaylistModel>(newPlaylist);
     }
 
-    public async Task<PlaylistModel> AddSongToPlaylistAsync(Guid playlistId, Guid songId, CancellationToken cancellationToken)
+    public async Task<PlaylistModel> AddSongToPlaylistAsync(Guid playlistId, Guid songId, Guid requesterId, CancellationToken cancellationToken)
     {
         var playlist = await _repository.GetPlaylistAsync(playlistId, true, cancellationToken)
             ?? throw new NotFoundException("Playlist with such id doesn't exist!");
         var song = await _songRepository.GetByIdAsync(songId, true, cancellationToken)
             ?? throw new NotFoundException("Song with such id doesn't exist!");
+        if (playlist.AuthorId != requesterId)
+        {
+            throw new ForbiddenException("You don't have permissions to modify this playlist!");
+        }
 
         await _repository.AddSongToPlaylistAsync(playlist, song, cancellationToken);
 
@@ -49,20 +53,28 @@ public class PlaylistService(IPlaylistRepository _repository, ISongRepository _s
         return _mapper.Map<IEnumerable<PlaylistModel>>(playlists);
     }
 
-    public async Task DeletePlaylistAsync(Guid playlistId, CancellationToken cancellationToken)
+    public async Task DeletePlaylistAsync(Guid playlistId, Guid requesterId, CancellationToken cancellationToken)
     {
         var playlist = await _repository.GetByIdAsync(playlistId, true, cancellationToken)
             ?? throw new NotFoundException("Playlist with such id not found!");
+        if (playlist.AuthorId != requesterId)
+        {
+            throw new ForbiddenException("You don't have permissions to delete this playlist!");
+        }
 
         await _repository.DeleteAsync(playlist, cancellationToken);
     }
 
-    public async Task<PlaylistModel> DeleteSongFromPlaylistAsync(Guid playlistId, Guid songId, CancellationToken cancellationToken)
+    public async Task<PlaylistModel> DeleteSongFromPlaylistAsync(Guid playlistId, Guid songId, Guid requesterId, CancellationToken cancellationToken)
     {
         var playlist = await _repository.GetPlaylistAsync(playlistId, true, cancellationToken)
           ?? throw new NotFoundException("Playlist with such id doesn't exist!");
         var song = await _songRepository.GetByIdAsync(songId, true, cancellationToken)
             ?? throw new NotFoundException("Song with such id doesn't exist!");
+        if (playlist.AuthorId != requesterId)
+        {
+            throw new ForbiddenException("You don't have permissions to modify this playlist!");
+        }
 
         await _repository.DeleteSongFromPlaylistAsync(playlist, song, cancellationToken);
 

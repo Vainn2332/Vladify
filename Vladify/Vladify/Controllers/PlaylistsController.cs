@@ -22,22 +22,27 @@ public class PlaylistsController(IPlaylistService _playlistService, IMapper _map
         )
     {
         var userEmail = User.GetEmail();
-        var user = await _userService.GetUserByEmailAsync(userEmail, false, cancellationToken);
+        var user = await _userService.GetUserByEmailAsync(userEmail, false, cancellationToken)
+            ?? throw new NotFoundException("User with such email not found!");
 
         var playlistRequestModel = _mapper.Map<PlaylistRequestModel>(playlistAddDto);
-        playlistRequestModel.AuthorId = user!.Id;
+        playlistRequestModel.AuthorId = user.Id;
 
         return await _playlistService.AddPlaylistAsync(playlistRequestModel, cancellationToken);
     }
 
     [HttpPost("{playlistId}/songs/{songId}")]
-    public Task<PlaylistModel> AddSongToPlaylist(
+    public async Task<PlaylistModel> AddSongToPlaylist(
         Guid playlistId,
         Guid songId,
         CancellationToken cancellationToken
         )
     {
-        return _playlistService.AddSongToPlaylistAsync(playlistId, songId, cancellationToken);
+        var userEmail = User.GetEmail();
+        var user = await _userService.GetUserByEmailAsync(userEmail, false, cancellationToken)
+            ?? throw new NotFoundException("User with such email not found!");
+
+        return await _playlistService.AddSongToPlaylistAsync(playlistId, songId, user.Id, cancellationToken);
     }
 
     [HttpGet("{id}")]
@@ -60,18 +65,26 @@ public class PlaylistsController(IPlaylistService _playlistService, IMapper _map
     }
 
     [HttpDelete("{id}")]
-    public Task DeletePlaylist(Guid id, CancellationToken cancellationToken = default)
+    public async Task DeletePlaylist(Guid id, CancellationToken cancellationToken = default)
     {
-        return _playlistService.DeletePlaylistAsync(id, cancellationToken);
+        var userEmail = User.GetEmail();
+        var user = await _userService.GetUserByEmailAsync(userEmail, false, cancellationToken)
+            ?? throw new NotFoundException("User with such email not found!");
+
+        await _playlistService.DeletePlaylistAsync(id, user.Id, cancellationToken);
     }
 
     [HttpDelete("{playlistId}/songs/{songId}")]
-    public Task<PlaylistModel> DeleteSongInPlaylist(
+    public async Task<PlaylistModel> DeleteSongInPlaylist(
         Guid playlistId,
         Guid songId,
         CancellationToken cancellationToken
         )
     {
-        return _playlistService.DeleteSongFromPlaylistAsync(playlistId, songId, cancellationToken);
+        var userEmail = User.GetEmail();
+        var user = await _userService.GetUserByEmailAsync(userEmail, false, cancellationToken)
+            ?? throw new NotFoundException("User with such email not found!");
+
+        return await _playlistService.DeleteSongFromPlaylistAsync(playlistId, songId, user.Id, cancellationToken);
     }
 }
