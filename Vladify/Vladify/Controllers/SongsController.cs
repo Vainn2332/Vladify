@@ -9,6 +9,13 @@ using Vladify.BusinessLogic.ServiceInterfaces;
 using Vladify.Filters;
 namespace Vladify.Controllers;
 
+file static class ErrorMessages
+{
+    public const string SongNotFound = "Song with such id not found!";
+
+    public const string UserNotFound = "User with such email not found!";
+}
+
 [Route("api/songs")]
 [ApiController]
 [Authorize]
@@ -21,7 +28,7 @@ public class SongsController(ISongService _songService, IMapper _mapper, IUserSe
     {
         var userEmail = User.GetEmail();
         var user = await _userService.GetUserByEmailAsync(userEmail, false, cancellationToken)
-            ?? throw new NotFoundException("User with such email not found!");
+            ?? throw new NotFoundException(ErrorMessages.UserNotFound);
 
         var songRequestModel = _mapper.Map<SongRequestModel>(songAddDto);
         songRequestModel.AuthorId = user.Id;
@@ -42,7 +49,7 @@ public class SongsController(ISongService _songService, IMapper _mapper, IUserSe
     public async Task<SongModel> GetSongById(Guid id, CancellationToken cancellationToken = default)
     {
         var song = await _songService.GetSongByIdAsync(id, false, cancellationToken)
-            ?? throw new NotFoundException("Song with such id not found!");
+            ?? throw new NotFoundException(ErrorMessages.SongNotFound);
 
         return song;
     }
@@ -55,7 +62,7 @@ public class SongsController(ISongService _songService, IMapper _mapper, IUserSe
     {
         var userEmail = User.GetEmail();
         var user = await _userService.GetUserByEmailAsync(userEmail, false, cancellationToken)
-            ?? throw new NotFoundException("User with such email not found!");
+            ?? throw new NotFoundException(ErrorMessages.UserNotFound);
 
 
         var songUpdateDto = _mapper.Map<SongUpdateDto>(songRequestModel);
@@ -69,7 +76,7 @@ public class SongsController(ISongService _songService, IMapper _mapper, IUserSe
     {
         var userEmail = User.GetEmail();
         var user = await _userService.GetUserByEmailAsync(userEmail, false, cancellationToken)
-            ?? throw new NotFoundException("User with such email not found!");
+            ?? throw new NotFoundException(ErrorMessages.UserNotFound);
 
         await _songService.DeleteSongAsync(id, user.Id, cancellationToken);
     }
