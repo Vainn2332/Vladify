@@ -21,7 +21,8 @@ public class UserProfile : Profile
         CreateMap<UserUpdateDto, User>()
             .ForMember(dest => dest.ExternalId, opt => opt.Ignore())
             .ForMember(dest => dest.OwnedSongs, opt => opt.Ignore())
-            .ForMember(dest => dest.Playlists, opt => opt.Ignore());
+            .ForMember(dest => dest.Playlists, opt => opt.Ignore())
+            .ForMember(dest => dest.EmailAddress, opt => opt.Ignore());
 
 
         CreateMap<User, UserModel>();

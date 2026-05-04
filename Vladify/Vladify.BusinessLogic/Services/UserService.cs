@@ -38,23 +38,32 @@ public class UserService(IUserRepository _userRepository, IAuth0Service _authSer
         return _mapper.Map<IEnumerable<UserModel>>(users);
     }
 
-    public async Task<UserModel> UpdateUserAsync(UserUpdateDto userUpdateDto, CancellationToken cancellationToken)
+    public async Task<UserModel> UpdateUserAsync(UserUpdateDto userUpdateDto, Guid requesterId, CancellationToken cancellationToken)
     {
         var target = await _userRepository.GetByIdAsync(userUpdateDto.Id, false, cancellationToken)
             ?? throw new NotFoundException("User with such id not found!");
+        if (target.Id != requesterId)
+        {
+            throw new ForbiddenException("You don't have permissions to modify user!");
+        }
 
         var user = _mapper.Map<User>(userUpdateDto);
         user.ExternalId = target.ExternalId;
+        user.EmailAddress = target.EmailAddress;
 
         var updatedUser = await _userRepository.UpdateAsync(user, cancellationToken);
 
         return _mapper.Map<UserModel>(updatedUser);
     }
 
-    public async Task DeleteUserAsync(Guid userId, CancellationToken cancellationToken)
+    public async Task DeleteUserAsync(Guid userId, Guid requesterId, CancellationToken cancellationToken)
     {
         var user = await _userRepository.GetByIdAsync(userId, true, cancellationToken)
             ?? throw new NotFoundException("User with such id not found!");
+        if (user.Id != requesterId)
+        {
+            throw new ForbiddenException("You don't have permissions to modify user!");
+        }
 
         await _authService.DeleteUserFromAuth0Async(user.ExternalId);
         await _userRepository.DeleteAsync(user, cancellationToken);
