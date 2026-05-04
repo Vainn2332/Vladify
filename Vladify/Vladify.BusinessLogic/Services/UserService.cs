@@ -59,4 +59,12 @@ public class UserService(IUserRepository _userRepository, IAuth0Service _authSer
         await _authService.DeleteUserFromAuth0Async(user.ExternalId);
         await _userRepository.DeleteAsync(user, cancellationToken);
     }
+
+    public async Task<UserModel?> GetUserByEmailAsync(string userEmail, bool isTracking, CancellationToken cancellationToken)
+    {
+        var target = await _userRepository.GetByEmailAsync(userEmail, isTracking, cancellationToken)
+            ?? throw new NotFoundException("User with such email not found!");
+
+        return _mapper.Map<UserModel>(target);
+    }
 }
