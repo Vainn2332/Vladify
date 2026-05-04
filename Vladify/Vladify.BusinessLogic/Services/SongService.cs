@@ -41,7 +41,7 @@ public class SongService(ISongRepository _songRepository, IMapper _mapper) : ISo
             ?? throw new NotFoundException("Song with such id not found!");
         if (existingSong.AuthorId != requesterId)
         {
-            throw new ForbiddenException("You don't have permisiions to modify this song!");
+            throw new ForbiddenException("You don't have permissions to modify this song!");
         }
 
         var song = _mapper.Map<Song>(songUpdateDto);
@@ -60,7 +60,7 @@ public class SongService(ISongRepository _songRepository, IMapper _mapper) : ISo
             ?? throw new NotFoundException("Song with such id not found!");
         if (song.AuthorId != requesterId)
         {
-            throw new ForbiddenException("You don't have permisiions to modify this song!");
+            throw new ForbiddenException("You don't have permissions to modify this song!");
         }
 
         await _songRepository.DeleteAsync(song, cancellationToken);
