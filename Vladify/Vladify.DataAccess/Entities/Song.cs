@@ -10,7 +10,7 @@ public class Song : IEntity
 
     public string Album { get; set; } = null!;
 
-    public Guid AuthorId { get; set; }
+    public Guid? AuthorId { get; set; }
 
     public TimeSpan Duration { get; set; } = TimeSpan.Zero;
 

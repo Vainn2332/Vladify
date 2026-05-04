@@ -18,7 +18,7 @@ public class UserDbConfig : IEntityTypeConfiguration<User>
         builder.HasMany(p => p.OwnedSongs)
             .WithOne(p => p.Owner)
             .HasForeignKey(k => k.AuthorId)
-            .OnDelete(DeleteBehavior.NoAction);
+            .OnDelete(DeleteBehavior.SetNull);
         builder.HasMany(p => p.Playlists)
             .WithOne(p => p.Owner)
             .HasForeignKey(k => k.AuthorId)
