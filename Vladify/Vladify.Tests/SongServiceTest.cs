@@ -1,6 +1,7 @@
 ﻿using AutoFixture;
 using AutoFixture.AutoMoq;
 using AutoMapper;
+using FluentAssertions;
 using Moq;
 using Vladify.BusinessLogic.Exceptions;
 using Vladify.BusinessLogic.Models;
@@ -119,9 +120,12 @@ public class SongServiceTest
     [Fact]
     public async Task UpdateSongAsync_Should_ReturnSongModel_WhenOk()
     {
+        var requesterId = Guid.NewGuid();
         var request = _fixture.Create<SongUpdateDto>();
         var songEntity = _fixture.Create<Song>();
         var existingSongEntity = _fixture.Create<Song>();
+        existingSongEntity.Id = request.Id;
+        existingSongEntity.AuthorId = requesterId;
         var updatedSongEntity = _fixture.Create<Song>();
         var expectedModel = _fixture.Create<SongModel>();
         _songRepositoryMock.Setup(m => m.GetByIdAsync(request.Id, It.IsAny<bool>(), It.IsAny<CancellationToken>()))
@@ -133,7 +137,7 @@ public class SongServiceTest
         _mapperMock.Setup(m => m.Map<SongModel>(updatedSongEntity))
             .Returns(expectedModel);
 
-        var result = await _songService.UpdateSongAsync(request, existingSongEntity.Id, CancellationToken.None);
+        var result = await _songService.UpdateSongAsync(request, requesterId, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.IsAssignableFrom<SongModel>(result);
@@ -176,4 +180,49 @@ public class SongServiceTest
         _songRepositoryMock.Verify(m => m.GetByIdAsync(request.Id, true, It.IsAny<CancellationToken>()), Times.Once);
         _songRepositoryMock.Verify(m => m.DeleteAsync(It.IsAny<Song>(), It.IsAny<CancellationToken>()), Times.Once);
     }
+
+    [Fact]
+    public async Task UpdateSongAsync_Should_ThrowForbiddenException_WhenUserIsNotOwner()
+    {
+        var requesterId = Guid.NewGuid();
+        var request = _fixture.Create<SongUpdateDto>();
+
+        var existingSongEntity = _fixture.Create<Song>();
+        existingSongEntity.Id = request.Id;
+        existingSongEntity.AuthorId = Guid.NewGuid();
+
+        _songRepositoryMock.Setup(m => m.GetByIdAsync(request.Id, false, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(existingSongEntity);
+
+        var act = async () => await _songService.UpdateSongAsync(request, requesterId, CancellationToken.None);
+
+        await act.Should().ThrowAsync<ForbiddenException>()
+            .WithMessage("You don't have permissions to modify this song!");
+
+        _songRepositoryMock.Verify(m => m.GetByIdAsync(request.Id, false, It.IsAny<CancellationToken>()), Times.Once);
+        _songRepositoryMock.Verify(m => m.UpdateAsync(It.IsAny<Song>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task DeleteSongAsync_Should_ThrowForbiddenException_WhenUserIsNotOwner()
+    {
+        var requesterId = Guid.NewGuid();
+        var targetSongId = Guid.NewGuid();
+
+        var songEntity = _fixture.Create<Song>();
+        songEntity.Id = targetSongId;
+        songEntity.AuthorId = Guid.NewGuid();
+
+        _songRepositoryMock.Setup(m => m.GetByIdAsync(targetSongId, true, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(songEntity);
+
+        var act = async () => await _songService.DeleteSongAsync(targetSongId, requesterId, CancellationToken.None);
+
+        await act.Should().ThrowAsync<ForbiddenException>()
+            .WithMessage("You don't have permissions to modify this song!");
+
+        _songRepositoryMock.Verify(m => m.GetByIdAsync(targetSongId, true, It.IsAny<CancellationToken>()), Times.Once);
+        _songRepositoryMock.Verify(m => m.DeleteAsync(It.IsAny<Song>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
 }

@@ -1,6 +1,7 @@
 ﻿using AutoFixture;
 using AutoFixture.AutoMoq;
 using AutoMapper;
+using FluentAssertions;
 using Moq;
 using Vladify.BusinessLogic.Exceptions;
 using Vladify.BusinessLogic.Models;
@@ -196,5 +197,47 @@ public class UserServiceTest
         _authServiceMock.Verify(m => m.DeleteUserFromAuth0Async(userEntity.ExternalId), Times.Once);
         _userRepositoryMock.Verify(m => m.GetByIdAsync(userEntity.Id, true, It.IsAny<CancellationToken>()), Times.Once);
         _userRepositoryMock.Verify(m => m.DeleteAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task UpdateUserAsync_Should_ThrowForbiddenException_WhenUserIsNotOwner()
+    {
+        var requesterId = Guid.NewGuid();
+        var request = _fixture.Create<UserUpdateDto>();
+        var targetUserEntity = _fixture.Create<User>();
+        targetUserEntity.Id = request.Id;
+
+        _userRepositoryMock.Setup(m => m.GetByIdAsync(request.Id, false, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(targetUserEntity);
+
+        var act = async () => await _userService.UpdateUserAsync(request, requesterId, CancellationToken.None);
+
+        await act.Should().ThrowAsync<ForbiddenException>()
+            .WithMessage("You don't have permissions to modify user!");
+
+        _userRepositoryMock.Verify(m => m.GetByIdAsync(request.Id, false, It.IsAny<CancellationToken>()), Times.Once);
+        _userRepositoryMock.Verify(m => m.UpdateAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task DeleteUserAsync_Should_ThrowForbiddenException_WhenUserIsNotOwner()
+    {
+        var requesterId = Guid.NewGuid();
+        var targetUserId = Guid.NewGuid();
+        var targetUserEntity = _fixture.Create<User>();
+        targetUserEntity.Id = targetUserId;
+
+        _userRepositoryMock.Setup(m => m.GetByIdAsync(targetUserId, true, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(targetUserEntity);
+
+        var act = async () => await _userService.DeleteUserAsync(targetUserId, requesterId, CancellationToken.None);
+
+        await act.Should().ThrowAsync<ForbiddenException>()
+            .WithMessage("You don't have permissions to modify user!");
+
+        _userRepositoryMock.Verify(m => m.GetByIdAsync(targetUserId, true, It.IsAny<CancellationToken>()), Times.Once);
+
+        _authServiceMock.Verify(m => m.DeleteUserFromAuth0Async(It.IsAny<string>()), Times.Never);
+        _userRepositoryMock.Verify(m => m.DeleteAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 }
