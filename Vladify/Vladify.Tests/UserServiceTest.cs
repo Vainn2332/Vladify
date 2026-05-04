@@ -123,12 +123,13 @@ public class UserServiceTest
     [Fact]
     public async Task UpdateUserAsync_Should_ReturnNotFoundException_WhenNotFound()
     {
+        var requesterId = Guid.NewGuid();
         var request = _fixture.Create<UserUpdateDto>();
         _userRepositoryMock.Setup(m => m.GetByIdAsync(request.Id, It.IsAny<bool>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((User?)null);
 
         var exception = await Assert.ThrowsAsync<NotFoundException>(() =>
-        _userService.UpdateUserAsync(request, CancellationToken.None));
+        _userService.UpdateUserAsync(request, requesterId, CancellationToken.None));
 
         Assert.Equal("User with such id not found!", exception.Message);
 
@@ -142,6 +143,7 @@ public class UserServiceTest
         var request = _fixture.Create<UserUpdateDto>();
         var requestEntity = _fixture.Create<User>();
         var oldUserEntity = _fixture.Create<User>();
+        oldUserEntity.Id = requestEntity.Id;
         var updatedUserEntity = _fixture.Create<User>();
         var updatedUserModel = _fixture.Create<UserModel>();
         _userRepositoryMock.Setup(m => m.GetByIdAsync(request.Id, It.IsAny<bool>(), It.IsAny<CancellationToken>()))
@@ -153,7 +155,7 @@ public class UserServiceTest
         _mapperMock.Setup(m => m.Map<UserModel>(updatedUserEntity))
             .Returns(updatedUserModel);
 
-        var result = await _userService.UpdateUserAsync(request, CancellationToken.None);
+        var result = await _userService.UpdateUserAsync(request, requestEntity.Id, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.IsType<UserModel>(result);
@@ -165,12 +167,13 @@ public class UserServiceTest
     [Fact]
     public async Task DeleteUserAsync_Should_ReturnNotFoundException_WhenNotFound()
     {
+        var requesterId = Guid.NewGuid();
         var invalidUserId = Guid.NewGuid();
         _userRepositoryMock.Setup(m => m.GetByIdAsync(invalidUserId, It.IsAny<bool>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((User?)null);
 
         var exception = await Assert.ThrowsAsync<NotFoundException>(() =>
-        _userService.DeleteUserAsync(invalidUserId, CancellationToken.None));
+        _userService.DeleteUserAsync(invalidUserId, requesterId, CancellationToken.None));
 
         Assert.Equal("User with such id not found!", exception.Message);
 
@@ -188,7 +191,7 @@ public class UserServiceTest
         _userRepositoryMock.Setup(m => m.DeleteAsync(userEntity, It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
-        await _userService.DeleteUserAsync(userEntity.Id, CancellationToken.None);
+        await _userService.DeleteUserAsync(userEntity.Id, userEntity.Id, CancellationToken.None);
 
         _authServiceMock.Verify(m => m.DeleteUserFromAuth0Async(userEntity.ExternalId), Times.Once);
         _userRepositoryMock.Verify(m => m.GetByIdAsync(userEntity.Id, true, It.IsAny<CancellationToken>()), Times.Once);
