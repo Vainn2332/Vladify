@@ -72,7 +72,7 @@ public class SongControllerTest
         await _infrastructure.ResetDataAsync();
 
         response.Should().NotBeNull();
-        error?.StatusCode.Should().Be((int)HttpStatusCode.InternalServerError);
+        error?.StatusCode.Should().Be((int)HttpStatusCode.NotFound);
         songInDb.Should().BeNull();
     }
 
