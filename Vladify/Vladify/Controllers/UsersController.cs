@@ -30,11 +30,11 @@ public class UsersController(IUserService _userService, IMapper _mapper) : Contr
     }
 
     [Authorize]
-    [HttpGet("{id}")]
-    public async Task<UserModel> GetUserById(Guid id, CancellationToken cancellationToken = default)
+    [HttpGet("{email}")]
+    public async Task<UserModel> GetUserByEmail(string email, CancellationToken cancellationToken = default)
     {
-        var user = await _userService.GetUserByIdAsync(id, false, cancellationToken)
-            ?? throw new NotFoundException("User with such id doesn't exist!");
+        var user = await _userService.GetUserByEmailAsync(email, false, cancellationToken)
+            ?? throw new NotFoundException("User with such email doesn't exist!");
 
         return user;
     }
