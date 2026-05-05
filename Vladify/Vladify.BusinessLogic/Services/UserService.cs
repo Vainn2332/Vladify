@@ -40,30 +40,20 @@ public class UserService(IUserRepository _userRepository, IAuth0Service _authSer
 
     public async Task<UserModel> UpdateUserAsync(UserUpdateDto userUpdateDto, Guid requesterId, CancellationToken cancellationToken)
     {
-        var target = await _userRepository.GetByIdAsync(userUpdateDto.Id, false, cancellationToken)
-            ?? throw new NotFoundException("User with such id not found!");
-        if (target.Id != requesterId)
-        {
-            throw new ForbiddenException("You don't have permissions to modify user!");
-        }
+        var user = await GetAndValidateUserAsync(userUpdateDto.Id, requesterId, cancellationToken);
 
-        var user = _mapper.Map<User>(userUpdateDto);
-        user.ExternalId = target.ExternalId;
-        user.EmailAddress = target.EmailAddress;
+        var userEntity = _mapper.Map<User>(userUpdateDto);
+        user.ExternalId = user.ExternalId;
+        user.EmailAddress = user.EmailAddress;
 
-        var updatedUser = await _userRepository.UpdateAsync(user, cancellationToken);
+        var updatedUser = await _userRepository.UpdateAsync(userEntity, cancellationToken);
 
         return _mapper.Map<UserModel>(updatedUser);
     }
 
     public async Task DeleteUserAsync(Guid userId, Guid requesterId, CancellationToken cancellationToken)
     {
-        var user = await _userRepository.GetByIdAsync(userId, true, cancellationToken)
-            ?? throw new NotFoundException("User with such id not found!");
-        if (user.Id != requesterId)
-        {
-            throw new ForbiddenException("You don't have permissions to modify user!");
-        }
+        var user = await GetAndValidateUserAsync(userId, requesterId, cancellationToken);
 
         await _authService.DeleteUserFromAuth0Async(user.ExternalId);
         await _userRepository.DeleteAsync(user, cancellationToken);
@@ -75,5 +65,17 @@ public class UserService(IUserRepository _userRepository, IAuth0Service _authSer
             ?? throw new NotFoundException("User with such email not found!");
 
         return _mapper.Map<UserModel>(target);
+    }
+
+    private async Task<User> GetAndValidateUserAsync(Guid userId, Guid requesterId, CancellationToken cancellationToken)
+    {
+        var user = await _userRepository.GetByIdAsync(userId, false, cancellationToken)
+            ?? throw new NotFoundException("User with such id not found!");
+        if (user.Id != requesterId)
+        {
+            throw new ForbiddenException("You don't have permissions to modify this user!");
+        }
+
+        return user;
     }
 }

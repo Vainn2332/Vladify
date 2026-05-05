@@ -14,11 +14,9 @@ public class SongService(ISongRepository _songRepository, IMapper _mapper) : ISo
     {
         var song = _mapper.Map<Song>(songRequestModel);
 
-        var newSong = await _songRepository.AddAsync(song, cancellationToken);
+        var newSong = await _songRepository.AddSongAsync(song, cancellationToken);
 
-        var songWithOwner = await _songRepository.GetSongWithUserInfoByIdAsync(newSong.Id, false, cancellationToken);
-
-        return _mapper.Map<SongModel>(songWithOwner);
+        return _mapper.Map<SongModel>(newSong);
     }
 
     public async Task<SongModel?> GetSongByIdAsync(Guid songId, bool isTracking, CancellationToken cancellationToken)
@@ -37,32 +35,32 @@ public class SongService(ISongRepository _songRepository, IMapper _mapper) : ISo
 
     public async Task<SongModel> UpdateSongAsync(SongUpdateDto songUpdateDto, Guid requesterId, CancellationToken cancellationToken)
     {
-        var existingSong = await _songRepository.GetByIdAsync(songUpdateDto.Id, false, cancellationToken)
-            ?? throw new NotFoundException("Song with such id not found!");
-        if (existingSong.AuthorId != requesterId)
-        {
-            throw new ForbiddenException("You don't have permissions to modify this song!");
-        }
+        var song = await GetAndValidateSongAsync(songUpdateDto.Id, requesterId, cancellationToken);
 
-        var song = _mapper.Map<Song>(songUpdateDto);
-        song.AuthorId = existingSong.AuthorId;
+        var songEntity = _mapper.Map<Song>(songUpdateDto);
+        song.AuthorId = song.AuthorId;
 
-        var updatedSong = await _songRepository.UpdateAsync(song, cancellationToken);
+        var updatedSong = await _songRepository.UpdateSongAsync(songEntity, cancellationToken);
 
-        var songWithOwner = await _songRepository.GetSongWithUserInfoByIdAsync(updatedSong.Id, false, cancellationToken);
-
-        return _mapper.Map<SongModel>(songWithOwner);
+        return _mapper.Map<SongModel>(updatedSong);
     }
 
     public async Task DeleteSongAsync(Guid songId, Guid requesterId, CancellationToken cancellationToken)
     {
-        var song = await _songRepository.GetByIdAsync(songId, true, cancellationToken)
+        var song = await GetAndValidateSongAsync(songId, requesterId, cancellationToken);
+
+        await _songRepository.DeleteAsync(song, cancellationToken);
+    }
+
+    private async Task<Song> GetAndValidateSongAsync(Guid songId, Guid requesterId, CancellationToken cancellationToken)
+    {
+        var song = await _songRepository.GetByIdAsync(songId, false, cancellationToken)
             ?? throw new NotFoundException("Song with such id not found!");
         if (song.AuthorId != requesterId)
         {
             throw new ForbiddenException("You don't have permissions to modify this song!");
         }
 
-        await _songRepository.DeleteAsync(song, cancellationToken);
+        return song;
     }
 }

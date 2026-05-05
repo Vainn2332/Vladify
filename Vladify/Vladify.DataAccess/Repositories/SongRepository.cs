@@ -22,4 +22,24 @@ public class SongRepository(ApplicationDbContext context) : Repository<Song>(con
             .Take(pageSize)
             .ToListAsync(cancellationToken);
     }
+
+    public async Task<Song> AddSongAsync(Song song, CancellationToken cancellationToken)
+    {
+        await _context.Songs.AddAsync(song, cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
+
+        await _context.Entry(song).Reference(p => p.Owner).LoadAsync(cancellationToken);
+
+        return song;
+    }
+
+    public async Task<Song> UpdateSongAsync(Song song, CancellationToken cancellationToken)
+    {
+        _context.Songs.Update(song);
+        await _context.SaveChangesAsync(cancellationToken);
+
+        await _context.Entry(song).Reference(p => p.Owner).LoadAsync(cancellationToken);
+
+        return song;
+    }
 }
