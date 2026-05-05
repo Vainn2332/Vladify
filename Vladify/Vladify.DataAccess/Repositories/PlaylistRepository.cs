@@ -40,7 +40,6 @@ public class PlaylistRepository(ApplicationDbContext _context) : Repository<Play
     {
         return await _context.Playlists
             .Where(s => s.AuthorId == userId)
-            .Include(p => p.Owner)
             .OrderBy(p => p.Id)
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
