@@ -187,7 +187,7 @@ public class UserServiceTest
     public async Task DeleteUserAsync_Should_Delete_WhenExists()
     {
         var userEntity = _fixture.Create<User>();
-        _userRepositoryMock.Setup(m => m.GetByIdAsync(userEntity.Id, true, It.IsAny<CancellationToken>()))
+        _userRepositoryMock.Setup(m => m.GetByIdAsync(userEntity.Id, false, It.IsAny<CancellationToken>()))
             .ReturnsAsync(userEntity);
         _userRepositoryMock.Setup(m => m.DeleteAsync(userEntity, It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
@@ -195,7 +195,7 @@ public class UserServiceTest
         await _userService.DeleteUserAsync(userEntity.Id, userEntity.Id, CancellationToken.None);
 
         _authServiceMock.Verify(m => m.DeleteUserFromAuth0Async(userEntity.ExternalId), Times.Once);
-        _userRepositoryMock.Verify(m => m.GetByIdAsync(userEntity.Id, true, It.IsAny<CancellationToken>()), Times.Once);
+        _userRepositoryMock.Verify(m => m.GetByIdAsync(userEntity.Id, It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Once);
         _userRepositoryMock.Verify(m => m.DeleteAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -213,9 +213,9 @@ public class UserServiceTest
         var act = async () => await _userService.UpdateUserAsync(request, requesterId, CancellationToken.None);
 
         await act.Should().ThrowAsync<ForbiddenException>()
-            .WithMessage("You don't have permissions to modify user!");
+            .WithMessage("You don't have permissions to modify this user!");
 
-        _userRepositoryMock.Verify(m => m.GetByIdAsync(request.Id, false, It.IsAny<CancellationToken>()), Times.Once);
+        _userRepositoryMock.Verify(m => m.GetByIdAsync(request.Id, It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Once);
         _userRepositoryMock.Verify(m => m.UpdateAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -227,15 +227,15 @@ public class UserServiceTest
         var targetUserEntity = _fixture.Create<User>();
         targetUserEntity.Id = targetUserId;
 
-        _userRepositoryMock.Setup(m => m.GetByIdAsync(targetUserId, true, It.IsAny<CancellationToken>()))
+        _userRepositoryMock.Setup(m => m.GetByIdAsync(targetUserId, false, It.IsAny<CancellationToken>()))
             .ReturnsAsync(targetUserEntity);
 
         var act = async () => await _userService.DeleteUserAsync(targetUserId, requesterId, CancellationToken.None);
 
         await act.Should().ThrowAsync<ForbiddenException>()
-            .WithMessage("You don't have permissions to modify user!");
+            .WithMessage("You don't have permissions to modify this user!");
 
-        _userRepositoryMock.Verify(m => m.GetByIdAsync(targetUserId, true, It.IsAny<CancellationToken>()), Times.Once);
+        _userRepositoryMock.Verify(m => m.GetByIdAsync(targetUserId, It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Once);
 
         _authServiceMock.Verify(m => m.DeleteUserFromAuth0Async(It.IsAny<string>()), Times.Never);
         _userRepositoryMock.Verify(m => m.DeleteAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()), Times.Never);

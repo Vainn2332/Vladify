@@ -44,7 +44,7 @@ public class SongServiceTest
         Assert.NotNull(result);
         Assert.IsAssignableFrom<SongModel>(result);
 
-        _songRepositoryMock.Verify(m => m.AddAsync(songEntity, It.IsAny<CancellationToken>()), Times.Once);
+        _songRepositoryMock.Verify(m => m.AddSongAsync(songEntity, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -114,7 +114,7 @@ public class SongServiceTest
         Assert.Equal("Song with such id not found!", exception.Message);
 
         _songRepositoryMock.Verify(m => m.GetByIdAsync(request.Id, It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Once);
-        _songRepositoryMock.Verify(m => m.UpdateAsync(It.IsAny<Song>(), It.IsAny<CancellationToken>()), Times.Never);
+        _songRepositoryMock.Verify(m => m.UpdateSongAsync(It.IsAny<Song>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -132,7 +132,7 @@ public class SongServiceTest
             .ReturnsAsync(existingSongEntity);
         _mapperMock.Setup(m => m.Map<Song>(request))
             .Returns(songEntity);
-        _songRepositoryMock.Setup(m => m.UpdateAsync(songEntity, It.IsAny<CancellationToken>()))
+        _songRepositoryMock.Setup(m => m.UpdateSongAsync(songEntity, It.IsAny<CancellationToken>()))
             .ReturnsAsync(updatedSongEntity);
         _mapperMock.Setup(m => m.Map<SongModel>(updatedSongEntity))
             .Returns(expectedModel);
@@ -142,7 +142,7 @@ public class SongServiceTest
         Assert.NotNull(result);
         Assert.IsAssignableFrom<SongModel>(result);
 
-        _songRepositoryMock.Verify(m => m.UpdateAsync(songEntity, It.IsAny<CancellationToken>()), Times.Once);
+        _songRepositoryMock.Verify(m => m.UpdateSongAsync(songEntity, It.IsAny<CancellationToken>()), Times.Once);
         _songRepositoryMock.Verify(m => m.GetByIdAsync(request.Id, false, It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -170,14 +170,14 @@ public class SongServiceTest
         var requesterId = Guid.NewGuid();
         var request = _fixture.Create<Song>();
         request.AuthorId = requesterId;
-        _songRepositoryMock.Setup(m => m.GetByIdAsync(request.Id, true, It.IsAny<CancellationToken>()))
+        _songRepositoryMock.Setup(m => m.GetByIdAsync(request.Id, false, It.IsAny<CancellationToken>()))
             .ReturnsAsync(request);
         _songRepositoryMock.Setup(m => m.DeleteAsync(request, It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
         await _songService.DeleteSongAsync(request.Id, requesterId, CancellationToken.None);
 
-        _songRepositoryMock.Verify(m => m.GetByIdAsync(request.Id, true, It.IsAny<CancellationToken>()), Times.Once);
+        _songRepositoryMock.Verify(m => m.GetByIdAsync(request.Id, It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Once);
         _songRepositoryMock.Verify(m => m.DeleteAsync(It.IsAny<Song>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -213,7 +213,7 @@ public class SongServiceTest
         songEntity.Id = targetSongId;
         songEntity.AuthorId = Guid.NewGuid();
 
-        _songRepositoryMock.Setup(m => m.GetByIdAsync(targetSongId, true, It.IsAny<CancellationToken>()))
+        _songRepositoryMock.Setup(m => m.GetByIdAsync(targetSongId, false, It.IsAny<CancellationToken>()))
             .ReturnsAsync(songEntity);
 
         var act = async () => await _songService.DeleteSongAsync(targetSongId, requesterId, CancellationToken.None);
@@ -221,7 +221,7 @@ public class SongServiceTest
         await act.Should().ThrowAsync<ForbiddenException>()
             .WithMessage("You don't have permissions to modify this song!");
 
-        _songRepositoryMock.Verify(m => m.GetByIdAsync(targetSongId, true, It.IsAny<CancellationToken>()), Times.Once);
+        _songRepositoryMock.Verify(m => m.GetByIdAsync(targetSongId, It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Once);
         _songRepositoryMock.Verify(m => m.DeleteAsync(It.IsAny<Song>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 

@@ -112,8 +112,6 @@ public class PlaylistServiceTest
         _songRepositoryMock.Setup(m => m.GetByIdAsync(songId, true, It.IsAny<CancellationToken>()))
             .ReturnsAsync(songEntity);
         _playlistRepositoryMock.Setup(m => m.AddSongToPlaylistAsync(playlistEntity, songEntity, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(playlistEntity);
-        _playlistRepositoryMock.Setup(m => m.GetPlaylistAsync(playlistId, false, It.IsAny<CancellationToken>()))
             .ReturnsAsync(newPlaylistEntity);
         _mapperMock.Setup(m => m.Map<PlaylistModel>(newPlaylistEntity)).Returns(expectedModel);
 
@@ -276,8 +274,6 @@ public class PlaylistServiceTest
         _songRepositoryMock.Setup(m => m.GetByIdAsync(songId, true, It.IsAny<CancellationToken>()))
             .ReturnsAsync(songEntity);
         _playlistRepositoryMock.Setup(m => m.DeleteSongFromPlaylistAsync(playlistEntity, songEntity, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(playlistEntity);
-        _playlistRepositoryMock.Setup(m => m.GetPlaylistAsync(playlistId, false, It.IsAny<CancellationToken>()))
             .ReturnsAsync(newPlaylistEntity);
         _mapperMock.Setup(m => m.Map<PlaylistModel>(newPlaylistEntity)).Returns(expectedModel);
 
