@@ -43,8 +43,8 @@ public class UserService(IUserRepository _userRepository, IAuth0Service _authSer
         var user = await GetAndValidateUserAsync(userUpdateDto.Id, requesterId, cancellationToken);
 
         var userEntity = _mapper.Map<User>(userUpdateDto);
-        user.ExternalId = user.ExternalId;
-        user.EmailAddress = user.EmailAddress;
+        userEntity.ExternalId = user.ExternalId;
+        userEntity.EmailAddress = user.EmailAddress;
 
         var updatedUser = await _userRepository.UpdateAsync(userEntity, cancellationToken);
 

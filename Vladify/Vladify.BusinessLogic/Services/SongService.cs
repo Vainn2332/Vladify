@@ -38,7 +38,7 @@ public class SongService(ISongRepository _songRepository, IMapper _mapper) : ISo
         var song = await GetAndValidateSongAsync(songUpdateDto.Id, requesterId, cancellationToken);
 
         var songEntity = _mapper.Map<Song>(songUpdateDto);
-        song.AuthorId = song.AuthorId;
+        songEntity.AuthorId = song.AuthorId;
 
         var updatedSong = await _songRepository.UpdateSongAsync(songEntity, cancellationToken);
 
