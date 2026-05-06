@@ -8,6 +8,7 @@ using Vladify.BusinessLogic.Models.SongModels;
 using Vladify.BusinessLogic.Services;
 using Vladify.DataAccess.Entities;
 using Vladify.DataAccess.Interfaces;
+using Vladify.IntegrationTests;
 
 namespace Vladify.UnitTests;
 
@@ -19,7 +20,7 @@ public class SongServiceTest
     private readonly SongService _songService;
     public SongServiceTest()
     {
-        _fixture = new Fixture().Customize(new AutoMoqCustomization());
+        _fixture = AutoFixtureOptions.CreateFixture().Customize(new AutoMoqCustomization());
         _songRepositoryMock = _fixture.Freeze<Mock<IRepository<Song>>>();
         _mapperMock = _fixture.Freeze<Mock<IMapper>>();
         _songService = _fixture.Create<SongService>();

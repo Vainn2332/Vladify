@@ -10,8 +10,10 @@ using Moq;
 using Respawn;
 using System.Data.Common;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
 using Testcontainers.MsSql;
+using Vladify.BusinessLogic.Constants;
 using Vladify.BusinessLogic.Options;
 using Vladify.BusinessLogic.ServiceInterfaces;
 using Vladify.DataAccess;
@@ -76,10 +78,15 @@ public class IntegrationTestInfrastructure : IAsyncLifetime
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(TestConstants.TestSecretKey));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+        var claims = new List<Claim>
+        {
+            new Claim(BusinessLogicLayerConstants.CustomEmailClaimName,TestConstants.TestJwtEmailClaimValue)
+        };
 
         var token = new JwtSecurityToken(
             issuer: TestConstants.Issuer,
             audience: TestConstants.Audience,
+            claims: claims,
             expires: DateTime.Now.AddMinutes(5),
             signingCredentials: credentials
             );
