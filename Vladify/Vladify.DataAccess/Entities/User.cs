@@ -16,4 +16,6 @@ public class User : IEntity
     public int Age { get; set; }
 
     public Gender Gender { get; set; } = Gender.Undefined;
+
+    public required ICollection<Song> OwnedSongs { get; set; } = [];
 }
