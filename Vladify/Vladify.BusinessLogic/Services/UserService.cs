@@ -31,6 +31,14 @@ public class UserService(IUserRepository _userRepository, IAuth0Service _authSer
         return _mapper.Map<UserModel>(user);
     }
 
+    public async Task<UserModel?> GetUserByEmailAsync(string userEmail, bool isTracking, CancellationToken cancellationToken)
+    {
+        var target = await _userRepository.GetByEmailAsync(userEmail, isTracking, cancellationToken)
+            ?? throw new NotFoundException("User with such email not found!");
+
+        return _mapper.Map<UserModel>(target);
+    }
+
     public async Task<IEnumerable<UserModel>> GetUsersAsync(PaginationFilter filter, CancellationToken cancellationToken)
     {
         var users = await _userRepository.GetAllAsync(filter.PageNumber, filter.PageSize, cancellationToken);
@@ -38,25 +46,36 @@ public class UserService(IUserRepository _userRepository, IAuth0Service _authSer
         return _mapper.Map<IEnumerable<UserModel>>(users);
     }
 
-    public async Task<UserModel> UpdateUserAsync(UserUpdateDto userUpdateDto, CancellationToken cancellationToken)
+    public async Task<UserModel> UpdateUserAsync(UserUpdateRequestModel userUpdateRequestModel, Guid requesterId, CancellationToken cancellationToken)
     {
-        var target = await _userRepository.GetByIdAsync(userUpdateDto.Id, false, cancellationToken)
-            ?? throw new NotFoundException("User with such id not found!");
+        var user = await GetAndValidateUserAsync(userUpdateRequestModel.Id, requesterId, cancellationToken);
 
-        var user = _mapper.Map<User>(userUpdateDto);
-        user.ExternalId = target.ExternalId;
+        var userEntity = _mapper.Map<User>(userUpdateRequestModel);
+        userEntity.ExternalId = user.ExternalId;
+        userEntity.EmailAddress = user.EmailAddress;
 
-        var updatedUser = await _userRepository.UpdateAsync(user, cancellationToken);
+        var updatedUser = await _userRepository.UpdateAsync(userEntity, cancellationToken);
 
         return _mapper.Map<UserModel>(updatedUser);
     }
 
-    public async Task DeleteUserAsync(Guid userId, CancellationToken cancellationToken)
+    public async Task DeleteUserAsync(Guid userId, Guid requesterId, CancellationToken cancellationToken)
     {
-        var user = await _userRepository.GetByIdAsync(userId, true, cancellationToken)
-            ?? throw new NotFoundException("User with such id not found!");
+        var user = await GetAndValidateUserAsync(userId, requesterId, cancellationToken);
 
         await _authService.DeleteUserFromAuth0Async(user.ExternalId);
         await _userRepository.DeleteAsync(user, cancellationToken);
+    }
+
+    private async Task<User> GetAndValidateUserAsync(Guid userId, Guid requesterId, CancellationToken cancellationToken)
+    {
+        var user = await _userRepository.GetByIdAsync(userId, false, cancellationToken)
+            ?? throw new NotFoundException("User with such id not found!");
+        if (user.Id != requesterId)
+        {
+            throw new ForbiddenException("You don't have permissions to modify this user!");
+        }
+
+        return user;
     }
 }
