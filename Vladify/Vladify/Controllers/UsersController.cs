@@ -40,6 +40,17 @@ public class UsersController(IUserService _userService, IMapper _mapper) : Contr
     }
 
     [Authorize]
+    [HttpGet("currentUser")]
+    public async Task<UserModel> GetCurrentUser(CancellationToken cancellationToken = default)
+    {
+        var userEmail = User.GetEmail();
+        var user = await _userService.GetUserByEmailAsync(userEmail, false, cancellationToken)
+            ?? throw new NotFoundException("User with such email not found!");
+
+        return user;
+    }
+
+    [Authorize]
     [HttpPut("{id}"), ValidationFilter]
     public async Task<UserModel> UpdateUser(
         Guid id,
