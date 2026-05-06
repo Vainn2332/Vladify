@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Vladify.BusinessLogic.Exceptions;
+using Vladify.BusinessLogic.Extensions;
 using Vladify.BusinessLogic.Models;
 using Vladify.BusinessLogic.Models.UserModels;
 using Vladify.BusinessLogic.ServiceInterfaces;
@@ -29,10 +30,11 @@ public class UsersController(IUserService _userService, IMapper _mapper) : Contr
     }
 
     [Authorize]
-    [HttpGet("{id}")]
-    public async Task<UserModel> GetUserById(Guid id, CancellationToken cancellationToken = default)
+    [HttpGet]
+    public async Task<UserModel> GetCurrentUser(CancellationToken cancellationToken = default)
     {
-        var user = await _userService.GetUserByIdAsync(id, false, cancellationToken)
+        var userEmail = User.GetEmail();
+        var user = await _userService.GetUserByEmailAsync(userEmail, false, cancellationToken)
             ?? throw new NotFoundException("User with such id doesn't exist!");
 
         return user;
@@ -40,21 +42,29 @@ public class UsersController(IUserService _userService, IMapper _mapper) : Contr
 
     [Authorize]
     [HttpPut("{id}"), ValidationFilter]
-    public Task<UserModel> UpdateUser(
+    public async Task<UserModel> UpdateUser(
         Guid id,
-        UserUpdateRequestModel userUpdateRequestModel,
+        UserUpdateDto userUpdateDto,
         CancellationToken cancellationToken = default)
     {
-        var userUpdateDto = _mapper.Map<UserUpdateDto>(userUpdateRequestModel);
-        userUpdateDto.Id = id;
+        var userEmail = User.GetEmail();
+        var user = await _userService.GetUserByEmailAsync(userEmail, false, cancellationToken)
+            ?? throw new NotFoundException("User with such email not found!");
 
-        return _userService.UpdateUserAsync(userUpdateDto, cancellationToken);
+        var userUpdateRequestModel = _mapper.Map<UserUpdateRequestModel>(userUpdateDto);
+        userUpdateRequestModel.Id = id;
+
+        return await _userService.UpdateUserAsync(userUpdateRequestModel, user.Id, cancellationToken);
     }
 
     [Authorize]
     [HttpDelete("{id}")]
-    public Task DeleteUser(Guid id, CancellationToken cancellationToken = default)
+    public async Task DeleteUser(Guid id, CancellationToken cancellationToken = default)
     {
-        return _userService.DeleteUserAsync(id, cancellationToken);
+        var userEmail = User.GetEmail();
+        var user = await _userService.GetUserByEmailAsync(userEmail, false, cancellationToken)
+            ?? throw new NotFoundException("User with such email not found!");
+
+        await _userService.DeleteUserAsync(id, user.Id, cancellationToken);
     }
 }
