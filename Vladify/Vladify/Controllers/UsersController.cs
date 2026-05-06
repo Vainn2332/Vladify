@@ -30,7 +30,7 @@ public class UsersController(IUserService _userService, IMapper _mapper) : Contr
     }
 
     [Authorize]
-    [HttpGet]
+    [HttpGet("currentUser")]
     public async Task<UserModel> GetCurrentUser(CancellationToken cancellationToken = default)
     {
         var userEmail = User.GetEmail();
