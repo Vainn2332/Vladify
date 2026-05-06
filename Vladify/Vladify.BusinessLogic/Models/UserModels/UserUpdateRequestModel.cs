@@ -4,6 +4,8 @@ namespace Vladify.BusinessLogic.Models.UserModels;
 
 public class UserUpdateRequestModel
 {
+    public required Guid Id { get; set; }
+
     public required string Name { get; set; }
 
     public required string EmailAddress { get; set; }
