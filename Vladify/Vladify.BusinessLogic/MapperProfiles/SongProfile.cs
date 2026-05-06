@@ -11,7 +11,7 @@ public class SongProfile : Profile
         CreateMap<SongRequestModel, Song>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())
             .ForMember(dest => dest.AuthorId, opt => opt.Ignore())
-            .ForMember(dest => dest.Owner, opt => opt.Ignore())
+            .ForMember(dest => dest.Owner, opt => opt.Ignore());
 
         CreateMap<SongRequestModel, SongModel>()
             .ForMember(dest => dest.Id, opt => opt.Ignore());
