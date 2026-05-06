@@ -2,10 +2,10 @@
 using AutoFixture.AutoMoq;
 using AutoMapper;
 using Moq;
-using Vladify.BusinessLogic;
 using Vladify.BusinessLogic.Exceptions;
 using Vladify.BusinessLogic.Models;
 using Vladify.BusinessLogic.Models.SongModels;
+using Vladify.BusinessLogic.Services;
 using Vladify.DataAccess.Entities;
 using Vladify.DataAccess.Interfaces;
 

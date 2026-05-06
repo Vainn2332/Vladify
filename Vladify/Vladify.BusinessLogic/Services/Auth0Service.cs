@@ -6,7 +6,7 @@ using Vladify.BusinessLogic.Models;
 using Vladify.BusinessLogic.Options;
 using Vladify.BusinessLogic.ServiceInterfaces;
 
-namespace Vladify.BusinessLogic;
+namespace Vladify.BusinessLogic.Services;
 
 public class Auth0Service(IOptions<Auth0Options> _options, IHttpClientFactory _httpFactory) : IAuth0Service
 {
