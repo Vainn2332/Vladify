@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Vladify.DataAccess.Interfaces;
+using Vladify.DataAccess.Repositories;
 
 namespace Vladify.DataAccess.Extensions;
 
