@@ -126,4 +126,17 @@ public static class ApiExtensions
 
         return services;
     }
+
+    public static IServiceCollection AddCors(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddCors(options =>
+        {
+            options.AddPolicy("DefaultPolicy", policy =>
+            {
+                policy.WithOrigins(configuration["FrontendPath"])
+                    .AllowAnyHeader()
+                    .AllowAnyMethod();
+            });
+        });
+    }
 }
