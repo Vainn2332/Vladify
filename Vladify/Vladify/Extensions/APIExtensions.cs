@@ -18,6 +18,7 @@ public static class ApiExtensions
             .AddJwtBasedAuthentication(configuration)
             .AddAuthorization()
             .AddHttpClient()
+            .AddCors(configuration)
             .ConfigureOptions(configuration)
             .AddBusinessLogicLayer(configuration);
 
@@ -138,5 +139,7 @@ public static class ApiExtensions
                     .AllowAnyMethod();
             });
         });
+
+        return services;
     }
 }
