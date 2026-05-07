@@ -55,13 +55,17 @@ public class PlaylistsController(IPlaylistService _playlistService, IMapper _map
     }
 
     [HttpGet]
-    public Task<IEnumerable<PlaylistModel>> GetAllPlaylistsOfUser(
+    public async Task<IEnumerable<PlaylistModel>> GetAllPlaylistsOfUser(
         [FromQuery] PaginationFilter filter,
         Guid userId,
         CancellationToken cancellationToken = default
         )
     {
-        return _playlistService.GetPlaylistsOfUserAsync(userId, filter, cancellationToken);
+        var userEmail = User.GetEmail();
+        var user = await _userService.GetUserByEmailAsync(userEmail, false, cancellationToken)
+            ?? throw new NotFoundException("User with such email not found!");
+
+        return await _playlistService.GetPlaylistsOfUserAsync(user.Id, filter, cancellationToken);
     }
 
     [HttpDelete("{id}")]
