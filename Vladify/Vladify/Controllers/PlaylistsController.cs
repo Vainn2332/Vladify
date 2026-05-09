@@ -68,6 +68,22 @@ public class PlaylistsController(IPlaylistService _playlistService, IMapper _map
         return await _playlistService.GetPlaylistsOfUserAsync(user.Id, filter, cancellationToken);
     }
 
+    [HttpPut("{id}")]
+    public async Task<PlaylistModel> UpdatePlaylist(PlaylistUpdateDto playlistUpdateDto, Guid id, CancellationToken cancellationToken = default)
+    {
+        var userEmail = User.GetEmail();
+        var user = await _userService.GetUserByEmailAsync(userEmail, false, cancellationToken)
+            ?? throw new NotFoundException("User with such email not found!");
+
+        var playlistUpdateRequestModel = _mapper.Map<PlaylistUpdateRequestModel>(playlistUpdateDto);
+        playlistUpdateRequestModel.Id = id;
+
+        var updatedPlaylist = await _playlistService.UpdatePlaylistAsync(playlistUpdateRequestModel, user.Id, cancellationToken);
+
+        return updatedPlaylist;
+    }
+
+
     [HttpDelete("{id}")]
     public async Task DeletePlaylist(Guid id, CancellationToken cancellationToken = default)
     {

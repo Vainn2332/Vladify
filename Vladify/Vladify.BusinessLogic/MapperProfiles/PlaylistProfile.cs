@@ -19,5 +19,13 @@ public class PlaylistProfile : Profile
 
         CreateMap<PlaylistAddDto, PlaylistRequestModel>()
             .ForMember(dest => dest.AuthorId, opt => opt.Ignore());
+
+        CreateMap<PlaylistUpdateDto, PlaylistUpdateRequestModel>()
+            .ForMember(dest => dest.Id, opt => opt.Ignore());
+
+        CreateMap<PlaylistUpdateRequestModel, Playlist>()
+            .ForMember(dest => dest.AuthorId, opt => opt.Ignore())
+            .ForMember(dest => dest.Owner, opt => opt.Ignore())
+            .ForMember(dest => dest.Songs, opt => opt.Ignore());
     }
 }

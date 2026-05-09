@@ -44,6 +44,22 @@ public class PlaylistService(IPlaylistRepository _repository, ISongRepository _s
         return _mapper.Map<IEnumerable<PlaylistModel>>(playlists);
     }
 
+    public async Task<PlaylistModel> UpdatePlaylistAsync(PlaylistUpdateRequestModel playlistUpdateRequestModel, Guid requesterId, CancellationToken cancellationToken)
+    {
+        var playlist = await _repository.GetPlaylistAsync(playlistUpdateRequestModel.Id, false, cancellationToken)
+           ?? throw new NotFoundException("Playlist with such id not found!");
+        if (playlist.AuthorId != requesterId)
+        {
+            throw new ForbiddenException("You don't have permissions to delete this playlist!");
+        }
+
+        _mapper.Map(playlistUpdateRequestModel, playlist);
+
+        var updatedPlaylist = await _repository.UpdateAsync(playlist, cancellationToken);
+
+        return _mapper.Map<PlaylistModel>(updatedPlaylist);
+    }
+
     public async Task DeletePlaylistAsync(Guid playlistId, Guid requesterId, CancellationToken cancellationToken)
     {
         var playlist = await _repository.GetByIdAsync(playlistId, true, cancellationToken)
@@ -84,4 +100,6 @@ public class PlaylistService(IPlaylistRepository _repository, ISongRepository _s
 
         return (playlist, song);
     }
+
+
 }
