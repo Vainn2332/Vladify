@@ -25,7 +25,8 @@ public static class DalExtensions
             .AddScoped(typeof(IRepository<>), typeof(Repository<>))
             .AddScoped<IUserRepository, UserRepository>()
             .AddScoped<ISongRepository, SongRepository>()
-            .AddScoped<IPlaylistRepository, PlaylistRepository>();
+            .AddScoped<IPlaylistRepository, PlaylistRepository>()
+            .AddScoped<ISearchRepository, SearchRepository>();
 
         return services;
     }
