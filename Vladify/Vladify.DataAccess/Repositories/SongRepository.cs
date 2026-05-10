@@ -42,4 +42,9 @@ public class SongRepository(ApplicationDbContext context) : Repository<Song>(con
 
         return song;
     }
+
+    public async Task<IEnumerable<Song>> GetSongsOfUserAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        return await _context.Songs.Where(p => p.AuthorId == userId).ToListAsync(cancellationToken);
+    }
 }

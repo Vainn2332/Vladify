@@ -33,6 +33,13 @@ public class SongService(ISongRepository _songRepository, IMapper _mapper) : ISo
         return _mapper.Map<IEnumerable<SongModel>>(songs);
     }
 
+    public async Task<IEnumerable<SongModel>> GetAllSongsOfUserAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        var songs = await _songRepository.GetSongsOfUserAsync(userId, cancellationToken);
+
+        return _mapper.Map<IEnumerable<SongModel>>(songs);
+    }
+
     public async Task<SongModel> UpdateSongAsync(SongUpdateDto songUpdateDto, Guid requesterId, CancellationToken cancellationToken)
     {
         var song = await GetAndValidateSongAsync(songUpdateDto.Id, requesterId, cancellationToken);
@@ -63,4 +70,6 @@ public class SongService(ISongRepository _songRepository, IMapper _mapper) : ISo
 
         return song;
     }
+
+
 }
