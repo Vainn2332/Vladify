@@ -9,4 +9,8 @@ public static class DataAccessLayerConstants
     public const int UserSeedDataAmount = 30;
 
     public const int SongSeedDataAmount = 100;
+
+    public const int SongSearchAmount = 7;
+
+    public const int UserSearchAmount = 3;
 }
