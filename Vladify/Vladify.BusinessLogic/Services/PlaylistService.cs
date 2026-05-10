@@ -46,7 +46,7 @@ public class PlaylistService(IPlaylistRepository _repository, ISongRepository _s
 
     public async Task<PlaylistModel> UpdatePlaylistAsync(PlaylistUpdateRequestModel playlistUpdateRequestModel, Guid requesterId, CancellationToken cancellationToken)
     {
-        var playlist = await _repository.GetPlaylistAsync(playlistUpdateRequestModel.Id, false, cancellationToken)
+        var playlist = await _repository.GetPlaylistAsync(playlistUpdateRequestModel.Id, true, cancellationToken)
            ?? throw new NotFoundException("Playlist with such id not found!");
         if (playlist.AuthorId != requesterId)
         {
