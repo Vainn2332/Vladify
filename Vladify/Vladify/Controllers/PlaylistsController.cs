@@ -13,6 +13,7 @@ namespace Vladify.Controllers;
 [Route("api/playlists")]
 [ApiController]
 [Authorize]
+[ValidationFilter]
 public class PlaylistsController(IPlaylistService _playlistService, IMapper _mapper, IUserService _userService) : ControllerBase
 {
     [HttpPost, ValidationFilter]
@@ -57,7 +58,6 @@ public class PlaylistsController(IPlaylistService _playlistService, IMapper _map
     [HttpGet]
     public async Task<IEnumerable<PlaylistModel>> GetAllPlaylistsOfUser(
         [FromQuery] PaginationFilter filter,
-        Guid userId,
         CancellationToken cancellationToken = default
         )
     {
