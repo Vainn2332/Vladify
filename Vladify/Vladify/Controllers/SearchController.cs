@@ -5,7 +5,7 @@ using Vladify.BusinessLogic.ServiceInterfaces;
 
 namespace Vladify.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/search")]
     [ApiController]
     [Authorize]
     public class SearchController(ISearchService searchService) : ControllerBase
