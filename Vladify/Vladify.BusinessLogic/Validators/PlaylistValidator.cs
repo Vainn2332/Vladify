@@ -12,15 +12,12 @@ file static class Constraints
     public const string LengthExceededMessage = "The length of field '{PropertyName}' exceeds {MaxLength}!";
 }
 
-public class PlaylistValidator : AbstractValidator<PlaylistRequestModel>
+public class PlaylistValidator : AbstractValidator<PlaylistAddDto>
 {
     public PlaylistValidator()
     {
         RuleFor(playlist => playlist.Name)
             .NotEmpty().WithMessage(Constraints.FieldRequiredMessage)
             .MaximumLength(Constraints.MaxDefaultStringLength).WithMessage(Constraints.LengthExceededMessage);
-
-        RuleFor(playlist => playlist.AuthorId)
-            .NotEmpty().WithMessage(Constraints.FieldRequiredMessage);
     }
 }

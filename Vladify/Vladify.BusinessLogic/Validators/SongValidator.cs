@@ -18,7 +18,7 @@ file static class Constraints
     public const string BetweenValueMessage = "{PropertyName} must be between {From} and {To}!";
 }
 
-public class SongValidator : AbstractValidator<SongRequestModel>
+public class SongValidator : AbstractValidator<SongAddDto>
 {
     public SongValidator()
     {
