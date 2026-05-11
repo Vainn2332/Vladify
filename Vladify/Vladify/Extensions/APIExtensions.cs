@@ -120,7 +120,8 @@ public static class ApiExtensions
 
     public static IServiceCollection ConfigureOptions(this IServiceCollection services, IConfiguration configuration)
     {
-        services.Configure<Auth0Options>(configuration.GetSection("Auth0"));
+        services.Configure<Auth0Options>(configuration.GetSection(Auth0Options.SectionName));
+        services.Configure<MinioOptions>(configuration.GetSection(MinioOptions.SectionName));
 
         services.Configure<ApiKeysOptions>("Auth0", options =>
             options.Value = configuration["ApiKeys:Auth0SyncInDb"] ?? throw new ArgumentException("Failed to get Auth0ApiKey from configuration!"));
