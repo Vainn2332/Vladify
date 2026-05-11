@@ -1,4 +1,6 @@
-﻿namespace Vladify.BusinessLogic.Models.SongModels;
+﻿using Microsoft.AspNetCore.Http;
+
+namespace Vladify.BusinessLogic.Models.SongModels;
 
 public class SongRequestModel
 {
@@ -9,4 +11,8 @@ public class SongRequestModel
     public required string Album { get; set; }
 
     public TimeSpan Duration { get; set; }
+
+    public required IFormFile AudioFile { get; set; }
+
+    public required IFormFile Image { get; set; }
 }
