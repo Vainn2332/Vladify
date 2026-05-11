@@ -19,7 +19,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         modelBuilder.ApplyConfiguration(new SongDbConfig());
         modelBuilder.ApplyConfiguration(new PlaylistDbConfig());
 
-        SeedData(modelBuilder);
+        //SeedData(modelBuilder);
 
         base.OnModelCreating(modelBuilder);
     }

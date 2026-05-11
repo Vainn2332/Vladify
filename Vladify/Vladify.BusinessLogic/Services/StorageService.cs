@@ -42,7 +42,6 @@ public class StorageService(IAmazonS3 amazonS3Client, IOptions<MinioOptions> opt
             Key = uniqueFileName,
             InputStream = stream,
             ContentType = audioFile.ContentType,
-            DisablePayloadSigning = true
         };
 
         await amazonS3Client.PutObjectAsync(putRequest, cancellationToken);
@@ -68,7 +67,6 @@ public class StorageService(IAmazonS3 amazonS3Client, IOptions<MinioOptions> opt
             Key = uniqueFileName,
             InputStream = stream,
             ContentType = imageFile.ContentType,
-            DisablePayloadSigning = true
         };
 
         await amazonS3Client.PutObjectAsync(putRequest, cancellationToken);
