@@ -10,5 +10,7 @@ public class MinioOptions
 
     public required string SecretKey { get; set; }
 
-    public required string BucketName { get; set; }
+    public required string MusicBucketName { get; set; }
+
+    public required string MusicIconBucketName { get; set; }
 }
