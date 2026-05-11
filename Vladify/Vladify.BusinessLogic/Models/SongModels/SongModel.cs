@@ -11,4 +11,8 @@ public class SongModel
     public required string Author { get; set; }
 
     public TimeSpan Duration { get; set; } = TimeSpan.Zero;
+
+    public required string AudioUrl { get; set; }
+
+    public required string ImageUrl { get; set; }
 }

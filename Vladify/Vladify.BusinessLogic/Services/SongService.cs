@@ -8,11 +8,15 @@ using Vladify.DataAccess.Interfaces;
 
 namespace Vladify.BusinessLogic.Services;
 
-public class SongService(ISongRepository _songRepository, IMapper _mapper) : ISongService
+public class SongService(ISongRepository _songRepository, IStorageService _storageService, IMapper _mapper) : ISongService
 {
     public async Task<SongModel> AddSongAsync(SongRequestModel songRequestModel, CancellationToken cancellationToken)
     {
+        var (audioUrl, imageUrl) = await _storageService.UploadAsync(songRequestModel.AudioFile, songRequestModel.Image, cancellationToken);
+
         var song = _mapper.Map<Song>(songRequestModel);
+        song.AudioUrl = audioUrl;
+        song.ImageUrl = imageUrl;
 
         var newSong = await _songRepository.AddSongAsync(song, cancellationToken);
 

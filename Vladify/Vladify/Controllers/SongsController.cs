@@ -22,7 +22,7 @@ public class SongsController(ISongService _songService, IMapper _mapper, IUserSe
 {
     [HttpPost, ValidationFilter]
     public async Task<SongModel> CreateSong(
-        SongAddDto songAddDto,
+        [FromForm] SongAddDto songAddDto,
         CancellationToken cancellationToken = default)
     {
         var userEmail = User.GetEmail();

@@ -8,6 +8,8 @@ builder.Services.AddAppServices(builder.Configuration);
 
 var app = builder.Build();
 
+await app.ConfigureBucketsAsync();
+
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
