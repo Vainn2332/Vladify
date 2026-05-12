@@ -51,6 +51,7 @@ public class SongRepository(ApplicationDbContext context) : Repository<Song>(con
     public async Task<IEnumerable<Song>> GetRecentlyAddedSongsAsync(int pageNumber, int pageSize, CancellationToken cancellationToken)
     {
         return await _context.Songs
+            .Include(p => p.Owner)
             .OrderByDescending(p => p.CreatedAt)
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
