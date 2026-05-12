@@ -47,4 +47,13 @@ public class SongRepository(ApplicationDbContext context) : Repository<Song>(con
     {
         return await _context.Songs.Where(p => p.AuthorId == userId).ToListAsync(cancellationToken);
     }
+
+    public async Task<IEnumerable<Song>> GetRecentlyAddedSongsAsync(int pageNumber, int pageSize, CancellationToken cancellationToken)
+    {
+        return await _context.Songs
+            .OrderByDescending(p => p.CreatedAt)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+    }
 }
