@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Vladify.BusinessLogic.Exceptions;
 using Vladify.BusinessLogic.Extensions;
+using Vladify.BusinessLogic.Models;
 using Vladify.BusinessLogic.Models.SongModels;
 using Vladify.BusinessLogic.ServiceInterfaces;
 using Vladify.Filters;
@@ -34,6 +35,12 @@ public class SongsController(ISongService _songService, IMapper _mapper, IUserSe
 
         return await _songService.AddSongAsync(songRequestModel, cancellationToken);
     }
+    [HttpGet("recent")]
+    public Task<IEnumerable<SongModel>> GetRecentlyAddedSongs([FromQuery] PaginationFilter filter, CancellationToken cancellationToken)
+    {
+        return _songService.GetRecentlyAddedSongsAsync(filter, cancellationToken);
+    }
+
 
     [HttpGet("user/{userId}")]
     public Task<IEnumerable<SongModel>> GetAllSongsOfUser(
