@@ -8,5 +8,7 @@ public class SongUpdateDto
 
     public required string Album { get; set; }
 
+    public DateTime CreatedAt { get; set; }
+
     public TimeSpan Duration { get; set; } = TimeSpan.Zero;
 }
