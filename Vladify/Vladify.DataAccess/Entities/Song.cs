@@ -14,6 +14,8 @@ public class Song : IEntity
 
     public TimeSpan Duration { get; set; } = TimeSpan.Zero;
 
+    public DateTime CreatedAt { get; set; }
+
     public required string AudioUrl { get; set; }
 
     public required string ImageUrl { get; set; }

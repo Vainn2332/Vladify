@@ -10,6 +10,8 @@ public class SongAddDto
 
     public TimeSpan Duration { get; set; }
 
+    public DateTime CreatedAt { get; set; } = DateTime.Now;
+
     public required IFormFile AudioFile { get; set; }
 
     public required IFormFile Image { get; set; }
