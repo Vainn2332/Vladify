@@ -36,6 +36,12 @@ public class SongService(ISongRepository _songRepository, IStorageService _stora
 
         return _mapper.Map<IEnumerable<SongModel>>(songs);
     }
+    public async Task<IEnumerable<SongModel>> GetRecentlyAddedSongsAsync(PaginationFilter filter, CancellationToken cancellationToken)
+    {
+        var songs = await _songRepository.GetRecentlyAddedSongsAsync(filter.PageNumber, filter.PageSize, cancellationToken);
+
+        return _mapper.Map<IEnumerable<SongModel>>(songs);
+    }
 
     public async Task<IEnumerable<SongModel>> GetAllSongsOfUserAsync(Guid userId, CancellationToken cancellationToken)
     {
@@ -74,6 +80,4 @@ public class SongService(ISongRepository _songRepository, IStorageService _stora
 
         return song;
     }
-
-
 }
