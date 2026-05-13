@@ -17,4 +17,6 @@ public static class TestConstants
     public const int TestDataTimeSpanValuesMaxDurationInMinutes = 30;
 
     public const int TestDataTimeSpanValuesMinDurationInSeconds = 10;
+
+    public const string TestJwtEmailClaimValue = "test@mail.ru";
 }

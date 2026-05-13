@@ -12,9 +12,9 @@ public static class AutoFixtureOptions
 
         fixture.Customize<Song>(builder => builder
         .With(s => s.Title, () => string.Join("", fixture.CreateMany<char>(TestConstants.TestDataStringValuesLength)))
-        .With(s => s.Author, () => string.Join("", fixture.CreateMany<char>(TestConstants.TestDataStringValuesLength)))
         .With(s => s.Album, () => string.Join("", fixture.CreateMany<char>(TestConstants.TestDataStringValuesLength)))
         .With(s => s.Duration, () => TimeSpan.FromMinutes(new Random().Next(TestConstants.TestDataTimeSpanValuesMinDurationInSeconds, TestConstants.TestDataTimeSpanValuesMaxDurationInMinutes)))
+        .With(s => s.Owner, () => null!)
         );
 
         fixture.Customize<SongRequestModel>(builder => builder
@@ -22,6 +22,11 @@ public static class AutoFixtureOptions
        .With(s => s.Author, () => string.Join("", fixture.CreateMany<char>(TestConstants.TestDataStringValuesLength)))
        .With(s => s.Album, () => string.Join("", fixture.CreateMany<char>(TestConstants.TestDataStringValuesLength)))
        .With(s => s.Duration, () => TimeSpan.FromMinutes(new Random().Next(TestConstants.TestDataTimeSpanValuesMinDurationInSeconds, TestConstants.TestDataTimeSpanValuesMaxDurationInMinutes)))
+       );
+
+        fixture.Customize<User>(builder => builder
+       .With(s => s.EmailAddress, () => TestConstants.TestJwtEmailClaimValue)
+       .With(s => s.OwnedSongs, () => null!)
        );
 
         return fixture;
