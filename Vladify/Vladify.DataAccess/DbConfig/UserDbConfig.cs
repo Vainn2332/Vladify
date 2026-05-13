@@ -19,5 +19,10 @@ public class UserDbConfig : IEntityTypeConfiguration<User>
         var fakeUsers = new UserFaker().Generate(DataAccessLayerConstants.UserSeedDataAmount);
 
         builder.HasData(fakeUsers);
+
+        builder.HasMany(p => p.OwnedSongs)
+           .WithOne(p => p.Owner)
+           .HasForeignKey(k => k.AuthorId)
+           .OnDelete(DeleteBehavior.SetNull);
     }
 }
