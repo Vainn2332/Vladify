@@ -5,7 +5,7 @@ using Vladify.DataAccess.Entities;
 
 namespace Vladify.DataAccess.Fakers;
 
-public class SongFaker : Faker<Song>
+public sealed class SongFaker : Faker<Song>
 {
     public SongFaker(List<Guid> userIds)
     {

@@ -6,7 +6,7 @@ using Vladify.DataAccess.Enums;
 
 namespace Vladify.DataAccess.Fakers;
 
-public class UserFaker : Faker<User>
+public sealed class UserFaker : Faker<User>
 {
     public UserFaker()
     {
