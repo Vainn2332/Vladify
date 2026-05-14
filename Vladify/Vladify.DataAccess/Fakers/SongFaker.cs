@@ -5,12 +5,10 @@ using Vladify.DataAccess.Entities;
 
 namespace Vladify.DataAccess.Fakers;
 
-public class SongFaker : Faker<Song>
+public sealed class SongFaker : Faker<Song>
 {
-    public SongFaker()
+    public SongFaker(IEnumerable<Guid> userIds)
     {
-        this.UseSeed(DataAccessLayerConstants.RandomSeedDataNumber);
-
         RuleFor(property => property.Id, setter => setter.Random.Guid());
 
         RuleFor(property => property.Title, setter =>
@@ -25,8 +23,7 @@ public class SongFaker : Faker<Song>
         RuleFor(property => property.Album, setter => setter.Commerce.ProductName()
             .ClampLength(max: DataAccessLayerConstants.MaxStandartStringLength));
 
-        RuleFor(property => property.Author, setter => $"{setter.Name.FirstName()} {setter.Name.LastName()}"
-            .ClampLength(max: DataAccessLayerConstants.MaxStandartStringLength));
+        RuleFor(property => property.AuthorId, setter => setter.PickRandom(userIds));
 
         RuleFor(property => property.Duration, setter => TimeSpan.FromSeconds(setter.Random.Int(150, 210)));
     }

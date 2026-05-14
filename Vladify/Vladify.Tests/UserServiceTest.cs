@@ -9,6 +9,7 @@ using Vladify.BusinessLogic.Models.UserModels;
 using Vladify.BusinessLogic.ServiceInterfaces;
 using Vladify.DataAccess.Entities;
 using Vladify.DataAccess.Interfaces;
+using Vladify.IntegrationTests;
 
 namespace Vladify.UnitTests;
 
@@ -22,7 +23,7 @@ public class UserServiceTest
 
     public UserServiceTest()
     {
-        _fixture = new Fixture().Customize(new AutoMoqCustomization());
+        _fixture = AutoFixtureOptions.CreateFixture().Customize(new AutoMoqCustomization());
         _userRepositoryMock = _fixture.Freeze<Mock<IUserRepository>>();
         _authServiceMock = _fixture.Freeze<Mock<IAuth0Service>>();
         _mapperMock = _fixture.Freeze<Mock<IMapper>>();

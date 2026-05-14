@@ -6,12 +6,10 @@ using Vladify.DataAccess.Enums;
 
 namespace Vladify.DataAccess.Fakers;
 
-public class UserFaker : Faker<User>
+public sealed class UserFaker : Faker<User>
 {
     public UserFaker()
     {
-        this.UseSeed(DataAccessLayerConstants.RandomSeedDataNumber);
-
         RuleFor(property => property.Id, setter => setter.Random.Guid());
 
         RuleFor(p => p.ExternalId, setter => $"auth0|{setter.Random.Hash(24)}");

@@ -10,5 +10,7 @@ public class SongModel
 
     public string Author { get; set; } = null!;
 
+    public Guid AuthorId { get; set; }// temporary field used for integration tests
+
     public TimeSpan Duration { get; set; } = TimeSpan.Zero;
 }
