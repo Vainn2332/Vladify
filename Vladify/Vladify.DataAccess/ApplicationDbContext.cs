@@ -24,9 +24,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
     private static void SeedData(ModelBuilder modelBuilder)
     {
-#pragma warning disable S2245//indicate that this pseudorandom number is safe
         Randomizer.Seed = new Random(DataAccessLayerConstants.RandomSeedDataNumber);
-#pragma warning restore S2245
+
         var users = new UserFaker().Generate(DataAccessLayerConstants.UserSeedDataAmount);
         var userIds = users.Select(u => u.Id).ToList();
 
