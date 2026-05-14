@@ -7,7 +7,7 @@ namespace Vladify.DataAccess.Fakers;
 
 public sealed class SongFaker : Faker<Song>
 {
-    public SongFaker(List<Guid> userIds)
+    public SongFaker(IEnumerable<Guid> userIds)
     {
         RuleFor(property => property.Id, setter => setter.Random.Guid());
 
