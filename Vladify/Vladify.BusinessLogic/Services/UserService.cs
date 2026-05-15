@@ -6,7 +6,7 @@ using Vladify.BusinessLogic.ServiceInterfaces;
 using Vladify.DataAccess.Entities;
 using Vladify.DataAccess.Interfaces;
 
-namespace Vladify.BusinessLogic;
+namespace Vladify.BusinessLogic.Services;
 
 public class UserService(IUserRepository _userRepository, IAuth0Service _authService, IMapper _mapper) : IUserService
 {
