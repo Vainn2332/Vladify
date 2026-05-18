@@ -80,7 +80,7 @@ public class IntegrationTestInfrastructure : IAsyncLifetime
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
         var claims = new List<Claim>
         {
-            new Claim(BusinessLogicLayerConstants.CustomEmailClaimName,TestConstants.TestJwtEmailClaimValue)
+            new Claim(ClaimConstants.CustomEmailClaimName,TestConstants.TestJwtEmailClaimValue)
         };
 
         var token = new JwtSecurityToken(

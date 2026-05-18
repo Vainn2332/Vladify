@@ -1,6 +1,6 @@
 ﻿namespace Vladify.BusinessLogic.Constants;
 
-public static class BusinessLogicLayerConstants
+public static class ClaimConstants
 {
     public const string BaseClaimNamespace = "https://vladify.com/";
 

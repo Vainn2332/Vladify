@@ -8,7 +8,7 @@ public static class JwtClaimsExtensions
 {
     public static string GetEmail(this ClaimsPrincipal principal)
     {
-        var userEmail = principal.FindFirst(BusinessLogicLayerConstants.CustomEmailClaimName)?.Value
+        var userEmail = principal.FindFirst(ClaimConstants.CustomEmailClaimName)?.Value
             ?? throw new UnauthorizedException("unable to get user externalId");
 
         return userEmail;
