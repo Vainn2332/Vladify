@@ -21,21 +21,13 @@ file static class ErrorMessages
 [Route("api/songs")]
 [ApiController]
 [Authorize]
-public class SongsController(ISongService _songService, IMapper _mapper, IUserService _userService) : ControllerBase
-public class SongsController(ISongService _songService, IMapper _mapper, IPublishEndpoint _publishEndpoint) : ControllerBase
+public class SongsController(ISongService _songService, IMapper _mapper, IUserService _userService, IPublishEndpoint _publishEndpoint) : ControllerBase
 {
     [HttpPost, ValidationFilter]
     public async Task<SongModel> CreateSong(
         [FromForm] SongAddDto songAddDto,
         CancellationToken cancellationToken = default)
     {
-        var response = await _songService.AddSongAsync(songRequestModel, cancellationToken);
-
-        var message = _mapper.Map<SongCreatedMessage>(response);
-
-        await _publishEndpoint.Publish(message);
-
-        return response;
         var userEmail = User.GetEmail();
         var user = await _userService.GetUserByEmailAsync(userEmail, false, cancellationToken)
             ?? throw new NotFoundException(ErrorMessages.UserNotFound);
@@ -43,7 +35,14 @@ public class SongsController(ISongService _songService, IMapper _mapper, IPublis
         var songRequestModel = _mapper.Map<SongRequestModel>(songAddDto);
         songRequestModel.AuthorId = user.Id;
 
-        return await _songService.AddSongAsync(songRequestModel, cancellationToken);
+        var response = await _songService.AddSongAsync(songRequestModel, cancellationToken);
+
+        var message = _mapper.Map<SongCreatedMessage>(response);
+
+        await _publishEndpoint.Publish(message, cancellationToken);
+
+        return response;
+
     }
     [HttpGet("recent")]
     public Task<IEnumerable<SongModel>> GetRecentlyAddedSongs([FromQuery] PaginationFilter filter, CancellationToken cancellationToken)
