@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
+using MassTransit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Vladify.BusinessLogic.Exceptions;
 using Vladify.BusinessLogic.Extensions;
+using Vladify.BusinessLogic.Messages;
 using Vladify.BusinessLogic.Models;
 using Vladify.BusinessLogic.Models.SongModels;
 using Vladify.BusinessLogic.ServiceInterfaces;
@@ -19,7 +21,7 @@ file static class ErrorMessages
 [Route("api/songs")]
 [ApiController]
 [Authorize]
-public class SongsController(ISongService _songService, IMapper _mapper, IUserService _userService) : ControllerBase
+public class SongsController(ISongService _songService, IMapper _mapper, IUserService _userService, IPublishEndpoint _publishEndpoint) : ControllerBase
 {
     [HttpPost, ValidationFilter]
     public async Task<SongModel> CreateSong(
@@ -33,7 +35,14 @@ public class SongsController(ISongService _songService, IMapper _mapper, IUserSe
         var songRequestModel = _mapper.Map<SongRequestModel>(songAddDto);
         songRequestModel.AuthorId = user.Id;
 
-        return await _songService.AddSongAsync(songRequestModel, cancellationToken);
+        var response = await _songService.AddSongAsync(songRequestModel, cancellationToken);
+
+        var message = _mapper.Map<SongCreatedMessage>(response);
+
+        await _publishEndpoint.Publish(message, cancellationToken);
+
+        return response;
+
     }
     [HttpGet("recent")]
     public Task<IEnumerable<SongModel>> GetRecentlyAddedSongs([FromQuery] PaginationFilter filter, CancellationToken cancellationToken)
