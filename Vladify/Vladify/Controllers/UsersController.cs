@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Vladify.BusinessLogic.Constants;
 using Vladify.BusinessLogic.Exceptions;
 using Vladify.BusinessLogic.Extensions;
 using Vladify.BusinessLogic.Models;
@@ -48,7 +49,7 @@ public class UsersController(IUserService _userService, IMapper _mapper) : Contr
     {
         var userEmail = User.GetEmail();
         var user = await _userService.GetUserByEmailAsync(userEmail, false, cancellationToken)
-            ?? throw new NotFoundException("User with such email not found!");
+            ?? throw new NotFoundException(BusinessLogicLayerConstants.User_NotFoundByEmail_ErrorMessage);
 
         var userUpdateDto = _mapper.Map<UserUpdateDto>(userUpdateRequestModel);
         userUpdateDto.Id = id;
@@ -62,7 +63,7 @@ public class UsersController(IUserService _userService, IMapper _mapper) : Contr
     {
         var userEmail = User.GetEmail();
         var user = await _userService.GetUserByEmailAsync(userEmail, false, cancellationToken)
-            ?? throw new NotFoundException("User with such email not found!");
+            ?? throw new NotFoundException(BusinessLogicLayerConstants.User_NotFoundByEmail_ErrorMessage);
 
         await _userService.DeleteUserAsync(id, user.Id, cancellationToken);
     }

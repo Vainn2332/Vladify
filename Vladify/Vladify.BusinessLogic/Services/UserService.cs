@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Vladify.BusinessLogic.Constants;
 using Vladify.BusinessLogic.Exceptions;
 using Vladify.BusinessLogic.Models;
 using Vladify.BusinessLogic.Models.UserModels;
@@ -68,10 +69,10 @@ public class UserService(IUserRepository _userRepository, IAuth0Service _authSer
     private async Task<User> GetAndValidateUserAsync(Guid userId, Guid requesterId, CancellationToken cancellationToken)
     {
         var user = await _userRepository.GetByIdAsync(userId, false, cancellationToken)
-            ?? throw new NotFoundException("User with such id not found!");
+            ?? throw new NotFoundException(BusinessLogicLayerConstants.User_NotFoundById_ErrorMessage);
         if (user.Id != requesterId)
         {
-            throw new ForbiddenException("You don't have permissions to modify this user!");
+            throw new ForbiddenException(BusinessLogicLayerConstants.User_Forbidden_ErrorMessage);
         }
 
         return user;
