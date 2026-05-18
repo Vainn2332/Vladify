@@ -7,6 +7,7 @@ public interface ISongService
 {
     public Task<SongModel?> GetSongByIdAsync(Guid songId, bool isTracking, CancellationToken cancellationToken);
     public Task<IEnumerable<SongModel>> GetSongsAsync(PaginationFilter filter, CancellationToken cancellationToken);
+    public Task<IEnumerable<SongModel>> GetRecentlyAddedSongsAsync(PaginationFilter filter, CancellationToken cancellationToken);
     public Task<IEnumerable<SongModel>> GetAllSongsOfUserAsync(Guid userId, CancellationToken cancellationToken);
     public Task<SongModel> AddSongAsync(SongRequestModel songRequestModel, CancellationToken cancellationToken);
     public Task<SongModel> UpdateSongAsync(SongUpdateDto songUpdateDto, Guid requesterId, CancellationToken cancellationToken);
