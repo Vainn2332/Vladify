@@ -69,10 +69,10 @@ public class UserService(IUserRepository _userRepository, IAuth0Service _authSer
     private async Task<User> GetAndValidateUserAsync(Guid userId, Guid requesterId, CancellationToken cancellationToken)
     {
         var user = await _userRepository.GetByIdAsync(userId, false, cancellationToken)
-            ?? throw new NotFoundException(BusinessLogicLayerConstants.User_NotFoundById_ErrorMessage);
+            ?? throw new NotFoundException(ErrorMessageConstants.UserNotFoundByIdErrorMessage);
         if (user.Id != requesterId)
         {
-            throw new ForbiddenException(BusinessLogicLayerConstants.User_Forbidden_ErrorMessage);
+            throw new ForbiddenException(ErrorMessageConstants.UserForbiddenErrorMessage);
         }
 
         return user;
