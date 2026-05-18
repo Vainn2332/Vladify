@@ -49,7 +49,7 @@ public class UsersController(IUserService _userService, IMapper _mapper) : Contr
     {
         var userEmail = User.GetEmail();
         var user = await _userService.GetUserByEmailAsync(userEmail, false, cancellationToken)
-            ?? throw new NotFoundException(ErrorMessageConstants.UserNotFoundByEmailErrorMessage);
+            ?? throw new NotFoundException(ErrorMessageConstants.UserNotFoundByEmail);
 
         var userUpdateDto = _mapper.Map<UserUpdateDto>(userUpdateRequestModel);
         userUpdateDto.Id = id;
@@ -63,7 +63,7 @@ public class UsersController(IUserService _userService, IMapper _mapper) : Contr
     {
         var userEmail = User.GetEmail();
         var user = await _userService.GetUserByEmailAsync(userEmail, false, cancellationToken)
-            ?? throw new NotFoundException(ErrorMessageConstants.UserNotFoundByEmailErrorMessage);
+            ?? throw new NotFoundException(ErrorMessageConstants.UserNotFoundByEmail);
 
         await _userService.DeleteUserAsync(id, user.Id, cancellationToken);
     }
