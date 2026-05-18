@@ -126,6 +126,8 @@ public static class ApiExtensions
         services.Configure<ApiKeysOptions>("Auth0", options =>
             options.Value = configuration["ApiKeys:Auth0SyncInDb"] ?? throw new ArgumentException("Failed to get Auth0ApiKey from configuration!"));
 
+        services.Configure<RabbitMqOptions>(configuration.GetSection(RabbitMqOptions.SectionName));
+
         return services;
     }
 

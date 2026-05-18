@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
+using MassTransit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Vladify.BusinessLogic.Exceptions;
 using Vladify.BusinessLogic.Extensions;
+using Vladify.BusinessLogic.Messages;
 using Vladify.BusinessLogic.Models;
 using Vladify.BusinessLogic.Models.SongModels;
 using Vladify.BusinessLogic.ServiceInterfaces;
@@ -20,12 +22,20 @@ file static class ErrorMessages
 [ApiController]
 [Authorize]
 public class SongsController(ISongService _songService, IMapper _mapper, IUserService _userService) : ControllerBase
+public class SongsController(ISongService _songService, IMapper _mapper, IPublishEndpoint _publishEndpoint) : ControllerBase
 {
     [HttpPost, ValidationFilter]
     public async Task<SongModel> CreateSong(
         [FromForm] SongAddDto songAddDto,
         CancellationToken cancellationToken = default)
     {
+        var response = await _songService.AddSongAsync(songRequestModel, cancellationToken);
+
+        var message = _mapper.Map<SongCreatedMessage>(response);
+
+        await _publishEndpoint.Publish(message);
+
+        return response;
         var userEmail = User.GetEmail();
         var user = await _userService.GetUserByEmailAsync(userEmail, false, cancellationToken)
             ?? throw new NotFoundException(ErrorMessages.UserNotFound);
