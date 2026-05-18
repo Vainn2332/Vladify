@@ -11,6 +11,4 @@ public static class BusinessLogicLayerConstants
     public const string User_NotFoundByEmail_ErrorMessage = "User with such email not found!";
 
     public const string User_Forbidden_ErrorMessage = "You don't have permissions to modify this user!";
-
-
 }
