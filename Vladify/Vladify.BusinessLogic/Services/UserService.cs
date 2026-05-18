@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Vladify.BusinessLogic.Constants;
 using Vladify.BusinessLogic.Exceptions;
 using Vladify.BusinessLogic.Models;
 using Vladify.BusinessLogic.Models.UserModels;
@@ -6,7 +7,7 @@ using Vladify.BusinessLogic.ServiceInterfaces;
 using Vladify.DataAccess.Entities;
 using Vladify.DataAccess.Interfaces;
 
-namespace Vladify.BusinessLogic;
+namespace Vladify.BusinessLogic.Services;
 
 public class UserService(IUserRepository _userRepository, IAuth0Service _authService, IMapper _mapper) : IUserService
 {
@@ -38,25 +39,42 @@ public class UserService(IUserRepository _userRepository, IAuth0Service _authSer
         return _mapper.Map<IEnumerable<UserModel>>(users);
     }
 
-    public async Task<UserModel> UpdateUserAsync(UserUpdateDto userUpdateDto, CancellationToken cancellationToken)
+    public async Task<UserModel> UpdateUserAsync(UserUpdateDto userUpdateDto, Guid requesterId, CancellationToken cancellationToken)
     {
-        var target = await _userRepository.GetByIdAsync(userUpdateDto.Id, false, cancellationToken)
-            ?? throw new NotFoundException("User with such id not found!");
+        var user = await GetAndValidateUserAsync(userUpdateDto.Id, requesterId, cancellationToken);
 
-        var user = _mapper.Map<User>(userUpdateDto);
-        user.ExternalId = target.ExternalId;
+        var userEntity = _mapper.Map<User>(userUpdateDto);
+        userEntity.ExternalId = user.ExternalId;
 
-        var updatedUser = await _userRepository.UpdateAsync(user, cancellationToken);
+        var updatedUser = await _userRepository.UpdateAsync(userEntity, cancellationToken);
 
         return _mapper.Map<UserModel>(updatedUser);
     }
 
-    public async Task DeleteUserAsync(Guid userId, CancellationToken cancellationToken)
+    public async Task DeleteUserAsync(Guid userId, Guid requesterId, CancellationToken cancellationToken)
     {
-        var user = await _userRepository.GetByIdAsync(userId, true, cancellationToken)
-            ?? throw new NotFoundException("User with such id not found!");
+        var user = await GetAndValidateUserAsync(userId, requesterId, cancellationToken);
 
         await _authService.DeleteUserFromAuth0Async(user.ExternalId);
         await _userRepository.DeleteAsync(user, cancellationToken);
+    }
+
+    public async Task<UserModel?> GetUserByEmailAsync(string userEmail, bool isTracking, CancellationToken cancellationToken)
+    {
+        var user = await _userRepository.GetByEmailAsync(userEmail, isTracking, cancellationToken);
+
+        return _mapper.Map<UserModel>(user);
+    }
+
+    private async Task<User> GetAndValidateUserAsync(Guid userId, Guid requesterId, CancellationToken cancellationToken)
+    {
+        var user = await _userRepository.GetByIdAsync(userId, false, cancellationToken)
+            ?? throw new NotFoundException(ErrorMessageConstants.UserNotFoundById);
+        if (user.Id != requesterId)
+        {
+            throw new ForbiddenException(ErrorMessageConstants.UserForbidden);
+        }
+
+        return user;
     }
 }

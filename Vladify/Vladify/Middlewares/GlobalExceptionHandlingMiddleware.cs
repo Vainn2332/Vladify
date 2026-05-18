@@ -30,6 +30,7 @@ public class GlobalExceptionHandlingMiddleware(RequestDelegate _next, ILogger<Gl
             ArgumentException => HttpStatusCode.BadRequest,
             ValidationFailedException => HttpStatusCode.UnprocessableContent,
             UnauthorizedException => HttpStatusCode.Unauthorized,
+            ForbiddenException => HttpStatusCode.Forbidden,
             ExternalServiceException => HttpStatusCode.BadGateway,
             _ => HttpStatusCode.InternalServerError
         };
