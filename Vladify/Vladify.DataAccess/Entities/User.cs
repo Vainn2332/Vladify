@@ -18,4 +18,6 @@ public class User : IEntity
     public Gender Gender { get; set; } = Gender.Undefined;
 
     public required ICollection<Song> OwnedSongs { get; set; } = [];
+
+    public required ICollection<Playlist> Playlists { get; set; } = [];
 }
