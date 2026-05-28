@@ -19,5 +19,10 @@ public class UserDbConfig : IEntityTypeConfiguration<User>
            .WithOne(p => p.Owner)
            .HasForeignKey(k => k.AuthorId)
            .OnDelete(DeleteBehavior.SetNull);
+
+        builder.HasMany(p => p.Playlists)
+           .WithOne(p => p.Owner)
+           .HasForeignKey(k => k.AuthorId)
+           .OnDelete(DeleteBehavior.Cascade);
     }
 }
