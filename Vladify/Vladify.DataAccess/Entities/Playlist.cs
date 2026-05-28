@@ -6,7 +6,7 @@ public class Playlist : IEntity
 {
     public Guid Id { get; set; }
 
-    public Guid? AuthorId { get; set; }
+    public Guid AuthorId { get; set; }
 
     public required string Name { get; set; }
 
