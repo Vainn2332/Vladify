@@ -15,4 +15,6 @@ public class Song : IEntity
     public TimeSpan Duration { get; set; } = TimeSpan.Zero;
 
     public required User Owner { get; set; }
+
+    public required IEnumerable<Playlist> Playlists { get; set; } = [];
 }

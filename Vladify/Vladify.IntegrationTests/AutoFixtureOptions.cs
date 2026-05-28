@@ -15,6 +15,7 @@ public static class AutoFixtureOptions
         .With(s => s.Album, () => string.Join("", fixture.CreateMany<char>(TestConstants.TestDataStringValuesLength)))
         .With(s => s.Duration, () => TimeSpan.FromMinutes(new Random().Next(TestConstants.TestDataTimeSpanValuesMinDurationInSeconds, TestConstants.TestDataTimeSpanValuesMaxDurationInMinutes)))
         .With(s => s.Owner, () => null!)
+        .With(s => s.Playlists, () => null!)
         );
 
         fixture.Customize<SongRequestModel>(builder => builder
@@ -27,6 +28,7 @@ public static class AutoFixtureOptions
         fixture.Customize<User>(builder => builder
        .With(s => s.EmailAddress, () => TestConstants.TestJwtEmailClaimValue)
        .With(s => s.OwnedSongs, () => null!)
+       .With(s => s.Playlists, () => null!)
        );
 
         return fixture;

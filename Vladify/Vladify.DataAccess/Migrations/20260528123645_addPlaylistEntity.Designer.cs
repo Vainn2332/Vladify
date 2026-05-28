@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Vladify.DataAccess;
 
@@ -11,9 +12,11 @@ using Vladify.DataAccess;
 namespace Vladify.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260528123645_addPlaylistEntity")]
+    partial class addPlaylistEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -43,7 +46,7 @@ namespace Vladify.DataAccess.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("AuthorId")
+                    b.Property<Guid?>("AuthorId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Name")
@@ -1217,8 +1220,7 @@ namespace Vladify.DataAccess.Migrations
                     b.HasOne("Vladify.DataAccess.Entities.User", "Owner")
                         .WithMany("Playlists")
                         .HasForeignKey("AuthorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("Owner");
                 });
