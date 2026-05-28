@@ -12,5 +12,5 @@ public class Playlist : IEntity
 
     public required User Owner { get; set; }
 
-    public required ICollection<Song> Songs { get; set; } = [];
+    public required IEnumerable<Song> Songs { get; set; } = [];
 }
