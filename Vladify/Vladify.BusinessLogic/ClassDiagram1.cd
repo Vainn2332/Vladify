@@ -1,0 +1,112 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Vladify.BusinessLogic.Services.Auth0Service">
+    <Position X="1" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAgAAAAAAAAAAgABAAAAAAAAAAAAAAAAAAAAgAAAA=</HashCode>
+      <FileName>Services\Auth0Service.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Vladify.BusinessLogic.Services.PlaylistService">
+    <Position X="2.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AEAAAAAAgAAAoGAAIAAAAAABAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Services\PlaylistService.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Vladify.BusinessLogic.Services.SearchService">
+    <Position X="4" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Services\SearchService.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Vladify.BusinessLogic.Services.SongService">
+    <Position X="5.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAEAAABAAACAAAAAAAAAAAAAAAAYAAAAAAAgAAAQIA=</HashCode>
+      <FileName>Services\SongService.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Vladify.BusinessLogic.Services.StorageService">
+    <Position X="8.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQQAAABAAAAAA=</HashCode>
+      <FileName>Services\StorageService.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Vladify.BusinessLogic.Services.UserService">
+    <Position X="7" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAgAAAAAAAAAQAAAAAAAAAAAAABAAAAAAAAAEQABAg=</HashCode>
+      <FileName>Services\UserService.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Vladify.DataAccess.ApplicationDbContext">
+    <Position X="10" Y="0.5" Width="1.5" />
+    <TypeIdentifier />
+  </Class>
+  <Class Name="Vladify.BusinessLogic.Models.PlaylistModels.PlaylistModel">
+    <Position X="2.5" Y="3" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAAAAAACAAEAAQAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Models\PlaylistModels\PlaylistModel.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Vladify.BusinessLogic.Models.SongModels.SongModel">
+    <Position X="4" Y="3" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACQAAAAAACAEAAgCAAAAAAAAAAAABAAAAACAAAAAA=</HashCode>
+      <FileName>Models\SongModels\SongModel.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Vladify.BusinessLogic.Models.UserModels.UserModel">
+    <Position X="5.5" Y="3" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAAAACAAEAAAAQAAAAAAAIAAAAAAgAAAAA=</HashCode>
+      <FileName>Models\UserModels\UserModel.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Vladify.DataAccess.Repositories.UserRepository">
+    <Position X="14.5" Y="2.25" Width="1.5" />
+    <TypeIdentifier />
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Vladify.DataAccess.Repositories.SongRepository" Collapsed="true">
+    <Position X="12.25" Y="2.75" Width="1.5" />
+    <TypeIdentifier />
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Vladify.DataAccess.Repositories.PlaylistRepository" Collapsed="true">
+    <Position X="14.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier />
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Vladify.DataAccess.Repositories.Repository&lt;T&gt;" Collapsed="true">
+    <Position X="12.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier />
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Vladify.DataAccess.Entities.Playlist">
+    <Position X="7" Y="3" Width="1.5" />
+    <TypeIdentifier />
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Vladify.DataAccess.Entities.Song">
+    <Position X="8.5" Y="3" Width="1.5" />
+    <TypeIdentifier />
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Vladify.DataAccess.Entities.User">
+    <Position X="10" Y="3" Width="1.5" />
+    <TypeIdentifier />
+    <Lollipop Position="0.2" />
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
