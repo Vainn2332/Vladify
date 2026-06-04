@@ -2,7 +2,7 @@
 using Vladify.DataAccess.Entities;
 using Vladify.DataAccess.Interfaces;
 
-namespace Vladify.DataAccess;
+namespace Vladify.DataAccess.Repositories;
 
 public class UserRepository(ApplicationDbContext context) : Repository<User>(context), IUserRepository
 {
