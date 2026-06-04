@@ -16,6 +16,12 @@ file static class Constraints
 
 public class StorageService(IAmazonS3 amazonS3Client, IOptions<MinioOptions> options) : IStorageService
 {
+    public async Task DeleteSongAsync(string audioFileUrl, string imageFileUrl, CancellationToken cancellationToken)
+    {
+        await DeleteAudioAsync(audioFileUrl, cancellationToken);
+        await DeleteImageAsync(imageFileUrl, cancellationToken);
+    }
+
     public async Task<(string audioUrl, string imageUrl)> UploadAsync(IFormFile audioFile, IFormFile imageFile, CancellationToken cancellationToken)
     {
         var audioUrl = await UploadAudioAsync(audioFile, cancellationToken);
@@ -24,6 +30,29 @@ public class StorageService(IAmazonS3 amazonS3Client, IOptions<MinioOptions> opt
         return (audioUrl, imageUrl);
     }
 
+    private Task DeleteAudioAsync(string audioFileUrl, CancellationToken cancellationToken)
+    {
+        var uri = new Uri(audioFileUrl);
+        var deleteRequest = new DeleteObjectRequest
+        {
+            BucketName = options.Value.MusicBucketName,
+            Key = uri.Segments.Last()
+        };
+
+        return amazonS3Client.DeleteObjectAsync(deleteRequest, cancellationToken);
+    }
+
+    private Task DeleteImageAsync(string imageFileUrl, CancellationToken cancellationToken)
+    {
+        var uri = new Uri(imageFileUrl);
+        var deleteRequest = new DeleteObjectRequest
+        {
+            BucketName = options.Value.MusicIconBucketName,
+            Key = uri.Segments.Last()
+        };
+
+        return amazonS3Client.DeleteObjectAsync(deleteRequest, cancellationToken);
+    }
     private async Task<string> UploadAudioAsync(IFormFile audioFile, CancellationToken cancellationToken)
     {
         var extension = Path.GetExtension(audioFile.FileName).ToLower();

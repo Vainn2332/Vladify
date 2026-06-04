@@ -67,6 +67,8 @@ public class SongService(ISongRepository _songRepository, IStorageService _stora
         var song = await GetAndValidateSongAsync(songId, requesterId, cancellationToken);
 
         await _songRepository.DeleteAsync(song, cancellationToken);
+
+        await _storageService.DeleteSongAsync(song.AudioUrl, song.ImageUrl, cancellationToken);
     }
 
     private async Task<Song> GetAndValidateSongAsync(Guid songId, Guid requesterId, CancellationToken cancellationToken)

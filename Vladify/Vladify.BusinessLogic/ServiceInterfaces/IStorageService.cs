@@ -5,4 +5,5 @@ namespace Vladify.BusinessLogic.ServiceInterfaces;
 public interface IStorageService
 {
     public Task<(string audioUrl, string imageUrl)> UploadAsync(IFormFile audioFile, IFormFile imageFile, CancellationToken cancellationToken);
+    public Task DeleteSongAsync(string audioFileUrl, string imageFileUrl, CancellationToken cancellationToken);
 }
