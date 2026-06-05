@@ -19,5 +19,5 @@ public class User : IEntity
 
     public required ICollection<Song> OwnedSongs { get; set; } = [];
 
-    public required IEnumerable<Playlist> Playlists { get; set; } = [];
+    public required ICollection<Playlist> Playlists { get; set; } = [];
 }
