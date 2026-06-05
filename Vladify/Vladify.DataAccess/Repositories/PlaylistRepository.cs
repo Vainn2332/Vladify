@@ -9,7 +9,7 @@ public class PlaylistRepository(ApplicationDbContext _context) : Repository<Play
     public async Task<Playlist> AddPlaylistAsync(Playlist playlist, CancellationToken cancellationToken)
     {
         await _context.Playlists.AddAsync(playlist, cancellationToken);
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(cancellationToken);
 
         await _context.Entry(playlist)
             .Reference(p => p.Owner)
