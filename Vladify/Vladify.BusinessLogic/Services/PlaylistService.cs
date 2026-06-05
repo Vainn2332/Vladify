@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
+using Vladify.BusinessLogic.Constants;
 using Vladify.BusinessLogic.Exceptions;
 using Vladify.BusinessLogic.Models;
 using Vladify.BusinessLogic.Models.PlaylistModels;
 using Vladify.BusinessLogic.ServiceInterfaces;
 using Vladify.DataAccess.Entities;
+using Vladify.DataAccess.Interfaces;
 
 namespace Vladify.BusinessLogic.Services;
 
@@ -43,13 +45,29 @@ public class PlaylistService(IPlaylistRepository _repository, ISongRepository _s
         return _mapper.Map<IEnumerable<PlaylistModel>>(playlists);
     }
 
+    public async Task<PlaylistModel> UpdatePlaylistAsync(PlaylistUpdateRequestModel playlistUpdateRequestModel, Guid requesterId, CancellationToken cancellationToken)
+    {
+        var playlist = await _repository.GetPlaylistAsync(playlistUpdateRequestModel.Id, true, cancellationToken)
+           ?? throw new NotFoundException(ErrorMessageConstants.PlaylistNotFoundById);
+        if (playlist.AuthorId != requesterId)
+        {
+            throw new ForbiddenException(ErrorMessageConstants.PlaylistForbidden);
+        }
+
+        _mapper.Map(playlistUpdateRequestModel, playlist);
+
+        var updatedPlaylist = await _repository.UpdateAsync(playlist, cancellationToken);
+
+        return _mapper.Map<PlaylistModel>(updatedPlaylist);
+    }
+
     public async Task DeletePlaylistAsync(Guid playlistId, Guid requesterId, CancellationToken cancellationToken)
     {
         var playlist = await _repository.GetByIdAsync(playlistId, true, cancellationToken)
-            ?? throw new NotFoundException("Playlist with such id not found!");
+            ?? throw new NotFoundException(ErrorMessageConstants.PlaylistNotFoundById);
         if (playlist.AuthorId != requesterId)
         {
-            throw new ForbiddenException("You don't have permissions to delete this playlist!");
+            throw new ForbiddenException(ErrorMessageConstants.PlaylistForbidden);
         }
 
         await _repository.DeleteAsync(playlist, cancellationToken);
@@ -71,14 +89,14 @@ public class PlaylistService(IPlaylistRepository _repository, ISongRepository _s
         CancellationToken cancellationToken)
     {
         var playlist = await _repository.GetPlaylistAsync(playlistId, true, cancellationToken)
-            ?? throw new NotFoundException("Playlist with such id doesn't exist!");
+            ?? throw new NotFoundException(ErrorMessageConstants.PlaylistNotFoundById);
 
         var song = await _songRepository.GetByIdAsync(songId, true, cancellationToken)
-            ?? throw new NotFoundException("Song with such id doesn't exist!");
+            ?? throw new NotFoundException(ErrorMessageConstants.SongNotFoundById);
 
         if (playlist.AuthorId != requesterId)
         {
-            throw new ForbiddenException("You don't have permissions to modify this playlist!");
+            throw new ForbiddenException(ErrorMessageConstants.PlaylistForbidden);
         }
 
         return (playlist, song);
