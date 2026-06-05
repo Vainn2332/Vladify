@@ -15,11 +15,9 @@ public class PlaylistService(IPlaylistRepository _repository, ISongRepository _s
     {
         var entityPlaylist = _mapper.Map<Playlist>(playlistRequestModel);
 
-        var playlist = await _repository.AddAsync(entityPlaylist, cancellationToken);
+        var playlist = await _repository.AddPlaylistAsync(entityPlaylist, cancellationToken);
 
-        var newPlaylist = await _repository.GetPlaylistAsync(playlist.Id, false, cancellationToken);
-
-        return _mapper.Map<PlaylistModel>(newPlaylist);
+        return _mapper.Map<PlaylistModel>(playlist);
     }
 
     public async Task<PlaylistModel> AddSongToPlaylistAsync(Guid playlistId, Guid songId, Guid requesterId, CancellationToken cancellationToken)
@@ -77,6 +75,10 @@ public class PlaylistService(IPlaylistRepository _repository, ISongRepository _s
     {
         var (playlist, song) = await GetAndValidatePlaylistAndSongAsync(playlistId, songId, requesterId, cancellationToken);
 
+        if (!playlist.Songs.Contains(song))
+        {
+            throw new NotFoundException(ErrorMessageConstants.SongNotFoundInPlaylist);
+        }
         var newPlaylist = await _repository.DeleteSongFromPlaylistAsync(playlist, song, cancellationToken);
 
         return _mapper.Map<PlaylistModel>(newPlaylist);
