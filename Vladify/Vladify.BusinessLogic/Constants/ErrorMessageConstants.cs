@@ -15,4 +15,6 @@ public static class ErrorMessageConstants
     public const string PlaylistForbidden = "You don't have permissions to modify this playlist!";
 
     public const string SongNotFoundById = "Song with such id not found!";
+
+    public const string SongNotFoundInPlaylist = "Song with such id not found in playlist!";
 }
