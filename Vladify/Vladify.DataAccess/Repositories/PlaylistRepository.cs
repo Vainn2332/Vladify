@@ -6,6 +6,18 @@ namespace Vladify.DataAccess.Repositories;
 
 public class PlaylistRepository(ApplicationDbContext _context) : Repository<Playlist>(_context), IPlaylistRepository
 {
+    public async Task<Playlist> AddPlaylistAsync(Playlist playlist, CancellationToken cancellationToken)
+    {
+        await _context.Playlists.AddAsync(playlist, cancellationToken);
+        await _context.SaveChangesAsync();
+
+        await _context.Entry(playlist)
+            .Reference(p => p.Owner)
+            .LoadAsync(cancellationToken);
+
+        return playlist;
+    }
+
     public async Task<Playlist> AddSongToPlaylistAsync(Playlist playlist, Song song, CancellationToken cancellationToken)
     {
         playlist.Songs.Add(song);
