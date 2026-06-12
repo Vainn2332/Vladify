@@ -264,7 +264,7 @@ public class PlaylistServiceTest
         var songEntity = _fixture.Create<Song>();
         var newPlaylistEntity = _fixture.Create<Playlist>();
         var expectedModel = _fixture.Create<PlaylistModel>();
-        playlistEntity.Songs.Add(songEntity);
+        playlistEntity.Songs = new List<Song>() { songEntity };
 
         _playlistRepositoryMock.Setup(m => m.GetPlaylistAsync(playlistId, true, It.IsAny<CancellationToken>()))
             .ReturnsAsync(playlistEntity);
@@ -357,5 +357,77 @@ public class PlaylistServiceTest
         _playlistRepositoryMock.Verify(m => m.GetPlaylistAsync(playlistId, true, It.IsAny<CancellationToken>()), Times.Once);
         _songRepositoryMock.Verify(m => m.GetByIdAsync(songId, true, It.IsAny<CancellationToken>()), Times.Once);
         _playlistRepositoryMock.Verify(m => m.DeleteSongFromPlaylistAsync(It.IsAny<Playlist>(), It.IsAny<Song>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task UpdatePlaylistAsync_Should_ThrowNotFoundException_WhenPlaylistNotFound()
+    {
+        var requesterId = Guid.NewGuid();
+        var requestModel = _fixture.Create<PlaylistUpdateRequestModel>();
+
+        _playlistRepositoryMock.Setup(m => m.GetPlaylistAsync(requestModel.Id, true, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Playlist?)null);
+
+        var act = async () => await _playlistService.UpdatePlaylistAsync(requestModel, requesterId, CancellationToken.None);
+
+        await act.Should().ThrowAsync<NotFoundException>();
+
+        _playlistRepositoryMock.Verify(m => m.GetPlaylistAsync(requestModel.Id, true, It.IsAny<CancellationToken>()), Times.Once);
+        _playlistRepositoryMock.Verify(m => m.UpdateAsync(It.IsAny<Playlist>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task UpdatePlaylistAsync_Should_ThrowForbiddenException_WhenUserIsNotOwner()
+    {
+        // Arrange
+        var requesterId = Guid.NewGuid();
+        var requestModel = _fixture.Create<PlaylistUpdateRequestModel>();
+
+        var playlistEntity = _fixture.Create<Playlist>();
+        playlistEntity.Id = requestModel.Id;
+        playlistEntity.AuthorId = Guid.NewGuid(); // Другой ID автора, не совпадающий с requesterId
+
+        _playlistRepositoryMock.Setup(m => m.GetPlaylistAsync(requestModel.Id, true, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(playlistEntity);
+
+        var act = async () => await _playlistService.UpdatePlaylistAsync(requestModel, requesterId, CancellationToken.None);
+
+        await act.Should().ThrowAsync<ForbiddenException>();
+
+        _playlistRepositoryMock.Verify(m => m.GetPlaylistAsync(requestModel.Id, true, It.IsAny<CancellationToken>()), Times.Once);
+        _playlistRepositoryMock.Verify(m => m.UpdateAsync(It.IsAny<Playlist>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task UpdatePlaylistAsync_Should_ReturnPlaylistModel_WhenOk()
+    {
+        var requesterId = Guid.NewGuid();
+        var requestModel = _fixture.Create<PlaylistUpdateRequestModel>();
+
+        var playlistEntity = _fixture.Create<Playlist>();
+        playlistEntity.Id = requestModel.Id;
+        playlistEntity.AuthorId = requesterId;
+
+        var updatedPlaylistEntity = _fixture.Create<Playlist>();
+        var expectedModel = _fixture.Create<PlaylistModel>();
+
+        _playlistRepositoryMock.Setup(m => m.GetPlaylistAsync(requestModel.Id, true, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(playlistEntity);
+
+        _mapperMock.Setup(m => m.Map(requestModel, playlistEntity)).Returns(playlistEntity);
+
+        _playlistRepositoryMock.Setup(m => m.UpdateAsync(playlistEntity, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(updatedPlaylistEntity);
+
+        _mapperMock.Setup(m => m.Map<PlaylistModel>(updatedPlaylistEntity)).Returns(expectedModel);
+
+        var result = await _playlistService.UpdatePlaylistAsync(requestModel, requesterId, CancellationToken.None);
+
+        result.Should().NotBeNull();
+        result.Should().BeOfType<PlaylistModel>();
+        result.Should().BeEquivalentTo(expectedModel);
+
+        _playlistRepositoryMock.Verify(m => m.GetPlaylistAsync(requestModel.Id, true, It.IsAny<CancellationToken>()), Times.Once);
+        _playlistRepositoryMock.Verify(m => m.UpdateAsync(playlistEntity, It.IsAny<CancellationToken>()), Times.Once);
     }
 }
