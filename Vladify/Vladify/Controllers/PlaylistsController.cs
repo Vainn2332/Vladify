@@ -84,7 +84,6 @@ public class PlaylistsController(IPlaylistService _playlistService, IMapper _map
         return updatedPlaylist;
     }
 
-
     [HttpDelete("{id}")]
     public async Task DeletePlaylist(Guid id, CancellationToken cancellationToken = default)
     {
