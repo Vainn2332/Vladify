@@ -51,7 +51,7 @@ public class PlaylistsController(IPlaylistService _playlistService, IMapper _map
     public async Task<PlaylistModel> GetPlaylistById(Guid id, CancellationToken cancellationToken = default)
     {
         var playlist = await _playlistService.GetPlaylistByIdAsync(id, false, cancellationToken)
-            ?? throw new NotFoundException("Playlist with such id not found!");
+            ?? throw new NotFoundException(ErrorMessageConstants.PlaylistNotFoundById);
 
         return playlist;
     }
