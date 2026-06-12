@@ -24,7 +24,7 @@ public class PlaylistsController(IPlaylistService _playlistService, IMapper _map
         )
     {
         var userEmail = User.GetEmail();
-        var user = await _userService.GetUserByEmailAsync(userEmail, false, cancellationToken)
+        var user = await _userService.GetUserByEmailAsync(userEmail, true, cancellationToken)
             ?? throw new NotFoundException(ErrorMessageConstants.UserNotFoundById);
 
         var playlistRequestModel = _mapper.Map<PlaylistRequestModel>(playlistAddDto);
@@ -41,7 +41,7 @@ public class PlaylistsController(IPlaylistService _playlistService, IMapper _map
         )
     {
         var userEmail = User.GetEmail();
-        var user = await _userService.GetUserByEmailAsync(userEmail, false, cancellationToken)
+        var user = await _userService.GetUserByEmailAsync(userEmail, true, cancellationToken)
             ?? throw new NotFoundException(ErrorMessageConstants.UserNotFoundById);
 
         return await _playlistService.AddSongToPlaylistAsync(playlistId, songId, user.Id, cancellationToken);
