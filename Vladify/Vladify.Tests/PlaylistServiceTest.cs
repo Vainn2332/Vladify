@@ -3,6 +3,7 @@ using AutoFixture.AutoMoq;
 using AutoMapper;
 using FluentAssertions;
 using Moq;
+using Vladify.BusinessLogic.Constants;
 using Vladify.BusinessLogic.Exceptions;
 using Vladify.BusinessLogic.Models;
 using Vladify.BusinessLogic.Models.PlaylistModels;
@@ -63,7 +64,7 @@ public class PlaylistServiceTest
         var act = async () => await _playlistService.AddSongToPlaylistAsync(playlistId, songId, requesterId, CancellationToken.None);
 
         await act.Should().ThrowAsync<NotFoundException>()
-            .WithMessage("Playlist with such id not found!");
+            .WithMessage(ErrorMessageConstants.PlaylistNotFoundById);
 
         _playlistRepositoryMock.Verify(m => m.GetPlaylistAsync(playlistId, true, It.IsAny<CancellationToken>()), Times.Once);
         _playlistRepositoryMock.Verify(m => m.AddSongToPlaylistAsync(It.IsAny<Playlist>(), It.IsAny<Song>(), It.IsAny<CancellationToken>()), Times.Never);
@@ -85,7 +86,7 @@ public class PlaylistServiceTest
         var act = async () => await _playlistService.AddSongToPlaylistAsync(playlistId, songId, requesterId, CancellationToken.None);
 
         await act.Should().ThrowAsync<NotFoundException>()
-            .WithMessage("Song with such id not found!");
+            .WithMessage(ErrorMessageConstants.SongNotFoundById);
 
         _songRepositoryMock.Verify(m => m.GetByIdAsync(songId, true, It.IsAny<CancellationToken>()), Times.Once);
         _playlistRepositoryMock.Verify(m => m.AddSongToPlaylistAsync(It.IsAny<Playlist>(), It.IsAny<Song>(), It.IsAny<CancellationToken>()), Times.Never);
@@ -186,7 +187,7 @@ public class PlaylistServiceTest
         var act = async () => await _playlistService.DeletePlaylistAsync(invalidPlaylistId, requesterId, CancellationToken.None);
 
         await act.Should().ThrowAsync<NotFoundException>()
-            .WithMessage("Playlist with such id not found!");
+            .WithMessage(ErrorMessageConstants.PlaylistNotFoundById);
 
         _playlistRepositoryMock.Verify(m => m.GetByIdAsync(invalidPlaylistId, true, It.IsAny<CancellationToken>()), Times.Once);
         _playlistRepositoryMock.Verify(m => m.DeleteAsync(It.IsAny<Playlist>(), It.IsAny<CancellationToken>()), Times.Never);
@@ -224,7 +225,7 @@ public class PlaylistServiceTest
         var act = async () => await _playlistService.DeleteSongFromPlaylistAsync(playlistId, songId, requesterId, CancellationToken.None);
 
         await act.Should().ThrowAsync<NotFoundException>()
-            .WithMessage("Playlist with such id not found!");
+            .WithMessage(ErrorMessageConstants.PlaylistNotFoundById);
 
         _playlistRepositoryMock.Verify(m => m.GetPlaylistAsync(playlistId, true, It.IsAny<CancellationToken>()), Times.Once);
         _playlistRepositoryMock.Verify(m => m.DeleteSongFromPlaylistAsync(It.IsAny<Playlist>(), It.IsAny<Song>(), It.IsAny<CancellationToken>()), Times.Never);
@@ -247,7 +248,7 @@ public class PlaylistServiceTest
         var act = async () => await _playlistService.DeleteSongFromPlaylistAsync(playlistId, songId, requesterId, CancellationToken.None);
 
         await act.Should().ThrowAsync<NotFoundException>()
-            .WithMessage("Song with such id not found!");
+            .WithMessage(ErrorMessageConstants.SongNotFoundById);
 
         _songRepositoryMock.Verify(m => m.GetByIdAsync(songId, true, It.IsAny<CancellationToken>()), Times.Once);
         _playlistRepositoryMock.Verify(m => m.DeleteSongFromPlaylistAsync(It.IsAny<Playlist>(), It.IsAny<Song>(), It.IsAny<CancellationToken>()), Times.Never);
@@ -303,7 +304,7 @@ public class PlaylistServiceTest
         var act = async () => await _playlistService.AddSongToPlaylistAsync(playlistId, songId, requesterId, CancellationToken.None);
 
         await act.Should().ThrowAsync<ForbiddenException>()
-            .WithMessage("You don't have permissions to modify this playlist!");
+            .WithMessage(ErrorMessageConstants.PlaylistForbidden);
 
         _playlistRepositoryMock.Verify(m => m.GetPlaylistAsync(playlistId, true, It.IsAny<CancellationToken>()), Times.Once);
         _songRepositoryMock.Verify(m => m.GetByIdAsync(songId, true, It.IsAny<CancellationToken>()), Times.Once);
@@ -325,7 +326,7 @@ public class PlaylistServiceTest
         var act = async () => await _playlistService.DeletePlaylistAsync(playlistId, requesterId, CancellationToken.None);
 
         await act.Should().ThrowAsync<ForbiddenException>()
-            .WithMessage("You don't have permissions to modify this playlist!");
+            .WithMessage(ErrorMessageConstants.PlaylistForbidden);
 
         _playlistRepositoryMock.Verify(m => m.GetByIdAsync(playlistId, true, It.IsAny<CancellationToken>()), Times.Once);
         _playlistRepositoryMock.Verify(m => m.DeleteAsync(It.IsAny<Playlist>(), It.IsAny<CancellationToken>()), Times.Never);
@@ -352,7 +353,7 @@ public class PlaylistServiceTest
         var act = async () => await _playlistService.DeleteSongFromPlaylistAsync(playlistId, songId, requesterId, CancellationToken.None);
 
         await act.Should().ThrowAsync<ForbiddenException>()
-            .WithMessage("You don't have permissions to modify this playlist!");
+            .WithMessage(ErrorMessageConstants.PlaylistForbidden);
 
         _playlistRepositoryMock.Verify(m => m.GetPlaylistAsync(playlistId, true, It.IsAny<CancellationToken>()), Times.Once);
         _songRepositoryMock.Verify(m => m.GetByIdAsync(songId, true, It.IsAny<CancellationToken>()), Times.Once);
@@ -379,13 +380,12 @@ public class PlaylistServiceTest
     [Fact]
     public async Task UpdatePlaylistAsync_Should_ThrowForbiddenException_WhenUserIsNotOwner()
     {
-        // Arrange
         var requesterId = Guid.NewGuid();
         var requestModel = _fixture.Create<PlaylistUpdateRequestModel>();
 
         var playlistEntity = _fixture.Create<Playlist>();
         playlistEntity.Id = requestModel.Id;
-        playlistEntity.AuthorId = Guid.NewGuid(); // Другой ID автора, не совпадающий с requesterId
+        playlistEntity.AuthorId = Guid.NewGuid();
 
         _playlistRepositoryMock.Setup(m => m.GetPlaylistAsync(requestModel.Id, true, It.IsAny<CancellationToken>()))
             .ReturnsAsync(playlistEntity);
