@@ -9,7 +9,7 @@ using Vladify.DataAccess.Interfaces;
 
 namespace Vladify.BusinessLogic.Services;
 
-public class PlaylistService(IPlaylistRepository _repository, ISongRepository _songRepository, IMapper _mapper) : IPlaylistService
+public class PlaylistService(IPlaylistRepository _repository, IRepository<Song> _songRepository, IMapper _mapper) : IPlaylistService
 {
     public async Task<PlaylistModel> AddPlaylistAsync(PlaylistRequestModel playlistRequestModel, CancellationToken cancellationToken)
     {

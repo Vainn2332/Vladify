@@ -17,7 +17,7 @@ public class PlaylistServiceTest
 {
     private readonly IFixture _fixture;
     private readonly Mock<IPlaylistRepository> _playlistRepositoryMock;
-    private readonly Mock<ISongRepository> _songRepositoryMock;
+    private readonly Mock<IRepository<Song>> _songRepositoryMock;
     private readonly Mock<IMapper> _mapperMock;
     private readonly PlaylistService _playlistService;
 
@@ -25,7 +25,7 @@ public class PlaylistServiceTest
     {
         _fixture = AutoFixtureOptions.CreateFixture().Customize(new AutoMoqCustomization());
         _playlistRepositoryMock = _fixture.Freeze<Mock<IPlaylistRepository>>();
-        _songRepositoryMock = _fixture.Freeze<Mock<ISongRepository>>();
+        _songRepositoryMock = _fixture.Freeze<Mock<IRepository<Song>>>();
         _mapperMock = _fixture.Freeze<Mock<IMapper>>();
         _playlistService = _fixture.Create<PlaylistService>();
     }
