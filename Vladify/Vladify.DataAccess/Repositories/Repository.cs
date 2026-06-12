@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Vladify.DataAccess.Interfaces;
 
-namespace Vladify.DataAccess;
+namespace Vladify.DataAccess.Repositories;
 
 public class Repository<T>(ApplicationDbContext context) : IRepository<T> where T : class, IEntity
 {

@@ -57,22 +57,23 @@ public class SongControllerTest
     [Fact]
     public async Task GetSongAsync_Should_ReturnSong_When_ValidInput()
     {
-        var testUser = await _infrastructure.SeedDataAsync(_fixture.Create<User>());
+        var user = _fixture.Create<User>();
         var song = _fixture.Create<Song>();
-        song.AuthorId = testUser.Id;
-        var existingSong = await _infrastructure.SeedDataAsync(song);
+        song.AuthorId = user.Id;
+        user.OwnedSongs = new List<Song>() { song };
+        var testUser = await _infrastructure.SeedDataAsync(user);
 
         var jwt = IntegrationTestInfrastructure.GenerateTestJWT();
         _infrastructure.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
 
-        using var response = await _infrastructure.Client.GetAsync($"{TestConstants.SongsApiRoute}/{existingSong.Id}");
+        using var response = await _infrastructure.Client.GetAsync($"{TestConstants.SongsApiRoute}/{song.Id}");
         var result = await response.Content.ReadFromJsonAsync<SongModel>();
 
         await _infrastructure.ResetDataAsync();
 
         response.EnsureSuccessStatusCode();
         response.Should().NotBeNull();
-        result!.Id.Should().Be(existingSong.Id);
+        result!.Id.Should().Be(song.Id);
     }
 
     [Fact]
@@ -93,10 +94,12 @@ public class SongControllerTest
     [Fact]
     public async Task UpdateSongAsync_Should_UpdateSong_When_ValidInput()
     {
-        var testUser = await _infrastructure.SeedDataAsync(_fixture.Create<User>());
+        var user = _fixture.Create<User>();
         var song = _fixture.Create<Song>();
-        song.AuthorId = testUser.Id;
-        var existingSong = await _infrastructure.SeedDataAsync(song);
+        song.AuthorId = user.Id;
+        user.OwnedSongs = new List<Song>() { song };
+
+        var testUser = await _infrastructure.SeedDataAsync(user);
 
         var updateRequest = _fixture.Create<SongRequestModel>();
         updateRequest.AuthorId = testUser.Id;
@@ -104,7 +107,7 @@ public class SongControllerTest
         var jwt = IntegrationTestInfrastructure.GenerateTestJWT();
         _infrastructure.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
 
-        using var response = await _infrastructure.Client.PutAsJsonAsync($"{TestConstants.SongsApiRoute}/{existingSong.Id}", updateRequest);
+        using var response = await _infrastructure.Client.PutAsJsonAsync($"{TestConstants.SongsApiRoute}/{song.Id}", updateRequest);
         var result = await response.Content.ReadFromJsonAsync<SongModel>();
 
         await _infrastructure.ResetDataAsync();
@@ -113,24 +116,27 @@ public class SongControllerTest
         response.Should().NotBeNull();
 
         result?.Title.Should().Be(updateRequest.Title);
-        result?.Id.Should().Be(existingSong.Id);
+        result?.Id.Should().Be(song.Id);
     }
 
     [Fact]
     public async Task DeleteSongAsync_Should_DeleteSong_When_ValidInput()
     {
-        var testUser = await _infrastructure.SeedDataAsync(_fixture.Create<User>());
+        var user = _fixture.Create<User>();
         var song = _fixture.Create<Song>();
-        song.AuthorId = testUser.Id;
-        var existingSong = await _infrastructure.SeedDataAsync(song); var jwt = IntegrationTestInfrastructure.GenerateTestJWT();
+        song.AuthorId = user.Id;
+        user.OwnedSongs = new List<Song>() { song };
 
+        var testUser = await _infrastructure.SeedDataAsync(user);
+
+        var jwt = IntegrationTestInfrastructure.GenerateTestJWT();
         _infrastructure.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
 
-        using var response = await _infrastructure.Client.DeleteAsync($"{TestConstants.SongsApiRoute}/{existingSong.Id}");
+        using var response = await _infrastructure.Client.DeleteAsync($"{TestConstants.SongsApiRoute}/{song.Id}");
 
         using var scope = _infrastructure.Factory.Services.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        var oldSong = await context.Songs.FirstOrDefaultAsync(s => s.Id == existingSong.Id);
+        var oldSong = await context.Songs.FirstOrDefaultAsync(s => s.Id == song.Id);
 
         await _infrastructure.ResetDataAsync();
 

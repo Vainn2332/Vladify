@@ -15,13 +15,11 @@ public static class BusinessLogicLayerExtensions
 {
     public static IServiceCollection AddBusinessLogicLayer(this IServiceCollection services, IConfiguration configuration)
     {
-        services
+        return services
             .AddSqlServerDb(configuration)
             .AddServices()
             .AddValidators()
             .AddMapping();
-
-        return services;
     }
 
     private static IServiceCollection AddSqlServerDb(this IServiceCollection services, IConfiguration configuration)
@@ -37,7 +35,8 @@ public static class BusinessLogicLayerExtensions
             .AddRepositories()
             .AddScoped<ISongService, SongService>()
             .AddScoped<IUserService, UserService>()
-            .AddScoped<IAuth0Service, Auth0Service>();
+            .AddScoped<IAuth0Service, Auth0Service>()
+            .AddScoped<IPlaylistService, PlaylistService>();
 
         return services;
     }
