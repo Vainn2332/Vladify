@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using MassTransit;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -117,12 +118,19 @@ public class IntegrationTestInfrastructure : IAsyncLifetime
         services
             .RemoveAll<DbContextOptions<ApplicationDbContext>>()
             .RemoveAll<IAuth0Service>()
-            .RemoveAll<IOptionsMonitor<ApiKeysOptions>>();
+            .RemoveAll<IOptionsMonitor<ApiKeysOptions>>()
+            .RemoveAll<IPublishEndpoint>();
 
         var authServiceMock = new Mock<IAuth0Service>();
         authServiceMock.Setup(m => m.DeleteUserFromAuth0Async(It.IsAny<string>())).Returns(Task.CompletedTask);
 
+        var publishEndpointMock = new Mock<IPublishEndpoint>();
+        publishEndpointMock
+            .Setup(m => m.Publish(It.IsAny<object>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
         services.AddScoped(serviceProvider => authServiceMock.Object);
+        services.AddScoped(serviceProvider => publishEndpointMock.Object);
 
         services.Configure<ApiKeysOptions>("Auth0", opt => opt.Value = "testApiKey");
 
