@@ -24,7 +24,7 @@ public class SongsController(ISongService _songService, IMapper _mapper, IPublis
 
         var message = _mapper.Map<SongCreatedMessage>(response);
 
-        await _publishEndpoint.Publish(message);
+        await _publishEndpoint.Publish(message, cancellationToken);
 
         return response;
     }
