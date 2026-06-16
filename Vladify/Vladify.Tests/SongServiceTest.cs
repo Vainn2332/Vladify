@@ -15,13 +15,13 @@ namespace Vladify.UnitTests;
 public class SongServiceTest
 {
     private readonly IFixture _fixture;
-    private readonly Mock<IRepository<Song>> _songRepositoryMock;
+    private readonly Mock<ISongRepository> _songRepositoryMock;
     private readonly Mock<IMapper> _mapperMock;
     private readonly SongService _songService;
     public SongServiceTest()
     {
         _fixture = AutoFixtureOptions.CreateFixture().Customize(new AutoMoqCustomization());
-        _songRepositoryMock = _fixture.Freeze<Mock<IRepository<Song>>>();
+        _songRepositoryMock = _fixture.Freeze<Mock<ISongRepository>>();
         _mapperMock = _fixture.Freeze<Mock<IMapper>>();
         _songService = _fixture.Create<SongService>();
     }
