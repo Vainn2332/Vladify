@@ -18,7 +18,14 @@ public class SongRepository(ApplicationDbContext context) : Repository<Song>(con
 
     public override Task<Song?> GetByIdAsync(Guid id, bool isTracking, CancellationToken cancellationToken)
     {
-        return (isTracking ? _context.Songs : _context.Songs.AsNoTracking())
+        var query = _context.Songs.AsQueryable();
+
+        if (!isTracking)
+        {
+            query = query.AsNoTracking();
+        }
+
+        return query
             .Include(p => p.Owner)
             .FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
     }
