@@ -14,6 +14,13 @@ public class Repository<T>(ApplicationDbContext context) : IRepository<T> where 
         return entity;
     }
 
+    public async Task<T> AddWithoutSaveChangesAsync(T entity, CancellationToken cancellationToken)
+    {
+        var entry = await _context.Set<T>().AddAsync(entity, cancellationToken);
+
+        return entry.Entity;
+    }
+
     public async Task<IEnumerable<T>> GetAllAsync(int pageNumber, int pageSize, CancellationToken cancellationToken)
     {
         return await _context.Set<T>()
@@ -48,5 +55,10 @@ public class Repository<T>(ApplicationDbContext context) : IRepository<T> where 
         _context.Set<T>().Remove(entity);
 
         await _context.SaveChangesAsync(cancellationToken);
+    }
+
+    public Task SaveChangesAsync(CancellationToken cancellationToken)
+    {
+        return _context.SaveChangesAsync(cancellationToken);
     }
 }
