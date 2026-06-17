@@ -1,4 +1,5 @@
 ﻿using Bogus;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Vladify.DataAccess.Constants;
 using Vladify.DataAccess.DbConfig;
@@ -21,6 +22,10 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         SeedData(modelBuilder);
 
         base.OnModelCreating(modelBuilder);
+
+        modelBuilder.AddInboxStateEntity();
+        modelBuilder.AddOutboxStateEntity();
+        modelBuilder.AddOutboxMessageEntity();
     }
 
     private static void SeedData(ModelBuilder modelBuilder)
