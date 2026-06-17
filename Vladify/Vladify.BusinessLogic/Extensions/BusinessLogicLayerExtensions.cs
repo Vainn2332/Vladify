@@ -9,6 +9,7 @@ using Vladify.BusinessLogic.Options;
 using Vladify.BusinessLogic.ServiceInterfaces;
 using Vladify.BusinessLogic.Services;
 using Vladify.BusinessLogic.Validators;
+using Vladify.DataAccess;
 using Vladify.DataAccess.Extensions;
 
 namespace Vladify.BusinessLogic.Extensions;
@@ -68,14 +69,20 @@ public static class BusinessLogicLayerExtensions
         var rabbitOptions = configuration.GetSection(RabbitMqOptions.SectionName).Get<RabbitMqOptions>()
             ?? throw new ArgumentException($"Failed to bind section {RabbitMqOptions.SectionName}!");
 
-        services.AddMassTransit(x =>
+        services.AddMassTransit(registrationConfigurator =>
         {
-            x.UsingRabbitMq((context, cfg) =>
+            registrationConfigurator.AddEntityFrameworkOutbox<ApplicationDbContext>(outboxConfigurator =>
             {
-                cfg.Host(rabbitOptions.ServerHost, h =>
+                outboxConfigurator.UseSqlServer();
+                outboxConfigurator.UseBusOutbox();
+            });
+
+            registrationConfigurator.UsingRabbitMq((context, cfg) =>
+            {
+                cfg.Host(rabbitOptions.ServerHost, hostConfigurator =>
                 {
-                    h.Username(rabbitOptions.Username);
-                    h.Password(rabbitOptions.Password);
+                    hostConfigurator.Username(rabbitOptions.Username);
+                    hostConfigurator.Password(rabbitOptions.Password);
                 });
 
                 cfg.ConfigureEndpoints(context);
