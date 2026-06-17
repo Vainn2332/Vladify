@@ -1,9 +1,7 @@
 ﻿using AutoMapper;
-using MassTransit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Vladify.BusinessLogic.Exceptions;
-using Vladify.BusinessLogic.Messages;
 using Vladify.BusinessLogic.Models;
 using Vladify.BusinessLogic.Models.SongModels;
 using Vladify.BusinessLogic.ServiceInterfaces;
@@ -13,7 +11,7 @@ namespace Vladify.Controllers;
 [Route("api/songs")]
 [ApiController]
 [Authorize]
-public class SongsController(ISongService _songService, IMapper _mapper, IPublishEndpoint _publishEndpoint) : ControllerBase
+public class SongsController(ISongService _songService, IMapper _mapper) : ControllerBase
 {
     [HttpPost, ValidationFilter]
     public async Task<SongModel> CreateSong(
@@ -21,10 +19,6 @@ public class SongsController(ISongService _songService, IMapper _mapper, IPublis
         CancellationToken cancellationToken = default)
     {
         var response = await _songService.AddSongAsync(songRequestModel, cancellationToken);
-
-        var message = _mapper.Map<SongCreatedMessage>(response);
-
-        await _publishEndpoint.Publish(message, cancellationToken);
 
         return response;
     }
