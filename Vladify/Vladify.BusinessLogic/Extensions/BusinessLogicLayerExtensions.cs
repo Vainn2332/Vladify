@@ -3,6 +3,7 @@ using FluentValidation;
 using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Vladify.BusinessLogic.MapperProfiles;
 using Vladify.BusinessLogic.Models.SongModels;
 using Vladify.BusinessLogic.Options;
@@ -66,9 +67,6 @@ public static class BusinessLogicLayerExtensions
 
     public static IServiceCollection AddRabbitMQ(this IServiceCollection services, IConfiguration configuration)
     {
-        var rabbitOptions = configuration.GetSection(RabbitMqOptions.SectionName).Get<RabbitMqOptions>()
-            ?? throw new ArgumentException($"Failed to bind section {RabbitMqOptions.SectionName}!");
-
         services.AddMassTransit(registrationConfigurator =>
         {
             registrationConfigurator.AddEntityFrameworkOutbox<ApplicationDbContext>(outboxConfigurator =>
@@ -79,6 +77,8 @@ public static class BusinessLogicLayerExtensions
 
             registrationConfigurator.UsingRabbitMq((context, cfg) =>
             {
+                var rabbitOptions = context.GetRequiredService<IOptions<RabbitMqOptions>>().Value;
+
                 cfg.Host(rabbitOptions.ServerHost, hostConfigurator =>
                 {
                     hostConfigurator.Username(rabbitOptions.Username);
