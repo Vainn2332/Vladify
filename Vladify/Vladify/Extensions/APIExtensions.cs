@@ -119,12 +119,25 @@ public static class ApiExtensions
 
     public static IServiceCollection ConfigureOptions(this IServiceCollection services, IConfiguration configuration)
     {
-        services.Configure<Auth0Options>(configuration.GetSection("Auth0"));
+        services
+            .AddOptions<Auth0Options>()
+            .BindConfiguration(Auth0Options.SectionName)
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
 
-        services.Configure<ApiKeysOptions>("Auth0", options =>
-            options.Value = configuration["ApiKeys:Auth0SyncInDb"] ?? throw new ArgumentException("Failed to get Auth0ApiKey from configuration!"));
+        services.AddOptions<ApiKeysOptions>("Auth0")
+            .Configure(options =>
+            {
+                options.Value = configuration["ApiKeys:Auth0SyncInDb"]!;
+            })
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
 
-        services.Configure<RabbitMqOptions>(configuration.GetSection(RabbitMqOptions.SectionName));
+        services
+            .AddOptions<RabbitMqOptions>()
+            .BindConfiguration(RabbitMqOptions.SectionName)
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
 
         return services;
     }
