@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
+using MassTransit;
 using Vladify.BusinessLogic.Exceptions;
+using Vladify.BusinessLogic.Messages;
 using Vladify.BusinessLogic.Models;
 using Vladify.BusinessLogic.Models.SongModels;
 using Vladify.BusinessLogic.ServiceInterfaces;
@@ -8,15 +10,21 @@ using Vladify.DataAccess.Interfaces;
 
 namespace Vladify.BusinessLogic.Services;
 
-public class SongService(ISongRepository _songRepository, IMapper _mapper) : ISongService
+public class SongService(ISongRepository _songRepository, IMapper _mapper, IPublishEndpoint _publishEndpoint) : ISongService
 {
     public async Task<SongModel> AddSongAsync(SongRequestModel songRequestModel, CancellationToken cancellationToken)
     {
         var song = _mapper.Map<Song>(songRequestModel);
 
-        var newSong = await _songRepository.AddAsync(song, cancellationToken);
+        var newSong = _songRepository.AddWithoutSaveChanges(song);
+        var songModel = _mapper.Map<SongModel>(newSong);
 
-        return _mapper.Map<SongModel>(newSong);
+        var message = _mapper.Map<SongCreatedMessage>(songModel);
+        await _publishEndpoint.Publish(message, cancellationToken);
+
+        await _songRepository.SaveChangesAsync(cancellationToken);
+
+        return songModel;
     }
 
     public async Task<SongModel?> GetSongByIdAsync(Guid songId, bool isTracking, CancellationToken cancellationToken)

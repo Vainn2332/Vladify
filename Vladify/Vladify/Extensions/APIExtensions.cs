@@ -5,6 +5,7 @@ using Scalar.AspNetCore;
 using Vladify.BusinessLogic.Exceptions;
 using Vladify.BusinessLogic.Extensions;
 using Vladify.BusinessLogic.Options;
+using Vladify.Constants;
 using Vladify.Middlewares;
 
 namespace Vladify.Extensions;
@@ -35,8 +36,8 @@ public static class ApiExtensions
         {
             options.WithTheme(ScalarTheme.BluePlanet);
 
-            options.AddPreferredSecuritySchemes("Auth0")
-                .AddAuthorizationCodeFlow("Auth0", flow =>
+            options.AddPreferredSecuritySchemes(ApiConstants.Auth0)
+                .AddAuthorizationCodeFlow(ApiConstants.Auth0, flow =>
                 {
                     var auth0Options = configuration.GetSection(Auth0Options.SectionName).Get<Auth0Options>()
                         ?? throw new NotFoundException($"Configuration section{Auth0Options.SectionName} not found!");
@@ -81,7 +82,7 @@ public static class ApiExtensions
                 };
 
                 document.Components ??= new OpenApiComponents();
-                document.Components.SecuritySchemes.Add("Auth0", securityScheme);
+                document.Components.SecuritySchemes.Add(ApiConstants.Auth0, securityScheme);
 
                 return Task.CompletedTask;
             });
@@ -119,10 +120,25 @@ public static class ApiExtensions
 
     public static IServiceCollection ConfigureOptions(this IServiceCollection services, IConfiguration configuration)
     {
-        services.Configure<Auth0Options>(configuration.GetSection("Auth0"));
+        services
+            .AddOptions<Auth0Options>()
+            .BindConfiguration(Auth0Options.SectionName)
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
 
-        services.Configure<ApiKeysOptions>("Auth0", options =>
-            options.Value = configuration["ApiKeys:Auth0SyncInDb"] ?? throw new ArgumentException("Failed to get Auth0ApiKey from configuration!"));
+        services.AddOptions<ApiKeysOptions>(ApiConstants.Auth0)
+            .Configure(options =>
+            {
+                options.Value = configuration["ApiKeys:Auth0SyncInDb"]!;
+            })
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
+        services
+            .AddOptions<RabbitMqOptions>()
+            .BindConfiguration(RabbitMqOptions.SectionName)
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
 
         return services;
     }

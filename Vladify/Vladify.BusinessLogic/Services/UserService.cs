@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
+using MassTransit;
 using Vladify.BusinessLogic.Constants;
 using Vladify.BusinessLogic.Exceptions;
+using Vladify.BusinessLogic.Messages;
 using Vladify.BusinessLogic.Models;
 using Vladify.BusinessLogic.Models.UserModels;
 using Vladify.BusinessLogic.ServiceInterfaces;
@@ -9,7 +11,7 @@ using Vladify.DataAccess.Interfaces;
 
 namespace Vladify.BusinessLogic.Services;
 
-public class UserService(IUserRepository _userRepository, IAuth0Service _authService, IMapper _mapper) : IUserService
+public class UserService(IUserRepository _userRepository, IAuth0Service _authService, IMapper _mapper, IPublishEndpoint _publishEndpoint) : IUserService
 {
     public async Task<UserModel> AddUserAsync(UserRequestModel userRequestModel, CancellationToken cancellationToken)
     {
@@ -18,11 +20,18 @@ public class UserService(IUserRepository _userRepository, IAuth0Service _authSer
         {
             throw new ArgumentException("User with such email already exists!");
         }
+
         var user = _mapper.Map<User>(userRequestModel);
 
-        var newUser = await _userRepository.AddAsync(user, cancellationToken);
+        var newUser = _userRepository.AddWithoutSaveChanges(user);
+        var userModel = _mapper.Map<UserModel>(newUser);
 
-        return _mapper.Map<UserModel>(newUser);
+        var message = _mapper.Map<UserCreatedMessage>(userModel);
+        await _publishEndpoint.Publish(message, cancellationToken);
+
+        await _userRepository.SaveChangesAsync(cancellationToken);
+
+        return userModel;
     }
 
     public async Task<UserModel?> GetUserByIdAsync(Guid userId, bool isTracking, CancellationToken cancellationToken)

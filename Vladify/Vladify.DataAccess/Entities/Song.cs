@@ -2,7 +2,7 @@
 
 namespace Vladify.DataAccess.Entities;
 
-public class Song : IEntity
+public class Song : IBaseEntity
 {
     public required Guid Id { get; set; }
 

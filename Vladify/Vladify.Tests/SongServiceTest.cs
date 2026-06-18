@@ -3,6 +3,7 @@ using AutoFixture.AutoMoq;
 using AutoMapper;
 using Moq;
 using Vladify.BusinessLogic.Exceptions;
+using Vladify.BusinessLogic.Messages;
 using Vladify.BusinessLogic.Models;
 using Vladify.BusinessLogic.Models.SongModels;
 using Vladify.BusinessLogic.Services;
@@ -32,18 +33,21 @@ public class SongServiceTest
         var request = _fixture.Create<SongRequestModel>();
         var songEntity = _fixture.Create<Song>();
         var expectedModel = _fixture.Create<SongModel>();
+        var message = _fixture.Create<SongCreatedMessage>();
 
         _mapperMock.Setup(m => m.Map<Song>(request)).Returns(songEntity);
-        _songRepositoryMock.Setup(m => m.AddAsync(songEntity, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(songEntity);
+        _songRepositoryMock.Setup(m => m.AddWithoutSaveChanges(songEntity))
+            .Returns(songEntity);
         _mapperMock.Setup(m => m.Map<SongModel>(songEntity)).Returns(expectedModel);
+        _mapperMock.Setup(m => m.Map<SongCreatedMessage>(expectedModel)).Returns(message);
 
         var result = await _songService.AddSongAsync(request, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.IsType<SongModel>(result);
 
-        _songRepositoryMock.Verify(m => m.AddAsync(songEntity, It.IsAny<CancellationToken>()), Times.Once);
+        _songRepositoryMock.Verify(m => m.AddWithoutSaveChanges(songEntity), Times.Once);
+        _songRepositoryMock.Verify(m => m.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]

@@ -3,51 +3,63 @@ using Vladify.DataAccess.Interfaces;
 
 namespace Vladify.DataAccess.Repositories;
 
-public class Repository<T>(ApplicationDbContext context) : IRepository<T> where T : class, IEntity
+public class Repository<TEntity>(ApplicationDbContext context) : IRepository<TEntity> where TEntity : class, IBaseEntity
 {
     protected readonly ApplicationDbContext _context = context;
 
-    public virtual async Task<T> AddAsync(T entity, CancellationToken cancellationToken)
+    public virtual async Task<TEntity> AddAsync(TEntity entity, CancellationToken cancellationToken)
     {
-        await _context.Set<T>().AddAsync(entity, cancellationToken);
+        _context.Set<TEntity>().Add(entity);
         await _context.SaveChangesAsync(cancellationToken);
 
         return entity;
     }
 
-    public virtual async Task<IEnumerable<T>> GetAllAsync(int pageNumber, int pageSize, CancellationToken cancellationToken)
+    public virtual TEntity AddWithoutSaveChanges(TEntity entity)
     {
-        return await _context.Set<T>()
+        var entry = _context.Set<TEntity>().Add(entity);
+
+        return entry.Entity;
+    }
+
+    public virtual async Task<IEnumerable<TEntity>> GetAllAsync(int pageNumber, int pageSize, CancellationToken cancellationToken)
+    {
+        return await _context.Set<TEntity>()
             .OrderBy(p => p.Id)
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync(cancellationToken);
     }
 
-    public virtual async Task<T?> GetByIdAsync(Guid id, bool isTracking, CancellationToken cancellationToken)
+    public virtual Task<TEntity?> GetByIdAsync(Guid id, bool isTracking, CancellationToken cancellationToken)
     {
-        var getQuery = _context.Set<T>().AsQueryable();
+        var getQuery = _context.Set<TEntity>().AsQueryable();
 
         if (!isTracking)
         {
             getQuery = getQuery.AsNoTracking();
         }
 
-        return await getQuery
+        return getQuery
             .FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
     }
 
-    public virtual async Task<T> UpdateAsync(T entity, CancellationToken cancellationToken)
+    public virtual async Task<TEntity> UpdateAsync(TEntity entity, CancellationToken cancellationToken)
     {
-        _context.Set<T>().Update(entity);
+        _context.Set<TEntity>().Update(entity);
         await _context.SaveChangesAsync(cancellationToken);
 
         return entity;
     }
-    public virtual async Task DeleteAsync(T entity, CancellationToken cancellationToken)
+    public virtual Task DeleteAsync(TEntity entity, CancellationToken cancellationToken)
     {
-        _context.Set<T>().Remove(entity);
+        _context.Set<TEntity>().Remove(entity);
 
-        await _context.SaveChangesAsync(cancellationToken);
+        return _context.SaveChangesAsync(cancellationToken);
+    }
+
+    public Task SaveChangesAsync(CancellationToken cancellationToken)
+    {
+        return _context.SaveChangesAsync(cancellationToken);
     }
 }

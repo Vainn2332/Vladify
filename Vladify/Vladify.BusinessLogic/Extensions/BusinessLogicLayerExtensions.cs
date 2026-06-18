@@ -1,12 +1,16 @@
 ﻿using AutoMapper;
 using FluentValidation;
+using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Vladify.BusinessLogic.MapperProfiles;
 using Vladify.BusinessLogic.Models.SongModels;
+using Vladify.BusinessLogic.Options;
 using Vladify.BusinessLogic.ServiceInterfaces;
 using Vladify.BusinessLogic.Services;
 using Vladify.BusinessLogic.Validators;
+using Vladify.DataAccess;
 using Vladify.DataAccess.Extensions;
 
 namespace Vladify.BusinessLogic.Extensions;
@@ -19,6 +23,7 @@ public static class BusinessLogicLayerExtensions
             .AddSqlServerDb(configuration)
             .AddServices()
             .AddValidators()
+            .AddRabbitMQ()
             .AddMapping();
     }
 
@@ -56,6 +61,33 @@ public static class BusinessLogicLayerExtensions
         var mapper = sp.GetRequiredService<IMapper>();
 
         mapper.ConfigurationProvider.AssertConfigurationIsValid();
+
+        return services;
+    }
+
+    public static IServiceCollection AddRabbitMQ(this IServiceCollection services)
+    {
+        services.AddMassTransit(registrationConfigurator =>
+        {
+            registrationConfigurator.AddEntityFrameworkOutbox<ApplicationDbContext>(outboxConfigurator =>
+            {
+                outboxConfigurator.UseSqlServer();
+                outboxConfigurator.UseBusOutbox();
+            });
+
+            registrationConfigurator.UsingRabbitMq((context, cfg) =>
+            {
+                var rabbitOptions = context.GetRequiredService<IOptions<RabbitMqOptions>>().Value;
+
+                cfg.Host(rabbitOptions.ServerHost, hostConfigurator =>
+                {
+                    hostConfigurator.Username(rabbitOptions.Username);
+                    hostConfigurator.Password(rabbitOptions.Password);
+                });
+
+                cfg.ConfigureEndpoints(context);
+            });
+        });
 
         return services;
     }

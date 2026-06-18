@@ -3,7 +3,7 @@ using Vladify.DataAccess.Interfaces;
 
 namespace Vladify.DataAccess.Entities;
 
-public class User : IEntity
+public class User : IBaseEntity
 {
     public required Guid Id { get; set; }
 
