@@ -25,6 +25,6 @@ public class SongProfile : Profile
           .ForMember(dest => dest.Owner, opt => opt.Ignore())
           .ForMember(dest => dest.Playlists, opt => opt.Ignore());
 
-        CreateMap<SongModel, SongCreatedMessage>();
+        CreateMap<Song, SongCreatedMessage>();
     }
 }
