@@ -3,9 +3,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Moq;
 using Respawn;
@@ -15,7 +15,6 @@ using System.Security.Claims;
 using System.Text;
 using Testcontainers.MsSql;
 using Vladify.BusinessLogic.Constants;
-using Vladify.BusinessLogic.Options;
 using Vladify.BusinessLogic.ServiceInterfaces;
 using Vladify.DataAccess;
 
@@ -36,6 +35,25 @@ public class IntegrationTestInfrastructure : IAsyncLifetime
         await _testDbContainer.StartAsync();
         Factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
         {
+            builder.ConfigureAppConfiguration((context, configBuilder) =>
+            {
+                configBuilder.AddInMemoryCollection(new Dictionary<string, string?>
+                {
+                    ["RabbitMq:Host"] = "localhost",
+                    ["RabbitMq:Username"] = "test",
+                    ["RabbitMq:Password"] = "test",
+                    ["ApiKeys:Auth0SyncInDb"] = "testApiKey",
+                    ["Auth0:M2MClient:ClientId"] = "test",
+                    ["Auth0:M2MClient:ClientSecret"] = "test",
+                    ["Auth0:M2MClient:Audience"] = "test",
+                    ["Auth0:PublicClient:ClientId"] = "test",
+                    ["Auth0:PublicClient:ClientSecret"] = "test",
+                    ["Auth0:PublicClient:Audience"] = "test",
+                    ["Auth0:Domain"] = "test",
+                    ["Auth0:TokenUrl"] = "test",
+                });
+            });
+
             builder.ConfigureServices(services =>
             {
                 ConfigureTestServices(services);
@@ -118,7 +136,6 @@ public class IntegrationTestInfrastructure : IAsyncLifetime
         services
             .RemoveAll<DbContextOptions<ApplicationDbContext>>()
             .RemoveAll<IAuth0Service>()
-            .RemoveAll<IOptionsMonitor<ApiKeysOptions>>()
             .RemoveAll<IPublishEndpoint>();
 
         var authServiceMock = new Mock<IAuth0Service>();
@@ -131,8 +148,6 @@ public class IntegrationTestInfrastructure : IAsyncLifetime
 
         services.AddScoped(serviceProvider => authServiceMock.Object);
         services.AddScoped(serviceProvider => publishEndpointMock.Object);
-
-        services.Configure<ApiKeysOptions>("Auth0", opt => opt.Value = "testApiKey");
 
         services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(_testDbContainer.GetConnectionString()));
