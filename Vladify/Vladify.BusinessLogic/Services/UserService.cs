@@ -24,13 +24,14 @@ public class UserService(IUserRepository _userRepository, IAuth0Service _authSer
         var user = _mapper.Map<User>(userRequestModel);
 
         var newUser = await _userRepository.AddWithoutSaveChangesAsync(user, cancellationToken);
+        var userModel = _mapper.Map<UserModel>(newUser);
 
-        var message = _mapper.Map<UserCreatedMessage>(newUser);
+        var message = _mapper.Map<UserCreatedMessage>(userModel);
         await _publishEndpoint.Publish(message, cancellationToken);
 
         await _userRepository.SaveChangesAsync(cancellationToken);
 
-        return _mapper.Map<UserModel>(newUser);
+        return userModel;
     }
 
     public async Task<UserModel?> GetUserByIdAsync(Guid userId, bool isTracking, CancellationToken cancellationToken)
