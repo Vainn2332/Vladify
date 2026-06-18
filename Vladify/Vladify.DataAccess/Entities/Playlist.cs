@@ -2,7 +2,7 @@
 
 namespace Vladify.DataAccess.Entities;
 
-public class Playlist : IEntity
+public class Playlist : IBaseEntity
 {
     public Guid Id { get; set; }
 
