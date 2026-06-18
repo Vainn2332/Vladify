@@ -39,7 +39,7 @@ public class IntegrationTestInfrastructure : IAsyncLifetime
             {
                 configBuilder.AddInMemoryCollection(new Dictionary<string, string?>
                 {
-                    ["RabbitMq:Host"] = "localhost",
+                    ["RabbitMq:ServerHost"] = "localhost",
                     ["RabbitMq:Username"] = "test",
                     ["RabbitMq:Password"] = "test",
                     ["ApiKeys:Auth0SyncInDb"] = "testApiKey",
