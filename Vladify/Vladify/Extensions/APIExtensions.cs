@@ -9,6 +9,11 @@ using Vladify.Middlewares;
 
 namespace Vladify.Extensions;
 
+static file class NameConstants
+{
+    public const string Auth0 = "Auth0";
+}
+
 public static class ApiExtensions
 {
     public static IServiceCollection AddAppServices(this IServiceCollection services, IConfiguration configuration)
@@ -35,8 +40,8 @@ public static class ApiExtensions
         {
             options.WithTheme(ScalarTheme.BluePlanet);
 
-            options.AddPreferredSecuritySchemes("Auth0")
-                .AddAuthorizationCodeFlow("Auth0", flow =>
+            options.AddPreferredSecuritySchemes(NameConstants.Auth0)
+                .AddAuthorizationCodeFlow(NameConstants.Auth0, flow =>
                 {
                     var auth0Options = configuration.GetSection(Auth0Options.SectionName).Get<Auth0Options>()
                         ?? throw new NotFoundException($"Configuration section{Auth0Options.SectionName} not found!");
@@ -81,7 +86,7 @@ public static class ApiExtensions
                 };
 
                 document.Components ??= new OpenApiComponents();
-                document.Components.SecuritySchemes.Add("Auth0", securityScheme);
+                document.Components.SecuritySchemes.Add(NameConstants.Auth0, securityScheme);
 
                 return Task.CompletedTask;
             });
@@ -125,7 +130,7 @@ public static class ApiExtensions
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
-        services.AddOptions<ApiKeysOptions>("Auth0")
+        services.AddOptions<ApiKeysOptions>(NameConstants.Auth0)
             .Configure(options =>
             {
                 options.Value = configuration["ApiKeys:Auth0SyncInDb"]!;
