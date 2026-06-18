@@ -63,7 +63,7 @@ public class UserServiceTest
             .Returns(userEntity);
         _userRepositoryMock.Setup(m => m.AddWithoutSaveChangesAsync(userEntity, It.IsAny<CancellationToken>()))
             .ReturnsAsync(userEntity);
-        _mapperMock.Setup(m => m.Map<UserCreatedMessage>(userEntity))
+        _mapperMock.Setup(m => m.Map<UserCreatedMessage>(expectedModel))
             .Returns(message);
         _mapperMock.Setup(m => m.Map<UserModel>(userEntity))
             .Returns(expectedModel);
