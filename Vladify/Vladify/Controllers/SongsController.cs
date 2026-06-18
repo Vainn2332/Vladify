@@ -14,13 +14,11 @@ namespace Vladify.Controllers;
 public class SongsController(ISongService _songService, IMapper _mapper) : ControllerBase
 {
     [HttpPost, ValidationFilter]
-    public async Task<SongModel> CreateSong(
+    public Task<SongModel> CreateSong(
         SongRequestModel songRequestModel,
         CancellationToken cancellationToken = default)
     {
-        var response = await _songService.AddSongAsync(songRequestModel, cancellationToken);
-
-        return response;
+        return _songService.AddSongAsync(songRequestModel, cancellationToken);
     }
 
     [HttpGet]
