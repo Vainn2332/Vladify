@@ -39,7 +39,7 @@ public class SongServiceTest
         _songRepositoryMock.Setup(m => m.AddWithoutSaveChangesAsync(songEntity, It.IsAny<CancellationToken>()))
             .ReturnsAsync(songEntity);
         _mapperMock.Setup(m => m.Map<SongModel>(songEntity)).Returns(expectedModel);
-        _mapperMock.Setup(m => m.Map<SongCreatedMessage>(songEntity)).Returns(message);
+        _mapperMock.Setup(m => m.Map<SongCreatedMessage>(expectedModel)).Returns(message);
 
         var result = await _songService.AddSongAsync(request, CancellationToken.None);
 
