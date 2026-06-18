@@ -9,15 +9,15 @@ public class Repository<TEntity>(ApplicationDbContext context) : IRepository<TEn
 
     public virtual async Task<TEntity> AddAsync(TEntity entity, CancellationToken cancellationToken)
     {
-        await _context.Set<TEntity>().AddAsync(entity, cancellationToken);
+        _context.Set<TEntity>().Add(entity);
         await _context.SaveChangesAsync(cancellationToken);
 
         return entity;
     }
 
-    public virtual async Task<TEntity> AddWithoutSaveChangesAsync(TEntity entity, CancellationToken cancellationToken)
+    public virtual TEntity AddWithoutSaveChanges(TEntity entity)
     {
-        var entry = await _context.Set<TEntity>().AddAsync(entity, cancellationToken);
+        var entry = _context.Set<TEntity>().Add(entity);
 
         return entry.Entity;
     }
@@ -31,7 +31,7 @@ public class Repository<TEntity>(ApplicationDbContext context) : IRepository<TEn
             .ToListAsync(cancellationToken);
     }
 
-    public virtual async Task<TEntity?> GetByIdAsync(Guid id, bool isTracking, CancellationToken cancellationToken)
+    public virtual Task<TEntity?> GetByIdAsync(Guid id, bool isTracking, CancellationToken cancellationToken)
     {
         var getQuery = _context.Set<TEntity>().AsQueryable();
 
@@ -40,7 +40,7 @@ public class Repository<TEntity>(ApplicationDbContext context) : IRepository<TEn
             getQuery = getQuery.AsNoTracking();
         }
 
-        return await getQuery
+        return getQuery
             .FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
     }
 
@@ -51,11 +51,11 @@ public class Repository<TEntity>(ApplicationDbContext context) : IRepository<TEn
 
         return entity;
     }
-    public virtual async Task DeleteAsync(TEntity entity, CancellationToken cancellationToken)
+    public virtual Task DeleteAsync(TEntity entity, CancellationToken cancellationToken)
     {
         _context.Set<TEntity>().Remove(entity);
 
-        await _context.SaveChangesAsync(cancellationToken);
+        return _context.SaveChangesAsync(cancellationToken);
     }
 
     public Task SaveChangesAsync(CancellationToken cancellationToken)

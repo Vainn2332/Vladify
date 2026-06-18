@@ -16,7 +16,7 @@ public class SongService(ISongRepository _songRepository, IMapper _mapper, IPubl
     {
         var song = _mapper.Map<Song>(songRequestModel);
 
-        var newSong = await _songRepository.AddWithoutSaveChangesAsync(song, cancellationToken);
+        var newSong = _songRepository.AddWithoutSaveChanges(song);
         var songModel = _mapper.Map<SongModel>(newSong);
 
         var message = _mapper.Map<SongCreatedMessage>(songModel);

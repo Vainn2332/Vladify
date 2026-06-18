@@ -61,8 +61,8 @@ public class UserServiceTest
             .ReturnsAsync((User?)null);
         _mapperMock.Setup(m => m.Map<User>(request))
             .Returns(userEntity);
-        _userRepositoryMock.Setup(m => m.AddWithoutSaveChangesAsync(userEntity, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(userEntity);
+        _userRepositoryMock.Setup(m => m.AddWithoutSaveChanges(userEntity))
+            .Returns(userEntity);
         _mapperMock.Setup(m => m.Map<UserCreatedMessage>(expectedModel))
             .Returns(message);
         _mapperMock.Setup(m => m.Map<UserModel>(userEntity))
@@ -73,7 +73,7 @@ public class UserServiceTest
         Assert.NotNull(result);
         Assert.IsType<UserModel>(result);
 
-        _userRepositoryMock.Verify(m => m.AddWithoutSaveChangesAsync(userEntity, It.IsAny<CancellationToken>()), Times.Once);
+        _userRepositoryMock.Verify(m => m.AddWithoutSaveChanges(userEntity), Times.Once);
         _userRepositoryMock.Verify(m => m.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
     [Fact]

@@ -23,7 +23,7 @@ public class UserService(IUserRepository _userRepository, IAuth0Service _authSer
 
         var user = _mapper.Map<User>(userRequestModel);
 
-        var newUser = await _userRepository.AddWithoutSaveChangesAsync(user, cancellationToken);
+        var newUser = _userRepository.AddWithoutSaveChanges(user);
         var userModel = _mapper.Map<UserModel>(newUser);
 
         var message = _mapper.Map<UserCreatedMessage>(userModel);

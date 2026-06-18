@@ -36,8 +36,8 @@ public class SongServiceTest
         var message = _fixture.Create<SongCreatedMessage>();
 
         _mapperMock.Setup(m => m.Map<Song>(request)).Returns(songEntity);
-        _songRepositoryMock.Setup(m => m.AddWithoutSaveChangesAsync(songEntity, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(songEntity);
+        _songRepositoryMock.Setup(m => m.AddWithoutSaveChanges(songEntity))
+            .Returns(songEntity);
         _mapperMock.Setup(m => m.Map<SongModel>(songEntity)).Returns(expectedModel);
         _mapperMock.Setup(m => m.Map<SongCreatedMessage>(expectedModel)).Returns(message);
 
@@ -46,7 +46,7 @@ public class SongServiceTest
         Assert.NotNull(result);
         Assert.IsType<SongModel>(result);
 
-        _songRepositoryMock.Verify(m => m.AddWithoutSaveChangesAsync(songEntity, It.IsAny<CancellationToken>()), Times.Once);
+        _songRepositoryMock.Verify(m => m.AddWithoutSaveChanges(songEntity), Times.Once);
         _songRepositoryMock.Verify(m => m.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
