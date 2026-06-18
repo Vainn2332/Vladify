@@ -1,3 +1,8 @@
 ﻿namespace Vladify.BusinessLogic.Messages;
 
-public record UserCreatedMessage(Guid UserId, string EmailAddress) { }
+public record UserCreatedMessage
+{
+    public required Guid UserId { get; init; }
+
+    public required string EmailAddress { get; init; }
+}
