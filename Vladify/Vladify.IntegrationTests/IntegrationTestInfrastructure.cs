@@ -39,9 +39,9 @@ public class IntegrationTestInfrastructure : IAsyncLifetime
             {
                 configBuilder.AddInMemoryCollection(new Dictionary<string, string?>
                 {
-                    ["RabbitMq:ServerHost"] = "localhost",
-                    ["RabbitMq:Username"] = "test",
-                    ["RabbitMq:Password"] = "test",
+                    ["RabbitMqOptions:ServerHost"] = "localhost",
+                    ["RabbitMqOptions:Username"] = "test",
+                    ["RabbitMqOptions:Password"] = "test",
                     ["ApiKeys:Auth0SyncInDb"] = "testApiKey",
                     ["Auth0:M2MClient:ClientId"] = "test",
                     ["Auth0:M2MClient:ClientSecret"] = "test",
