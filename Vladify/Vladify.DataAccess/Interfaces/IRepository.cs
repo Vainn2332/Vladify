@@ -1,12 +1,12 @@
 ﻿namespace Vladify.DataAccess.Interfaces;
 
-public interface IRepository<T> where T : class, IEntity
+public interface IRepository<TEntity> where TEntity : class, IBaseEntity
 {
-    public Task<T> AddAsync(T entity, CancellationToken cancellationToken);
-    public Task<T> AddWithoutSaveChangesAsync(T entity, CancellationToken cancellationToken);
-    public Task<T?> GetByIdAsync(Guid id, bool isTracking, CancellationToken cancellationToken);
-    public Task<IEnumerable<T>> GetAllAsync(int pageNumber, int pageSize, CancellationToken cancellationToken);
-    public Task<T> UpdateAsync(T entity, CancellationToken cancellationToken);
-    public Task DeleteAsync(T entity, CancellationToken cancellationToken);
+    public Task<TEntity> AddAsync(TEntity entity, CancellationToken cancellationToken);
+    public Task<TEntity> AddWithoutSaveChangesAsync(TEntity entity, CancellationToken cancellationToken);
+    public Task<TEntity?> GetByIdAsync(Guid id, bool isTracking, CancellationToken cancellationToken);
+    public Task<IEnumerable<TEntity>> GetAllAsync(int pageNumber, int pageSize, CancellationToken cancellationToken);
+    public Task<TEntity> UpdateAsync(TEntity entity, CancellationToken cancellationToken);
+    public Task DeleteAsync(TEntity entity, CancellationToken cancellationToken);
     public Task SaveChangesAsync(CancellationToken cancellationToken);
 }
