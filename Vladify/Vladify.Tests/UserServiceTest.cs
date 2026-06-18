@@ -5,6 +5,7 @@ using FluentAssertions;
 using Moq;
 using Vladify.BusinessLogic.Constants;
 using Vladify.BusinessLogic.Exceptions;
+using Vladify.BusinessLogic.Messages;
 using Vladify.BusinessLogic.Models;
 using Vladify.BusinessLogic.Models.UserModels;
 using Vladify.BusinessLogic.ServiceInterfaces;
@@ -53,13 +54,17 @@ public class UserServiceTest
     {
         var request = _fixture.Create<UserRequestModel>();
         var userEntity = _fixture.Create<User>();
+        var message = _fixture.Create<UserCreatedMessage>();
         var expectedModel = _fixture.Create<UserModel>();
+
         _userRepositoryMock.Setup(m => m.GetByEmailAsync(request.EmailAddress, false, It.IsAny<CancellationToken>()))
             .ReturnsAsync((User?)null);
         _mapperMock.Setup(m => m.Map<User>(request))
             .Returns(userEntity);
-        _userRepositoryMock.Setup(m => m.AddAsync(userEntity, It.IsAny<CancellationToken>()))
+        _userRepositoryMock.Setup(m => m.AddWithoutSaveChangesAsync(userEntity, It.IsAny<CancellationToken>()))
             .ReturnsAsync(userEntity);
+        _mapperMock.Setup(m => m.Map<UserCreatedMessage>(userEntity))
+            .Returns(message);
         _mapperMock.Setup(m => m.Map<UserModel>(userEntity))
             .Returns(expectedModel);
 
@@ -68,7 +73,8 @@ public class UserServiceTest
         Assert.NotNull(result);
         Assert.IsType<UserModel>(result);
 
-        _userRepositoryMock.Verify(m => m.AddAsync(userEntity, It.IsAny<CancellationToken>()), Times.Once);
+        _userRepositoryMock.Verify(m => m.AddWithoutSaveChangesAsync(userEntity, It.IsAny<CancellationToken>()), Times.Once);
+        _userRepositoryMock.Verify(m => m.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
     [Fact]
     public async Task GetUsersAsync_Should_ReturnUsers_WhenOk()
