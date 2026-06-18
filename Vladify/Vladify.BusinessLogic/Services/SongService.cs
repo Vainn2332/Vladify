@@ -17,13 +17,14 @@ public class SongService(IRepository<Song> _songRepository, IMapper _mapper, IPu
         var song = _mapper.Map<Song>(songRequestModel);
 
         var newSong = await _songRepository.AddWithoutSaveChangesAsync(song, cancellationToken);
+        var songModel = _mapper.Map<SongModel>(newSong);
 
-        var message = _mapper.Map<SongCreatedMessage>(newSong);
+        var message = _mapper.Map<SongCreatedMessage>(songModel);
         await _publishEndpoint.Publish(message, cancellationToken);
 
         await _songRepository.SaveChangesAsync(cancellationToken);
 
-        return _mapper.Map<SongModel>(newSong);
+        return songModel;
     }
 
     public async Task<SongModel?> GetSongByIdAsync(Guid songId, bool isTracking, CancellationToken cancellationToken)
