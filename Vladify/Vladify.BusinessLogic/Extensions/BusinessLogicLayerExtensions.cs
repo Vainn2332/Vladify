@@ -23,7 +23,7 @@ public static class BusinessLogicLayerExtensions
             .AddSqlServerDb(configuration)
             .AddServices()
             .AddValidators()
-            .AddRabbitMQ(configuration)
+            .AddRabbitMQ()
             .AddMapping();
     }
 
@@ -65,7 +65,7 @@ public static class BusinessLogicLayerExtensions
         return services;
     }
 
-    public static IServiceCollection AddRabbitMQ(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddRabbitMQ(this IServiceCollection services)
     {
         services.AddMassTransit(registrationConfigurator =>
         {
