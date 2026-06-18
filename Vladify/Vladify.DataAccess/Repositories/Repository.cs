@@ -15,14 +15,14 @@ public class Repository<T>(ApplicationDbContext context) : IRepository<T> where 
         return entity;
     }
 
-    public async Task<T> AddWithoutSaveChangesAsync(T entity, CancellationToken cancellationToken)
+    public virtual async Task<T> AddWithoutSaveChangesAsync(T entity, CancellationToken cancellationToken)
     {
         var entry = await _context.Set<T>().AddAsync(entity, cancellationToken);
 
         return entry.Entity;
     }
 
-    public async Task<IEnumerable<T>> GetAllAsync(int pageNumber, int pageSize, CancellationToken cancellationToken)
+    public virtual async Task<IEnumerable<T>> GetAllAsync(int pageNumber, int pageSize, CancellationToken cancellationToken)
     {
         return await _context.Set<T>()
             .OrderBy(p => p.Id)
