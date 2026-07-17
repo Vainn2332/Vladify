@@ -22,14 +22,11 @@ public class SongProfile : Profile
             .ForMember(dest => dest.Author,
                 opt => opt.MapFrom(src => src.Owner.Name));
 
-        CreateMap<SongModel, Song>()
-            .ForMember(dest => dest.Owner, opt => opt.Ignore())
-            .ForMember(dest => dest.Playlists, opt => opt.Ignore());
-
         CreateMap<UpdateSongRequestModel, SongUpdateDto>()
             .ForMember(dest => dest.Id, opt => opt.Ignore());
 
         CreateMap<SongUpdateDto, Song>()
+            .ForMember(dest => dest.Status, opt => opt.Ignore())
             .ForMember(dest => dest.Owner, opt => opt.Ignore())
             .ForMember(dest => dest.Playlists, opt => opt.Ignore());
 
