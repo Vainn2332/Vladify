@@ -40,4 +40,11 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         modelBuilder.Entity<User>().HasData(users);
         modelBuilder.Entity<Song>().HasData(songs);
     }
+
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+    {
+        configurationBuilder
+            .Properties<Enum>()
+            .HaveConversion<string>();
+    }
 }
