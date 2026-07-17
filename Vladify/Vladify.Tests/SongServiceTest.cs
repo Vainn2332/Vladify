@@ -106,7 +106,7 @@ public class SongServiceTest
     [Fact]
     public async Task UpdateSongAsync_Should_ReturnNotFoundException_WhenNotFound()
     {
-        var request = _fixture.Create<SongModel>();
+        var request = _fixture.Create<SongUpdateDto>();
         _songRepositoryMock.Setup(m => m.GetByIdAsync(request.Id, It.IsAny<bool>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync((Song?)null);
 
@@ -122,7 +122,7 @@ public class SongServiceTest
     [Fact]
     public async Task UpdateSongAsync_Should_ReturnSongModel_WhenOk()
     {
-        var request = _fixture.Create<SongModel>();
+        var request = _fixture.Create<SongUpdateDto>();
         var songEntity = _fixture.Create<Song>();
         var oldSongEntity = _fixture.Create<Song>();
         var updatedSongEntity = _fixture.Create<Song>();

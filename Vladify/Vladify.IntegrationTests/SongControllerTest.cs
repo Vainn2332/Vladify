@@ -101,7 +101,7 @@ public class SongControllerTest
 
         var testUser = await _infrastructure.SeedDataAsync(user);
 
-        var updateRequest = _fixture.Create<SongRequestModel>();
+        var updateRequest = _fixture.Create<UpdateSongRequestModel>();
         updateRequest.AuthorId = testUser.Id;
 
         var jwt = IntegrationTestInfrastructure.GenerateTestJWT();

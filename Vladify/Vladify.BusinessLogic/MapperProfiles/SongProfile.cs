@@ -18,12 +18,19 @@ public class SongProfile : Profile
             .ForMember(dest => dest.Id, opt => opt.Ignore());
 
         CreateMap<Song, SongModel>()
-           .ForMember(dest => dest.Author,
-               opt => opt.MapFrom(src => src.Owner.Name));
+            .ForMember(dest => dest.Author,
+                opt => opt.MapFrom(src => src.Owner.Name));
 
         CreateMap<SongModel, Song>()
-          .ForMember(dest => dest.Owner, opt => opt.Ignore())
-          .ForMember(dest => dest.Playlists, opt => opt.Ignore());
+            .ForMember(dest => dest.Owner, opt => opt.Ignore())
+            .ForMember(dest => dest.Playlists, opt => opt.Ignore());
+
+        CreateMap<UpdateSongRequestModel, SongUpdateDto>()
+            .ForMember(dest => dest.Id, opt => opt.Ignore());
+
+        CreateMap<SongUpdateDto, Song>()
+            .ForMember(dest => dest.Owner, opt => opt.Ignore())
+            .ForMember(dest => dest.Playlists, opt => opt.Ignore());
 
         CreateMap<SongModel, SongCreatedMessage>();
     }
