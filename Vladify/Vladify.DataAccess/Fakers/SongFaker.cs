@@ -2,6 +2,7 @@
 using Bogus.Extensions;
 using Vladify.DataAccess.Constants;
 using Vladify.DataAccess.Entities;
+using Vladify.DataAccess.Enums;
 
 namespace Vladify.DataAccess.Fakers;
 
@@ -26,5 +27,7 @@ public sealed class SongFaker : Faker<Song>
         RuleFor(property => property.AuthorId, setter => setter.PickRandom(userIds));
 
         RuleFor(property => property.Duration, setter => TimeSpan.FromSeconds(setter.Random.Int(150, 210)));
+
+        RuleFor(property => property.Status, setter => setter.PickRandom<ModerationStatus>());
     }
 }
