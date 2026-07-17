@@ -42,13 +42,13 @@ public class SongsController(ISongService _songService, IMapper _mapper) : Contr
     [HttpPut("{id}"), ValidationFilter]
     public async Task<SongModel> UpdateSong(
         Guid id,
-        SongRequestModel songRequestModel,
+        UpdateSongRequestModel updateSongRequestModel,
         CancellationToken cancellationToken = default)
     {
-        var songModel = _mapper.Map<SongModel>(songRequestModel);
-        songModel.Id = id;
+        var songUpdateDto = _mapper.Map<SongUpdateDto>(updateSongRequestModel);
+        songUpdateDto.Id = id;
 
-        return await _songService.UpdateSongAsync(songModel, cancellationToken);
+        return await _songService.UpdateSongAsync(songUpdateDto, cancellationToken);
     }
 
     [HttpDelete("{id}")]
