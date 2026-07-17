@@ -8,7 +8,7 @@ public class SongRequestModel
 
     public required string Author { get; set; }
 
-    public Guid AuthorId { get; set; }// temporary field used for integration tests
+    public Guid AuthorId { get; set; }
 
     public required TimeSpan Duration { get; set; }
 }
