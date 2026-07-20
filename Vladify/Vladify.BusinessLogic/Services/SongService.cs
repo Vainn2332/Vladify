@@ -49,7 +49,7 @@ public class SongService(ISongRepository _songRepository, IMapper _mapper, IPubl
         var songEntity = _mapper.Map<Song>(songUpdateDto);
         songEntity.Status = song.Status;
 
-        var updatedSong = await _songRepository.UpdateAsync(song, cancellationToken);
+        var updatedSong = await _songRepository.UpdateAsync(songEntity, cancellationToken);
 
         return _mapper.Map<SongModel>(updatedSong);
     }
