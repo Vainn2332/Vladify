@@ -1,4 +1,5 @@
-﻿using Vladify.DataAccess.Interfaces;
+﻿using Vladify.DataAccess.Enums;
+using Vladify.DataAccess.Interfaces;
 
 namespace Vladify.DataAccess.Entities;
 
@@ -13,6 +14,8 @@ public class Song : IBaseEntity
     public Guid? AuthorId { get; set; }
 
     public TimeSpan Duration { get; set; } = TimeSpan.Zero;
+
+    public ModerationStatus Status { get; set; } = ModerationStatus.Pending;
 
     public required User Owner { get; set; }
 
