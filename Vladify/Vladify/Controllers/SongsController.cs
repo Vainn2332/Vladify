@@ -25,6 +25,7 @@ public class SongsController(ISongService _songService, IUserService _userServic
 
         var songAddDto = _mapper.Map<SongAddDto>(songRequestModel);
         songAddDto.AuthorId = user.Id;
+        songAddDto.Author = user.Name;
 
         return await _songService.AddSongAsync(songAddDto, cancellationToken);
     }
@@ -53,15 +54,23 @@ public class SongsController(ISongService _songService, IUserService _userServic
         UpdateSongRequestModel updateSongRequestModel,
         CancellationToken cancellationToken = default)
     {
+        var email = User.GetEmail();
+        var user = await _userService.GetUserByEmailAsync(email, false, cancellationToken)
+            ?? throw new NotFoundException("User with suc id not found!");
+
         var songUpdateDto = _mapper.Map<SongUpdateDto>(updateSongRequestModel);
         songUpdateDto.Id = id;
 
-        return await _songService.UpdateSongAsync(songUpdateDto, cancellationToken);
+        return await _songService.UpdateSongAsync(songUpdateDto, user.Id, cancellationToken);
     }
 
     [HttpDelete("{id}")]
-    public Task DeleteSong(Guid id, CancellationToken cancellationToken = default)
+    public async Task DeleteSong(Guid id, CancellationToken cancellationToken = default)
     {
-        return _songService.DeleteSongAsync(id, cancellationToken);
+        var email = User.GetEmail();
+        var user = await _userService.GetUserByEmailAsync(email, false, cancellationToken)
+            ?? throw new NotFoundException("User with suc id not found!");
+
+        await _songService.DeleteSongAsync(id, user.Id, cancellationToken);
     }
 }
