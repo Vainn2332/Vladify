@@ -6,15 +6,17 @@ using Vladify.BusinessLogic.Models;
 using Vladify.BusinessLogic.Models.SongModels;
 using Vladify.BusinessLogic.ServiceInterfaces;
 using Vladify.DataAccess.Entities;
+using Vladify.DataAccess.Enums;
 using Vladify.DataAccess.Interfaces;
 
 namespace Vladify.BusinessLogic.Services;
 
 public class SongService(ISongRepository _songRepository, IMapper _mapper, IPublishEndpoint _publishEndpoint) : ISongService
 {
-    public async Task<SongModel> AddSongAsync(SongRequestModel songRequestModel, CancellationToken cancellationToken)
+    public async Task<SongModel> AddSongAsync(SongAddDto songAddDto, CancellationToken cancellationToken)
     {
-        var song = _mapper.Map<Song>(songRequestModel);
+        var song = _mapper.Map<Song>(songAddDto);
+        song.Status = ModerationStatus.Pending;
 
         var newSong = _songRepository.AddWithoutSaveChanges(song);
         var songModel = _mapper.Map<SongModel>(newSong);
