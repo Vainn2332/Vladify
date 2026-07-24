@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using MassTransit;
+using Vladify.BusinessLogic.Constants;
 using Vladify.BusinessLogic.Exceptions;
 using Vladify.BusinessLogic.Messages;
 using Vladify.BusinessLogic.Models;
@@ -19,7 +20,9 @@ public class SongService(ISongRepository _songRepository, IMapper _mapper, IPubl
         song.Status = ModerationStatus.Pending;
 
         var newSong = _songRepository.AddWithoutSaveChanges(song);
+
         var songModel = _mapper.Map<SongModel>(newSong);
+        songModel.Author = songAddDto.Author;
 
         var message = _mapper.Map<SongCreatedMessage>(songModel);
         await _publishEndpoint.Publish(message, cancellationToken);
@@ -31,7 +34,7 @@ public class SongService(ISongRepository _songRepository, IMapper _mapper, IPubl
 
     public async Task<SongModel?> GetSongByIdAsync(Guid songId, bool isTracking, CancellationToken cancellationToken)
     {
-        var song = await _songRepository.GetByIdAsync(songId, isTracking, cancellationToken);
+        var song = await _songRepository.GetApprovedSongByIdAsync(songId, isTracking, cancellationToken);
 
         return _mapper.Map<SongModel>(song);
     }
@@ -43,23 +46,29 @@ public class SongService(ISongRepository _songRepository, IMapper _mapper, IPubl
         return _mapper.Map<IEnumerable<SongModel>>(songs);
     }
 
-    public async Task<SongModel> UpdateSongAsync(SongUpdateDto songUpdateDto, CancellationToken cancellationToken)
+    public async Task<SongModel> UpdateSongAsync(SongUpdateDto songUpdateDto, Guid requesterId, CancellationToken cancellationToken)
     {
-        var song = await _songRepository.GetByIdAsync(songUpdateDto.Id, false, cancellationToken)
+        var song = await _songRepository.GetByIdAsync(songUpdateDto.Id, true, cancellationToken)
             ?? throw new NotFoundException("Song with such id not found!");
+        if (song.AuthorId != requesterId)
+        {
+            throw new ForbiddenException(ErrorMessageConstants.SongForbidden);
+        }
+        _mapper.Map(songUpdateDto, song);
 
-        var songEntity = _mapper.Map<Song>(songUpdateDto);
-        songEntity.Status = song.Status;
-
-        var updatedSong = await _songRepository.UpdateAsync(songEntity, cancellationToken);
+        var updatedSong = await _songRepository.UpdateAsync(song, cancellationToken);
 
         return _mapper.Map<SongModel>(updatedSong);
     }
 
-    public async Task DeleteSongAsync(Guid songId, CancellationToken cancellationToken)
+    public async Task DeleteSongAsync(Guid songId, Guid requesterId, CancellationToken cancellationToken)
     {
         var song = await _songRepository.GetByIdAsync(songId, true, cancellationToken)
             ?? throw new NotFoundException("Song with such id not found!");
+        if (song.AuthorId != requesterId)
+        {
+            throw new ForbiddenException(ErrorMessageConstants.SongForbidden);
+        }
 
         await _songRepository.DeleteAsync(song, cancellationToken);
     }
