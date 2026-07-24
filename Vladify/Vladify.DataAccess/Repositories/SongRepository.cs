@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Vladify.DataAccess.Entities;
+using Vladify.DataAccess.Enums;
 using Vladify.DataAccess.Interfaces;
 
 namespace Vladify.DataAccess.Repositories;
@@ -27,12 +28,13 @@ public class SongRepository(ApplicationDbContext context) : Repository<Song>(con
 
         return query
             .Include(p => p.Owner)
-            .FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
+            .FirstOrDefaultAsync(u => u.Id == id && u.Status == ModerationStatus.Approved, cancellationToken);
     }
 
     public override async Task<IEnumerable<Song>> GetAllAsync(int pageNumber, int pageSize, CancellationToken cancellationToken)
     {
         return await _context.Songs
+            .Where(s => s.Status == ModerationStatus.Approved)
             .Include(p => p.Owner)
             .OrderBy(p => p.Id)
             .Skip((pageNumber - 1) * pageSize)
