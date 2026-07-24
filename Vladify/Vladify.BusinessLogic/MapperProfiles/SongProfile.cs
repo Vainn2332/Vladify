@@ -9,14 +9,14 @@ public class SongProfile : Profile
 {
     public SongProfile()
     {
-        CreateMap<SongRequestModel, Song>()
+        CreateMap<SongAddDto, Song>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())
             .ForMember(dest => dest.Owner, opt => opt.Ignore())
             .ForMember(dest => dest.Status, opt => opt.Ignore())
             .ForMember(dest => dest.Playlists, opt => opt.Ignore());
 
-        CreateMap<SongRequestModel, SongModel>()
-            .ForMember(dest => dest.Id, opt => opt.Ignore());
+        CreateMap<SongRequestModel, SongAddDto>()
+            .ForMember(dest => dest.AuthorId, opt => opt.Ignore());
 
         CreateMap<Song, SongModel>()
             .ForMember(dest => dest.Author,
