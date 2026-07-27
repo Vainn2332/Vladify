@@ -28,8 +28,8 @@ public class SongControllerTest
         var testUser = await _infrastructure.SeedDataAsync(_fixture.Create<User>());
 
         var request = _fixture.Create<SongRequestModel>();
-        request.AuthorId = testUser.Id;
-        var token = IntegrationTestInfrastructure.GenerateTestJWT();
+
+        var token = IntegrationTestInfrastructure.GenerateTestJWT(testUser.EmailAddress);
         _infrastructure.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
         using var response = await _infrastructure.Client.PostAsJsonAsync(TestConstants.SongsApiRoute, request);
@@ -51,7 +51,7 @@ public class SongControllerTest
         songInDb.Should().NotBeNull();
         songInDb!.Id.Should().NotBeEmpty();
         songInDb.Title.Should().Be(request.Title);
-        songInDb.AuthorId.Should().Be(request.AuthorId);
+        songInDb.AuthorId.Should().Be(testUser.Id);
     }
 
     [Fact]
@@ -102,9 +102,8 @@ public class SongControllerTest
         var testUser = await _infrastructure.SeedDataAsync(user);
 
         var updateRequest = _fixture.Create<UpdateSongRequestModel>();
-        updateRequest.AuthorId = testUser.Id;
 
-        var jwt = IntegrationTestInfrastructure.GenerateTestJWT();
+        var jwt = IntegrationTestInfrastructure.GenerateTestJWT(testUser.EmailAddress);
         _infrastructure.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
 
         using var response = await _infrastructure.Client.PutAsJsonAsync($"{TestConstants.SongsApiRoute}/{song.Id}", updateRequest);
@@ -129,7 +128,7 @@ public class SongControllerTest
 
         var testUser = await _infrastructure.SeedDataAsync(user);
 
-        var jwt = IntegrationTestInfrastructure.GenerateTestJWT();
+        var jwt = IntegrationTestInfrastructure.GenerateTestJWT(testUser.EmailAddress);
         _infrastructure.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
 
         using var response = await _infrastructure.Client.DeleteAsync($"{TestConstants.SongsApiRoute}/{song.Id}");

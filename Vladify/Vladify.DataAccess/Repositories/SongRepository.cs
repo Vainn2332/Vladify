@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Vladify.DataAccess.Entities;
+using Vladify.DataAccess.Enums;
 using Vladify.DataAccess.Interfaces;
 
 namespace Vladify.DataAccess.Repositories;
@@ -14,6 +15,20 @@ public class SongRepository(ApplicationDbContext context) : Repository<Song>(con
         await _context.Entry(song).Reference(p => p.Owner).LoadAsync(cancellationToken);
 
         return song;
+    }
+
+    public Task<Song?> GetApprovedSongByIdAsync(Guid songId, bool isTracking, CancellationToken cancellationToken)
+    {
+        var query = _context.Songs.AsQueryable();
+
+        if (!isTracking)
+        {
+            query = query.AsNoTracking();
+        }
+
+        return query
+            .Include(p => p.Owner)
+            .FirstOrDefaultAsync(u => u.Id == songId && u.Status == ModerationStatus.Approved, cancellationToken);
     }
 
     public override Task<Song?> GetByIdAsync(Guid id, bool isTracking, CancellationToken cancellationToken)
@@ -33,6 +48,7 @@ public class SongRepository(ApplicationDbContext context) : Repository<Song>(con
     public override async Task<IEnumerable<Song>> GetAllAsync(int pageNumber, int pageSize, CancellationToken cancellationToken)
     {
         return await _context.Songs
+            .Where(s => s.Status == ModerationStatus.Approved)
             .Include(p => p.Owner)
             .OrderBy(p => p.Id)
             .Skip((pageNumber - 1) * pageSize)

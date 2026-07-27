@@ -1,6 +1,7 @@
 ﻿using AutoFixture;
 using Vladify.BusinessLogic.Models.SongModels;
 using Vladify.DataAccess.Entities;
+using Vladify.DataAccess.Enums;
 
 namespace Vladify.IntegrationTests;
 
@@ -14,13 +15,13 @@ public static class AutoFixtureOptions
         .With(s => s.Title, () => string.Join("", fixture.CreateMany<char>(TestConstants.TestDataStringValuesLength)))
         .With(s => s.Album, () => string.Join("", fixture.CreateMany<char>(TestConstants.TestDataStringValuesLength)))
         .With(s => s.Duration, () => TimeSpan.FromMinutes(new Random().Next(TestConstants.TestDataTimeSpanValuesMinDurationInSeconds, TestConstants.TestDataTimeSpanValuesMaxDurationInMinutes)))
+        .With(s => s.Status, () => ModerationStatus.Approved)
         .With(s => s.Owner, () => null!)
         .With(s => s.Playlists, () => null!)
         );
 
         fixture.Customize<SongRequestModel>(builder => builder
        .With(s => s.Title, () => string.Join("", fixture.CreateMany<char>(TestConstants.TestDataStringValuesLength)))
-       .With(s => s.Author, () => string.Join("", fixture.CreateMany<char>(TestConstants.TestDataStringValuesLength)))
        .With(s => s.Album, () => string.Join("", fixture.CreateMany<char>(TestConstants.TestDataStringValuesLength)))
        .With(s => s.Duration, () => TimeSpan.FromMinutes(new Random().Next(TestConstants.TestDataTimeSpanValuesMinDurationInSeconds, TestConstants.TestDataTimeSpanValuesMaxDurationInMinutes)))
        );

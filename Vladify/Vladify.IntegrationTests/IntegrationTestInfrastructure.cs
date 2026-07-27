@@ -93,13 +93,13 @@ public class IntegrationTestInfrastructure : IAsyncLifetime
         await _respawner.ResetAsync(_connection);
     }
 
-    public static string GenerateTestJWT()
+    public static string GenerateTestJWT(string userEmail = TestConstants.TestJwtEmailClaimValue)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(TestConstants.TestSecretKey));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-        var claims = new List<Claim>
+        var claims = new List<Claim>()
         {
-            new Claim(ClaimConstants.CustomEmailClaimName,TestConstants.TestJwtEmailClaimValue)
+            new Claim(ClaimConstants.CustomEmailClaimName, userEmail)
         };
 
         var token = new JwtSecurityToken(
