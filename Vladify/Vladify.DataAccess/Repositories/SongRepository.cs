@@ -17,7 +17,7 @@ public class SongRepository(ApplicationDbContext context) : Repository<Song>(con
         return song;
     }
 
-    public Task<Song?> GetApprovedSongByIdAsync(Guid id, bool isTracking, CancellationToken cancellationToken)
+    public Task<Song?> GetApprovedSongByIdAsync(Guid songId, bool isTracking, CancellationToken cancellationToken)
     {
         var query = _context.Songs.AsQueryable();
 
@@ -28,7 +28,7 @@ public class SongRepository(ApplicationDbContext context) : Repository<Song>(con
 
         return query
             .Include(p => p.Owner)
-            .FirstOrDefaultAsync(u => u.Id == id && u.Status == ModerationStatus.Approved, cancellationToken);
+            .FirstOrDefaultAsync(u => u.Id == songId && u.Status == ModerationStatus.Approved, cancellationToken);
     }
 
     public override Task<Song?> GetByIdAsync(Guid id, bool isTracking, CancellationToken cancellationToken)
