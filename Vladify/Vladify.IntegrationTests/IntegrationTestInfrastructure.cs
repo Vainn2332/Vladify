@@ -17,6 +17,8 @@ using Testcontainers.MsSql;
 using Vladify.BusinessLogic.Constants;
 using Vladify.BusinessLogic.ServiceInterfaces;
 using Vladify.DataAccess;
+using Vladify.DataAccess.Dtos;
+using Vladify.DataAccess.Interfaces;
 
 namespace Vladify.IntegrationTests;
 
@@ -136,7 +138,8 @@ public class IntegrationTestInfrastructure : IAsyncLifetime
         services
             .RemoveAll<DbContextOptions<ApplicationDbContext>>()
             .RemoveAll<IAuth0Service>()
-            .RemoveAll<IPublishEndpoint>();
+            .RemoveAll<IPublishEndpoint>()
+            .RemoveAll<IModerationIntegrationClient>();
 
         var authServiceMock = new Mock<IAuth0Service>();
         authServiceMock.Setup(m => m.DeleteUserFromAuth0Async(It.IsAny<string>())).Returns(Task.CompletedTask);
@@ -146,8 +149,14 @@ public class IntegrationTestInfrastructure : IAsyncLifetime
             .Setup(m => m.Publish(It.IsAny<object>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
+        var moderationMock = new Mock<IModerationIntegrationClient>();
+        var fakeModerationTaskDto = new ModerationTaskDto() { Id = Guid.NewGuid() };
+        moderationMock.Setup(m => m.CreateTaskAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(fakeModerationTaskDto);
+
         services.AddScoped(serviceProvider => authServiceMock.Object);
         services.AddScoped(serviceProvider => publishEndpointMock.Object);
+        services.AddScoped(serviceProvider => moderationMock.Object);
 
         services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(_testDbContainer.GetConnectionString()));

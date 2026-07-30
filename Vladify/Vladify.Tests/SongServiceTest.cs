@@ -1,7 +1,6 @@
 ﻿using AutoFixture;
 using AutoFixture.AutoMoq;
 using AutoMapper;
-using MassTransit;
 using Moq;
 using Vladify.BusinessLogic.Constants;
 using Vladify.BusinessLogic.Exceptions;
@@ -9,6 +8,7 @@ using Vladify.BusinessLogic.Messages;
 using Vladify.BusinessLogic.Models;
 using Vladify.BusinessLogic.Models.SongModels;
 using Vladify.BusinessLogic.Services;
+using Vladify.DataAccess.Dtos;
 using Vladify.DataAccess.Entities;
 using Vladify.DataAccess.Interfaces;
 using Vladify.IntegrationTests;
@@ -20,7 +20,7 @@ public class SongServiceTest
     private readonly IFixture _fixture;
     private readonly Mock<ISongRepository> _songRepositoryMock;
     private readonly Mock<IMapper> _mapperMock;
-    private readonly Mock<IPublishEndpoint> _publishEndpointMock;
+    private readonly Mock<IModerationIntegrationClient> _moderationClient;
     private readonly SongService _songService;
 
     public SongServiceTest()
@@ -29,7 +29,7 @@ public class SongServiceTest
 
         _songRepositoryMock = _fixture.Freeze<Mock<ISongRepository>>();
         _mapperMock = _fixture.Freeze<Mock<IMapper>>();
-        _publishEndpointMock = _fixture.Freeze<Mock<IPublishEndpoint>>();
+        _moderationClient = _fixture.Freeze<Mock<IModerationIntegrationClient>>();
 
         _songService = _fixture.Create<SongService>();
     }
@@ -39,6 +39,7 @@ public class SongServiceTest
     {
         var request = _fixture.Create<SongAddDto>();
         var songEntity = _fixture.Create<Song>();
+        var taskDto = _fixture.Create<ModerationTaskDto>();
         var expectedModel = _fixture.Create<SongModel>();
         var message = _fixture.Create<SongCreatedMessage>();
 
@@ -46,7 +47,7 @@ public class SongServiceTest
         _songRepositoryMock.Setup(m => m.AddWithoutSaveChanges(songEntity))
             .Returns(songEntity);
         _mapperMock.Setup(m => m.Map<SongModel>(songEntity)).Returns(expectedModel);
-        _mapperMock.Setup(m => m.Map<SongCreatedMessage>(expectedModel)).Returns(message);
+        _moderationClient.Setup(m => m.CreateTaskAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(taskDto);
 
         var result = await _songService.AddSongAsync(request, CancellationToken.None);
 
@@ -55,7 +56,7 @@ public class SongServiceTest
         Assert.Equal(request.Author, result.Author);
 
         _songRepositoryMock.Verify(m => m.AddWithoutSaveChanges(songEntity), Times.Once);
-        _publishEndpointMock.Verify(m => m.Publish(message, It.IsAny<CancellationToken>()), Times.Once);
+        _moderationClient.Verify(m => m.CreateTaskAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
         _songRepositoryMock.Verify(m => m.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
