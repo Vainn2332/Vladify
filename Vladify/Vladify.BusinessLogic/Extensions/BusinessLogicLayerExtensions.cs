@@ -24,7 +24,8 @@ public static class BusinessLogicLayerExtensions
             .AddServices()
             .AddValidators()
             .AddRabbitMQ()
-            .AddMapping();
+            .AddMapping()
+            .AddGrpcClients(configuration);
     }
 
     private static IServiceCollection AddSqlServerDb(this IServiceCollection services, IConfiguration configuration)
