@@ -1,8 +1,6 @@
 ﻿using AutoMapper;
-using MassTransit;
 using Vladify.BusinessLogic.Constants;
 using Vladify.BusinessLogic.Exceptions;
-using Vladify.BusinessLogic.Messages;
 using Vladify.BusinessLogic.Models;
 using Vladify.BusinessLogic.Models.SongModels;
 using Vladify.BusinessLogic.ServiceInterfaces;
@@ -12,7 +10,7 @@ using Vladify.DataAccess.Interfaces;
 
 namespace Vladify.BusinessLogic.Services;
 
-public class SongService(ISongRepository _songRepository, IMapper _mapper, IPublishEndpoint _publishEndpoint) : ISongService
+public class SongService(ISongRepository _songRepository, IMapper _mapper, IModerationIntegrationClient moderationClient) : ISongService
 {
     public async Task<SongModel> AddSongAsync(SongAddDto songAddDto, CancellationToken cancellationToken)
     {
@@ -24,8 +22,7 @@ public class SongService(ISongRepository _songRepository, IMapper _mapper, IPubl
         var songModel = _mapper.Map<SongModel>(newSong);
         songModel.Author = songAddDto.Author;
 
-        var message = _mapper.Map<SongCreatedMessage>(songModel);
-        await _publishEndpoint.Publish(message, cancellationToken);
+        await moderationClient.CreateTaskAsync(songModel.Id.ToString(), cancellationToken);
 
         await _songRepository.SaveChangesAsync(cancellationToken);
 
