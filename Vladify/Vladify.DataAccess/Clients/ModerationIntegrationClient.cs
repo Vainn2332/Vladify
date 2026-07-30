@@ -14,7 +14,7 @@ public class ModerationIntegrationClient(ModerationGrpc.ModerationGrpcClient cli
         };
 
         var response = await client.CreateTaskAsync(request, cancellationToken: cancellationToken);
-        if (Guid.TryParse(response.TaskId, out var id))
+        if (!Guid.TryParse(response.TaskId, out var id))
         {
             throw new ArgumentException("Invalid Id!");
         }
