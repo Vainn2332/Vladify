@@ -19,6 +19,7 @@ public static class ApiExtensions
             .AddJwtBasedAuthentication(configuration)
             .AddAuthorization()
             .AddHttpClient()
+            .AddCors(configuration)
             .ConfigureOptions(configuration)
             .AddBusinessLogicLayer(configuration);
 
@@ -139,6 +140,24 @@ public static class ApiExtensions
             .BindConfiguration(RabbitMqOptions.SectionName)
             .ValidateDataAnnotations()
             .ValidateOnStart();
+
+        return services;
+    }
+
+    public static IServiceCollection AddCors(this IServiceCollection services, IConfiguration configuration)
+    {
+        var allowedOrigins = configuration.GetSection(CorsOptions.SectionName).Get<CorsOptions>()?.AllowedOrigins
+            ?? throw new NotFoundException($"Configuration section {CorsOptions.SectionName} not found!");
+
+        services.AddCors(options =>
+        {
+            options.AddPolicy("FrontendPolicy", policy =>
+            {
+                policy.WithOrigins(allowedOrigins)
+                       .AllowAnyMethod()
+                       .AllowAnyHeader();
+            });
+        });
 
         return services;
     }
