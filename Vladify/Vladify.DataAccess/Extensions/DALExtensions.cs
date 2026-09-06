@@ -45,4 +45,11 @@ public static class DalExtensions
 
         return services;
     }
+
+    public static async Task MigrateDatabaseAsync(this IServiceProvider services)
+    {
+        using var scope = services.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        await context.Database.MigrateAsync();
+    }
 }
