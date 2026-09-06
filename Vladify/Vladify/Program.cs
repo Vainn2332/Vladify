@@ -20,6 +20,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseGlobalExceptionHandler();
 
+app.UseCors("FrontendPolicy");
+
 app.UseAuthentication();
 
 app.UseAuthorization();
