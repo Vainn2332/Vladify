@@ -22,6 +22,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vladify.UnitTests", "Vladif
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vladify.IntegrationTests", "Vladify.IntegrationTests\Vladify.IntegrationTests.csproj", "{9BD713D2-6CBE-4BCD-9015-DF0EE839E5BF}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Элементы решения", "Элементы решения", "{635C9770-EC71-456C-BA4E-B119302FBF0F}"
+	ProjectSection(SolutionItems) = preProject
+		.env.example = .env.example
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
