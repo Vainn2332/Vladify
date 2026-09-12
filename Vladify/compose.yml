@@ -40,6 +40,7 @@ services:
     env_file:
       - .env
     environment:
+      - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__ApplicationDbContext=Server=sqlserver,1433;Database=${DbName};User Id=sa;Password=${DbPassword};TrustServerCertificate=True
       - RabbitMqOptions__ServerHost=rabbitmq
     ports:
