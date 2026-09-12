@@ -39,7 +39,7 @@ services:
     env_file:
       - .env
     environment:
-      - ConnectionStrings__ApplicationDbContext=Server=sqlserver,1433;Database=${DbName};User Id=${DbUser};Password=${DbPassword};TrustServerCertificate=True
+      - ConnectionStrings__ApplicationDbContext=Server=sqlserver,1433;Database=${DbName};User Id=sa;Password=${DbPassword};TrustServerCertificate=True
       - RabbitMqOptions__ServerHost=rabbitmq
     ports:
       - "8080:8080"
