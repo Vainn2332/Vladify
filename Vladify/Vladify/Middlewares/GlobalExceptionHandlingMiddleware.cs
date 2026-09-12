@@ -42,7 +42,11 @@ public class GlobalExceptionHandlingMiddleware(RequestDelegate _next, ILogger<Gl
             ErrorMessage = exception.Message,
             StatusCode = (int)statusCode
         };
+        if (statusCode == HttpStatusCode.InternalServerError)
+        {
+            errorDetails.ErrorMessage = "An unexpected error occurred. Please try again later";
+        }
 
-        await context.Response.WriteAsJsonAsync(errorDetails);
+        await context.Response.WriteAsJsonAsync(errorDetails, context.RequestAborted);
     }
 }
