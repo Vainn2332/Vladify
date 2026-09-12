@@ -13,7 +13,7 @@ This README explains how to run the API locally for development.
 | Tool | Version | Notes |
 |------|---------|-------|
 | [.NET SDK](https://dotnet.microsoft.com/download) | 9.0 | Build and run the API. |
-| [Docker](https://www.docker.com/) + Docker Compose | latest | Runs RabbitMQ (and, optionally, SQL Server). |
+| [Docker](https://www.docker.com/) + Docker Compose | latest | Runs SQL Server, RabbitMQ, and the API. |
 | SQL Server | 2019+ / LocalDB | Any reachable instance (LocalDB, container, or remote). |
 | [Auth0](https://auth0.com/) tenant | — | Provides authentication and the API / M2M clients. |
 
@@ -34,7 +34,9 @@ cp .env.example .env
 ```
 
 Edit `.env` and set the database connection string, Auth0 credentials, API keys,
-RabbitMQ credentials, and the gRPC URL. Each variable is documented in
+RabbitMQ credentials, and the gRPC URL. For Docker Compose also set `DbPassword`
+and `DbName`, which provision the SQL Server container and build the API's
+in-container connection string. Each variable is documented in
 [`Vladify/.env.example`](Vladify/.env.example). `.env` is git-ignored, so your
 secrets are never committed.
 
@@ -42,7 +44,8 @@ secrets are never committed.
 then overrides it from environment variables, where `__` (double underscore)
 maps to nested sections (e.g. `Auth0__Domain` → `Auth0:Domain`).
 
-- `.env` is read **automatically by Docker Compose** for the RabbitMQ service.
+- `.env` is read **automatically by Docker Compose** for its services (including
+  the `api` container via `env_file`).
 - For the **API** choose one of: export the `.env` values as environment
   variables before `dotnet run`, use `dotnet user-secrets` (the project has a
   `UserSecretsId`), or fill `appsettings.Development.json`.
@@ -51,56 +54,54 @@ maps to nested sections (e.g. `Auth0__Domain` → `Auth0:Domain`).
 
 ## 2. Start the infrastructure
 
-From the `Vladify` folder (where `compose.yml` lives):
+`compose.yml` defines three services — **SQL Server** (port `1433`), **RabbitMQ**
+(AMQP `5672`, management UI <http://localhost:15672>), and the **API** itself
+(built from its Dockerfile, exposed on port `8080`). Run all commands from the
+`Vladify` folder (where `compose.yml` lives).
+
+**Run the full stack** (DB + broker + API):
 
 ```bash
 docker compose up -d
 ```
 
-### SQL Server (required)
+The API waits for SQL Server and RabbitMQ to become healthy, applies EF Core
+migrations on startup (no manual migration step), and listens on
+<http://localhost:8080>.
 
-Migrations are applied **automatically on startup**, so you only need a reachable
-instance and a valid `ConnectionStrings__ApplicationDbContext`. Use LocalDB
-(Windows) or a container:
-
-```bash
-docker run -e "ACCEPT_EULA=Y" -e "MSSQL_SA_PASSWORD=Your_password123" \
-  -p 1433:1433 -d mcr.microsoft.com/mssql/server:2022-latest
-```
-
----
-
-## 3. Run the API
+**Or start only the infrastructure** — when you want to run/debug the API from
+your IDE (see step 3):
 
 ```bash
-dotnet run --project Vladify/Vladify.csproj
+docker compose up -d sqlserver rabbitmq
 ```
 
-Default local URLs (from `launchSettings.json`):
-
-- HTTP:  <http://localhost:5296>
-- HTTPS: <https://localhost:7161>
-
-In the `Development` environment, interactive API docs (Scalar / OpenAPI) are at:
-
-- Scalar UI: <https://localhost:7161/scalar/v1> (pre-wired for the Auth0 login flow)
-- OpenAPI document: <https://localhost:7161/openapi/v1.json>
-
----
+> The compose SQL Server is provisioned with `DbPassword`, and the `api` service
+> builds its in-container connection string from `DbName` + `DbPassword` (as
+> `sa`). Keep them in sync with the `Password=` / `Database=` values inside the
+> `localhost` `ConnectionStrings__ApplicationDbContext` used when you run the API
+> outside compose.
+>
+> Prefer your own SQL Server (LocalDB, remote, …)? Start only `rabbitmq` and
+> point `ConnectionStrings__ApplicationDbContext` at your instance instead.
 
 ## Run with Docker (API container)
 
-The API has a `Dockerfile` (`Vladify/Vladify/Dockerfile`) exposing port `8080`.
-From the `Vladify` folder:
+The `api` service in `compose.yml` builds the image from
+`Vladify/Vladify/Dockerfile` (context: the `Vladify` folder) and exposes port
+`8080`. `docker compose up -d --build` (see step 2) builds and runs it together
+with SQL Server and RabbitMQ.
 
-```bash
-docker build -t vladify-api -f Vladify/Dockerfile .
-docker run --rm -p 8080:8080 --env-file .env vladify-api
-```
+Inside the compose network the API reaches the other services by name, so the
+`api` service overrides the `localhost`-based `.env` values: the DB host becomes
+`sqlserver` and `RabbitMqOptions__ServerHost` becomes `rabbitmq`. The in-container
+connection string connects as `sa`, with the database name and password taken
+from `DbName` / `DbPassword`.
 
-`compose.yml` defines only RabbitMQ, so the container must reach SQL Server and
-RabbitMQ over the network — use host-reachable addresses, not `localhost`, from
-inside the container.
+> The moderation gRPC service is not part of `compose.yml`. If you containerize
+> the API, `GrpcClients__ModerationServiceUrl=https://localhost:7000` will not
+> reach a service on your host — point it at a reachable address instead.
+
 
 ---
 
