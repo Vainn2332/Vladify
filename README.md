@@ -1,5 +1,9 @@
 # Vladify
 
+[![Quality gate status](https://sonarcloud.io/api/project_badges/measure?project=Vainn2332_Vladify&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=Vainn2332_Vladify)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=Vainn2332_Vladify&metric=coverage)](https://sonarcloud.io/summary/new_code?id=Vainn2332_Vladify)
+[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=Vainn2332_Vladify&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=Vainn2332_Vladify)
+
 Backend API for the **Vladify** online music platform — an ASP.NET Core
 (.NET 9) Web API backed by SQL Server, RabbitMQ (via MassTransit), Auth0 for
 authentication, and a gRPC moderation service.
