@@ -4,6 +4,6 @@ public static class EnvLoader
 {
     public static void LoadEnvVariables()
     {
-        DotNetEnv.Env.Load();
+        DotNetEnv.Env.TraversePath().Load();
     }
 }
