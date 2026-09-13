@@ -9,6 +9,8 @@ services:
       - "14330:1433"
     volumes:
       - mssql-data:/var/opt/mssql
+    networks:
+      - vladify-network
     healthcheck:
       test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -C -Q \"SELECT 1\" || exit 1"]
       interval: 10s
@@ -25,6 +27,8 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
+    networks:
+      - vladify-network
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
       interval: 10s
@@ -45,6 +49,8 @@ services:
       - RabbitMqOptions__ServerHost=rabbitmq
     ports:
       - "8080:8080"
+    networks:
+      - vladify-network
     depends_on:
       sqlserver:
         condition: service_healthy
@@ -54,3 +60,7 @@ services:
 volumes:
   mssql-data:
   
+networks:
+  vladify-network:
+    driver: bridge
+    name: vladify-network
