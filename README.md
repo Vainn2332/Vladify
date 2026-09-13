@@ -11,14 +11,14 @@ Backend API for the **Vladify** online music platform — an ASP.NET Core
 (.NET 9) Web API backed by SQL Server, RabbitMQ (via MassTransit), Auth0 for
 authentication, and a gRPC moderation service.
 
-> ### ⚠️ This is the platform's main service — start it first
->
-> This service's `compose.yml` **creates the shared Docker network
-> `vladify-network`**. The other components (`vladify.frontend`,
-> `vladify.notification`, `vladify.admin`, moderation) join that same network as
-> an **external** network, so they can only start once it exists. **Always bring
-> this service up first**, otherwise the others fail with
-> `network vladify-network not found`. See [Shared Docker network](#shared-docker-network).
+### !!! This is the platform's main service — start it first
+
+This service's `compose.yml` **creates the shared Docker network
+`vladify-network`**. The other components (`vladify.frontend`,
+`vladify.notification`, `vladify.admin`, moderation) join that same network as
+an **external** network, so they can only start once it exists. **Always bring
+this service up first**, otherwise the others fail with
+`network vladify-network not found`. See [Shared Docker network](#shared-docker-network).
 
 ---
 
