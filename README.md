@@ -1,5 +1,6 @@
-# Vladify
+﻿# Vladify
 
+![CI](https://github.com/Vainn2332/Vladify/actions/workflows/ci.yml/badge.svg)
 [![Quality gate status](https://sonarcloud.io/api/project_badges/measure?project=Vainn2332_Vladify&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=Vainn2332_Vladify)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=Vainn2332_Vladify&metric=coverage)](https://sonarcloud.io/summary/new_code?id=Vainn2332_Vladify)
 [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=Vainn2332_Vladify&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=Vainn2332_Vladify)
