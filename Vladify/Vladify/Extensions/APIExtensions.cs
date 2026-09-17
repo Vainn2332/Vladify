@@ -141,6 +141,12 @@ public static class ApiExtensions
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
+        services
+           .AddOptions<S3Options>()
+           .BindConfiguration(S3Options.SectionName)
+           .ValidateDataAnnotations()
+           .ValidateOnStart();
+
         return services;
     }
 
