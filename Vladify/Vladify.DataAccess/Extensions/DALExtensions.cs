@@ -1,8 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Amazon.S3;
+using Amazon.S3.Util;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Vladify.DataAccess.Clients;
 using Vladify.DataAccess.Interfaces;
+using Vladify.DataAccess.Options;
 using Vladify.DataAccess.Repositories;
 using Vladify.GrpcContracts;
 
@@ -33,6 +37,25 @@ public static class DalExtensions
         return services;
     }
 
+    public static IServiceCollection AddS3Storage(this IServiceCollection services, IConfiguration configuration)
+    {
+        var s3Options = configuration.GetSection("S3Options").Get<S3Options>()
+            ?? throw new InvalidOperationException("S3Options section is not configured!");
+
+        services.AddSingleton(_ =>
+        {
+            var config = new AmazonS3Config
+            {
+                ServiceURL = s3Options.ServiceUrl,
+                ForcePathStyle = true
+            };
+
+            return new AmazonS3Client(s3Options.AccessKey, s3Options.SecretKey, config);
+        });
+
+        return services;
+    }
+
     public static IServiceCollection AddGrpcClients(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddGrpcClient<ModerationGrpc.ModerationGrpcClient>(options =>
@@ -52,4 +75,15 @@ public static class DalExtensions
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         await context.Database.MigrateAsync();
     }
+
+    public static async Task EnsureBucketExistenceAsync(this IServiceProvider services)
+    {
+        using var scope = services.CreateScope();
+        var s3 = scope.ServiceProvider.GetRequiredService<IAmazonS3>();
+        var opts = scope.ServiceProvider.GetRequiredService<IOptions<S3Options>>().Value;
+
+        if (!await AmazonS3Util.DoesS3BucketExistV2Async(s3, opts.BucketName))
+            await s3.PutBucketAsync(opts.BucketName);
+    }
+
 }

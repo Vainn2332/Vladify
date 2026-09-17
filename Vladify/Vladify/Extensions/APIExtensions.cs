@@ -6,6 +6,7 @@ using Vladify.BusinessLogic.Exceptions;
 using Vladify.BusinessLogic.Extensions;
 using Vladify.BusinessLogic.Options;
 using Vladify.Constants;
+using Vladify.DataAccess.Options;
 using Vladify.Middlewares;
 
 namespace Vladify.Extensions;
