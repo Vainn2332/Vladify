@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Vladify.BusinessLogic.Options;
+namespace Vladify.DataAccess.Options;
 
 public class S3Options
 {
