@@ -29,5 +29,11 @@ public sealed class SongFaker : Faker<Song>
         RuleFor(property => property.Duration, setter => TimeSpan.FromSeconds(setter.Random.Int(150, 210)));
 
         RuleFor(property => property.Status, setter => setter.PickRandom<ModerationStatus>());
+
+        RuleFor(property => property.AudioUrl, setter => setter.Internet.UrlWithPath()
+            .ClampLength(max: DataAccessLayerConstants.MaxStandartStringLength));
+
+        RuleFor(property => property.CoverUrl, setter => setter.Internet.UrlWithPath()
+            .ClampLength(max: DataAccessLayerConstants.MaxStandartStringLength));
     }
 }
