@@ -44,7 +44,7 @@ public static class DalExtensions
         var s3Options = configuration.GetSection("S3Options").Get<S3Options>()
             ?? throw new InvalidOperationException("S3Options section is not configured!");
 
-        services.AddSingleton(_ =>
+        services.AddSingleton<IAmazonS3>(_ =>
         {
             var config = new AmazonS3Config
             {
