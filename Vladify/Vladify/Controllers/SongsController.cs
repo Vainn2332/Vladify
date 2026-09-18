@@ -6,6 +6,7 @@ using Vladify.BusinessLogic.Extensions;
 using Vladify.BusinessLogic.Models;
 using Vladify.BusinessLogic.Models.SongModels;
 using Vladify.BusinessLogic.ServiceInterfaces;
+using Vladify.Dtos;
 using Vladify.Filters;
 namespace Vladify.Controllers;
 
@@ -16,14 +17,14 @@ public class SongsController(ISongService _songService, IUserService _userServic
 {
     [HttpPost, ValidationFilter]
     public async Task<SongModel> CreateSong(
-        SongRequestModel songRequestModel,
+       [FromForm] CreateSongRequest createSongRequest,
         CancellationToken cancellationToken = default)
     {
         var email = User.GetEmail();
         var user = await _userService.GetUserByEmailAsync(email, false, cancellationToken)
-            ?? throw new NotFoundException("User with suc id not found!");
+            ?? throw new NotFoundException("User with such id not found!");
 
-        var songAddDto = _mapper.Map<SongAddDto>(songRequestModel);
+        var songAddDto = createSongRequest.ToSongAddDto();
         songAddDto.AuthorId = user.Id;
         songAddDto.Author = user.Name;
 
