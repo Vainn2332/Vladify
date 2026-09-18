@@ -27,7 +27,7 @@ public class SongControllerTest
     {
         var testUser = await _infrastructure.SeedDataAsync(_fixture.Create<User>());
 
-        var request = _fixture.Create<SongRequestModel>();
+        var request = _fixture.Create<SongAddDto>();
 
         var token = IntegrationTestInfrastructure.GenerateTestJWT(testUser.EmailAddress);
         _infrastructure.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
