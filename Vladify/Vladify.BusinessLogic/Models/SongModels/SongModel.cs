@@ -10,6 +10,10 @@ public class SongModel
 
     public string Author { get; set; } = null!;
 
+    public required string AudioUrl { get; set; }
+
+    public required string CoverUrl { get; set; }
+
     public Guid AuthorId { get; set; }
 
     public TimeSpan Duration { get; set; } = TimeSpan.Zero;

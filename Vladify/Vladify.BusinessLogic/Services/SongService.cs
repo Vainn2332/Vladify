@@ -10,7 +10,7 @@ using Vladify.DataAccess.Interfaces;
 
 namespace Vladify.BusinessLogic.Services;
 
-public class SongService(ISongRepository _songRepository, IMapper _mapper, IModerationIntegrationClient moderationClient) : ISongService
+public class SongService(ISongRepository _songRepository, IMapper _mapper, IModerationIntegrationClient _moderationClient, IStorageService _storageService) : ISongService
 {
     public async Task<SongModel> AddSongAsync(SongAddDto songAddDto, CancellationToken cancellationToken)
     {
@@ -19,12 +19,31 @@ public class SongService(ISongRepository _songRepository, IMapper _mapper, IMode
 
         var newSong = _songRepository.AddWithoutSaveChanges(song);
 
+
+        var audioFileUrl = $"songs/{newSong.Id}{Path.GetExtension(songAddDto.Audio.FileName)}";
+        var coverFileUrl = $"covers/{newSong.Id}{Path.GetExtension(songAddDto.Cover.FileName)}";
+        try
+        {
+            await _storageService.UploadAsync(songAddDto.Audio.Content, audioFileUrl, songAddDto.Audio.ContentType, cancellationToken);
+            await _storageService.UploadAsync(songAddDto.Cover.Content, coverFileUrl, songAddDto.Cover.ContentType, cancellationToken);
+
+            newSong.AudioUrl = audioFileUrl;
+            newSong.CoverUrl = coverFileUrl;
+
+            await _songRepository.SaveChangesAsync(cancellationToken);
+        }
+        catch
+        {
+            await _storageService.DeleteAsync(audioFileUrl, cancellationToken);
+            await _storageService.DeleteAsync(coverFileUrl, cancellationToken);
+
+            throw;
+        }
+
+        await _moderationClient.CreateTaskAsync(newSong.Id.ToString(), cancellationToken);
+
         var songModel = _mapper.Map<SongModel>(newSong);
         songModel.Author = songAddDto.Author;
-
-        await moderationClient.CreateTaskAsync(songModel.Id.ToString(), cancellationToken);
-
-        await _songRepository.SaveChangesAsync(cancellationToken);
 
         return songModel;
     }
