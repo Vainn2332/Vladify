@@ -2,7 +2,7 @@
 
 public interface IStorageService
 {
-    public Task<string> UploadAsync(Stream file, string key, string contentType, CancellationToken cancellationToken);
+    public Task UploadAsync(Stream file, string key, string contentType, CancellationToken cancellationToken);
 
     public string GetPresignedUrl(string key, TimeSpan expiration);
 

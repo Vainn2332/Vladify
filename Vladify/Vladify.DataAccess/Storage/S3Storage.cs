@@ -10,7 +10,7 @@ public class S3Storage(IAmazonS3 _s3Client, IOptions<S3Options> _options) : ISto
 {
     private readonly string _bucket = _options.Value.BucketName;
 
-    public async Task<string> UploadAsync(Stream file, string key, string contentType, CancellationToken cancellationToken)
+    public async Task UploadAsync(Stream file, string key, string contentType, CancellationToken cancellationToken)
     {
 
         await _s3Client.PutObjectAsync(new PutObjectRequest
@@ -21,7 +21,6 @@ public class S3Storage(IAmazonS3 _s3Client, IOptions<S3Options> _options) : ISto
             ContentType = contentType,
         }, cancellationToken);
 
-        return key;
     }
 
     public string GetPresignedUrl(string key, TimeSpan expiration)
