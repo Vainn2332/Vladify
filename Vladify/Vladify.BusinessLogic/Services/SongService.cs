@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FluentValidation;
 using Vladify.BusinessLogic.Constants;
 using Vladify.BusinessLogic.Exceptions;
 using Vladify.BusinessLogic.Models;
@@ -10,10 +11,16 @@ using Vladify.DataAccess.Interfaces;
 
 namespace Vladify.BusinessLogic.Services;
 
-public class SongService(ISongRepository _songRepository, IMapper _mapper, IModerationIntegrationClient _moderationClient, IStorageService _storageService) : ISongService
+public class SongService(ISongRepository _songRepository, IMapper _mapper, IValidator<SongAddDto> _validator, IModerationIntegrationClient _moderationClient, IStorageService _storageService) : ISongService
 {
     public async Task<SongModel> AddSongAsync(SongAddDto songAddDto, CancellationToken cancellationToken)
     {
+        var validationResult = await _validator.ValidateAsync(songAddDto, cancellationToken);
+        if (!validationResult.IsValid)
+        {
+            throw new ValidationFailedException(validationResult.Errors[0].ErrorMessage);
+        }
+
         var song = _mapper.Map<Song>(songAddDto);
         song.Status = SongStatus.Pending;
 
