@@ -19,7 +19,7 @@ public class Song : IBaseEntity
 
     public required string CoverUrl { get; set; }
 
-    public ModerationStatus Status { get; set; } = ModerationStatus.Pending;
+    public SongStatus Status { get; set; } = SongStatus.Pending;
 
     public required User Owner { get; set; }
 
