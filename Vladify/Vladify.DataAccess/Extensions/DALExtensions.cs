@@ -8,6 +8,7 @@ using Vladify.DataAccess.Clients;
 using Vladify.DataAccess.Interfaces;
 using Vladify.DataAccess.Options;
 using Vladify.DataAccess.Repositories;
+using Vladify.DataAccess.Storage;
 using Vladify.GrpcContracts;
 
 namespace Vladify.DataAccess.Extensions;
@@ -32,7 +33,8 @@ public static class DalExtensions
             .AddScoped<IUserRepository, UserRepository>()
             .AddScoped<IPlaylistRepository, PlaylistRepository>()
             .AddScoped<ISongRepository, SongRepository>()
-            .AddScoped<IModerationIntegrationClient, ModerationIntegrationClient>();
+            .AddScoped<IModerationIntegrationClient, ModerationIntegrationClient>()
+            .AddScoped<IStorageService, S3Storage>();
 
         return services;
     }
