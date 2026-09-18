@@ -13,6 +13,8 @@ public class SongProfile : Profile
             .ForMember(dest => dest.Id, opt => opt.Ignore())
             .ForMember(dest => dest.Owner, opt => opt.Ignore())
             .ForMember(dest => dest.Status, opt => opt.Ignore())
+            .ForMember(dest => dest.AudioUrl, opt => opt.Ignore())
+            .ForMember(dest => dest.CoverUrl, opt => opt.Ignore())
             .ForMember(dest => dest.Playlists, opt => opt.Ignore());
 
         CreateMap<SongRequestModel, SongAddDto>()
@@ -31,7 +33,9 @@ public class SongProfile : Profile
             .ForMember(dest => dest.AuthorId, opt => opt.Ignore())
             .ForMember(dest => dest.Duration, opt => opt.Ignore())
             .ForMember(dest => dest.Owner, opt => opt.Ignore())
-            .ForMember(dest => dest.Playlists, opt => opt.Ignore());
+            .ForMember(dest => dest.Playlists, opt => opt.Ignore())
+            .ForMember(dest => dest.AudioUrl, opt => opt.Ignore())
+            .ForMember(dest => dest.CoverUrl, opt => opt.Ignore());
 
         CreateMap<SongModel, SongCreatedMessage>();
     }
