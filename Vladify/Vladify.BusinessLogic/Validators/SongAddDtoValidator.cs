@@ -41,12 +41,14 @@ public class SongAddDtoValidator : AbstractValidator<SongAddDto>
             .WithMessage(Constraints.FieldRequiredMessage);
         RuleFor(x => x.Audio.FileName)
             .Must(file => Constraints.AudioExtensions.Contains(Path.GetExtension(file).ToLowerInvariant()))
+            .When(x => x.Audio is not null)
             .WithMessage("Unsupported audio format");
 
         RuleFor(x => x.Cover).NotNull()
            .WithMessage(Constraints.FieldRequiredMessage);
         RuleFor(x => x.Cover.FileName)
            .Must(file => Constraints.CoverImageExtensions.Contains(Path.GetExtension(file).ToLowerInvariant()))
+           .When(x => x.Cover is not null)
            .WithMessage("Unsupported audio format");
     }
 }
