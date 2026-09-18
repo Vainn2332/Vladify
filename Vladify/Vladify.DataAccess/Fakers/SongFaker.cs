@@ -28,6 +28,6 @@ public sealed class SongFaker : Faker<Song>
 
         RuleFor(property => property.Duration, setter => TimeSpan.FromSeconds(setter.Random.Int(150, 210)));
 
-        RuleFor(property => property.Status, setter => setter.PickRandom<ModerationStatus>());
+        RuleFor(property => property.Status, setter => setter.PickRandom<SongStatus>());
     }
 }

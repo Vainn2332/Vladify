@@ -15,7 +15,7 @@ public class Song : IBaseEntity
 
     public TimeSpan Duration { get; set; } = TimeSpan.Zero;
 
-    public ModerationStatus Status { get; set; } = ModerationStatus.Pending;
+    public SongStatus Status { get; set; } = SongStatus.Pending;
 
     public required User Owner { get; set; }
 

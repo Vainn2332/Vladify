@@ -15,7 +15,7 @@ public static class AutoFixtureOptions
         .With(s => s.Title, () => string.Join("", fixture.CreateMany<char>(TestConstants.TestDataStringValuesLength)))
         .With(s => s.Album, () => string.Join("", fixture.CreateMany<char>(TestConstants.TestDataStringValuesLength)))
         .With(s => s.Duration, () => TimeSpan.FromMinutes(new Random().Next(TestConstants.TestDataTimeSpanValuesMinDurationInSeconds, TestConstants.TestDataTimeSpanValuesMaxDurationInMinutes)))
-        .With(s => s.Status, () => ModerationStatus.Approved)
+        .With(s => s.Status, () => SongStatus.Approved)
         .With(s => s.Owner, () => null!)
         .With(s => s.Playlists, () => null!)
         );

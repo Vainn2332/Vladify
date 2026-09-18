@@ -15,7 +15,7 @@ public class SongService(ISongRepository _songRepository, IMapper _mapper, IMode
     public async Task<SongModel> AddSongAsync(SongAddDto songAddDto, CancellationToken cancellationToken)
     {
         var song = _mapper.Map<Song>(songAddDto);
-        song.Status = ModerationStatus.Pending;
+        song.Status = SongStatus.Pending;
 
         var newSong = _songRepository.AddWithoutSaveChanges(song);
 
