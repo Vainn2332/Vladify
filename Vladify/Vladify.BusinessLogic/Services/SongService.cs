@@ -86,6 +86,9 @@ public class SongService(ISongRepository _songRepository, IMapper _mapper, IMode
             throw new ForbiddenException(ErrorMessageConstants.SongForbidden);
         }
 
+        await _storageService.DeleteAsync(song.AudioUrl, cancellationToken);
+        await _storageService.DeleteAsync(song.CoverUrl, cancellationToken);
+
         await _songRepository.DeleteAsync(song, cancellationToken);
     }
 }
