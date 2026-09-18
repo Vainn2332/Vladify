@@ -18,7 +18,7 @@ public class S3Storage(IAmazonS3 _s3Client, IOptions<S3Options> _options) : ISto
             BucketName = _bucket,
             Key = key,
             InputStream = file,
-            ContentType = contentType
+            ContentType = contentType,
         }, cancellationToken);
 
         return key;
@@ -34,12 +34,12 @@ public class S3Storage(IAmazonS3 _s3Client, IOptions<S3Options> _options) : ISto
         });
     }
 
-    public Task DeleteAsync(string url, CancellationToken cancellationToken)
+    public Task DeleteAsync(string key, CancellationToken cancellationToken)
     {
         return _s3Client.DeleteObjectAsync(new DeleteObjectRequest
         {
             BucketName = _bucket,
-            Key = url
+            Key = key
         }, cancellationToken);
     }
 }
