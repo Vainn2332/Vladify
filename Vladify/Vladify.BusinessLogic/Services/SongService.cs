@@ -11,7 +11,12 @@ using Vladify.DataAccess.Interfaces;
 
 namespace Vladify.BusinessLogic.Services;
 
-public class SongService(ISongRepository _songRepository, IMapper _mapper, IValidator<SongAddDto> _validator, IModerationIntegrationClient _moderationClient, IStorageService _storageService) : ISongService
+public class SongService(
+    ISongRepository _songRepository,
+    IMapper _mapper,
+    IValidator<SongAddDto> _validator,
+    IModerationIntegrationClient _moderationClient,
+    IStorageService _storageService) : ISongService
 {
     public async Task<SongModel> AddSongAsync(SongAddDto songAddDto, CancellationToken cancellationToken)
     {
