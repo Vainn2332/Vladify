@@ -41,11 +41,10 @@ public static class DalExtensions
 
     public static IServiceCollection AddS3Storage(this IServiceCollection services, IConfiguration configuration)
     {
-        var s3Options = configuration.GetSection("S3Options").Get<S3Options>()
-            ?? throw new InvalidOperationException("S3Options section is not configured!");
-
-        services.AddSingleton<IAmazonS3>(_ =>
+        services.AddSingleton<IAmazonS3>(serviceProvider =>
         {
+            var s3Options = serviceProvider.GetRequiredService<IOptions<S3Options>>().Value;
+
             var config = new AmazonS3Config
             {
                 ServiceURL = s3Options.ServiceUrl,
