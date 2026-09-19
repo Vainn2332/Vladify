@@ -32,11 +32,12 @@ this service up first**, otherwise the others fail with
 | Authentication | Auth0 — JWT Bearer, OAuth2 Authorization Code + PKCE |
 | Database | SQL Server 2022 |
 | ORM / migrations | Entity Framework Core 9 (SQL Server provider), auto-migrated on startup |
+| Object storage | MinIO (S3-compatible), AWS SDK for .NET (`AWSSDK.S3`) |
 | Messaging | RabbitMQ via MassTransit 8 (with EF Core transactional outbox) |
 | Inter-service calls | gRPC (`Grpc.Net.Client` / `ClientFactory`, Protobuf) — moderation service |
 | Mapping / validation | AutoMapper, FluentValidation |
-| Utilities | BCrypt.Net (hashing), Bogus (data seeding) |
-| Testing | xUnit, Moq, AutoFixture, FluentAssertions, coverlet; integration via `WebApplicationFactory`, Testcontainers (MSSQL), Respawn |
+| Utilities | Bogus (data seeding) |
+| Testing | xUnit, Moq, AutoFixture, FluentAssertions, coverlet; integration via `WebApplicationFactory`, Testcontainers (SQL Server + MinIO), Respawn |
 | Containerization | Docker, Docker Compose |
 | CI / quality | GitHub Actions, SonarCloud |
 
