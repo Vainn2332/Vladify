@@ -48,7 +48,7 @@ public class SongControllerTest
         cover.Headers.ContentType = new MediaTypeHeaderValue("image/jpeg");
         request.Add(cover, "Cover", "cover.jpg");
 
-        using var response = await _infrastructure.Client.PostAsJsonAsync(TestConstants.SongsApiRoute, request);
+        using var response = await _infrastructure.Client.PostAsync(TestConstants.SongsApiRoute, request);
         var result = await response.Content.ReadFromJsonAsync<SongModel>();
 
         using var scope = _infrastructure.Factory.Services.CreateScope();

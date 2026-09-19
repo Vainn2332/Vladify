@@ -1,5 +1,4 @@
 ﻿using Amazon.S3;
-using Amazon.S3.Util;
 using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -27,8 +26,15 @@ namespace Vladify.IntegrationTests;
 
 public class IntegrationTestInfrastructure : IAsyncLifetime
 {
-    private readonly MsSqlContainer _testDbContainer = new MsSqlBuilder().Build();
-    private readonly MinioContainer _minioContainer = new MinioBuilder().Build();
+    private readonly MsSqlContainer _testDbContainer = new MsSqlBuilder()
+        .WithName("sqlContainer")
+        .Build();
+    private readonly MinioContainer _minioContainer = new MinioBuilder()
+        .WithImage(BootstrapConstants.MinioImageContainerVersion)
+        .WithName("minioContainer")
+        .WithUsername(BootstrapConstants.MinioUser)
+        .WithPassword(BootstrapConstants.MinioPassword)
+        .Build();
     private Respawner _respawner = null!;
     private DbConnection _connection = null!;
 
@@ -39,6 +45,10 @@ public class IntegrationTestInfrastructure : IAsyncLifetime
     public async Task InitializeAsync()
     {
         await Task.WhenAll(_testDbContainer.StartAsync(), _minioContainer.StartAsync());
+
+        var minioUrl = _minioContainer.GetConnectionString();
+        if (!minioUrl.StartsWith("http")) minioUrl = "http://" + minioUrl;
+
         Factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
         {
             builder.ConfigureAppConfiguration((context, configBuilder) =>
@@ -57,10 +67,10 @@ public class IntegrationTestInfrastructure : IAsyncLifetime
                     ["Auth0:PublicClient:Audience"] = "test",
                     ["Auth0:Domain"] = "test",
                     ["Auth0:TokenUrl"] = "test",
-                    ["S3Options__ServiceUrl"] = _minioContainer.GetConnectionString(),
-                    ["S3Options__AccessKey"] = BootstrapConstants.MinioUser,
-                    ["S3Options__SecretKey"] = BootstrapConstants.MinioPassword,
-                    ["S3Options__BucketName"] = BootstrapConstants.TestBucket
+                    ["S3Options:ServiceUrl"] = minioUrl,
+                    ["S3Options:AccessKey"] = BootstrapConstants.MinioUser,
+                    ["S3Options:SecretKey"] = BootstrapConstants.MinioPassword,
+                    ["S3Options:BucketName"] = BootstrapConstants.TestBucket
                 });
             });
 
@@ -84,12 +94,6 @@ public class IntegrationTestInfrastructure : IAsyncLifetime
 
         Client = Factory.CreateClient();
 
-        using var scope = Factory.Services.CreateScope();
-        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        await dbContext.Database.MigrateAsync();
-
-        await EnsureBucketExistenceAsync();
-
         _connection = new SqlConnection(_testDbContainer.GetConnectionString());
         await _connection.OpenAsync();
         _respawner = await Respawner.CreateAsync(_connection, new RespawnerOptions
@@ -107,7 +111,7 @@ public class IntegrationTestInfrastructure : IAsyncLifetime
         using var scope = Factory.Services.CreateScope();
         var s3 = scope.ServiceProvider.GetRequiredService<IAmazonS3>();
         var list = await s3.ListObjectsV2Async(new() { BucketName = BootstrapConstants.TestBucket });
-        foreach (var obj in list.S3Objects)
+        foreach (var obj in list.S3Objects ?? [])
             await s3.DeleteObjectAsync(BootstrapConstants.TestBucket, obj.Key);
     }
 
@@ -133,7 +137,7 @@ public class IntegrationTestInfrastructure : IAsyncLifetime
 
     public async Task DisposeAsync()
     {
-        Client.Dispose();
+        Client?.Dispose();
         await Factory.DisposeAsync();
         await _testDbContainer.DisposeAsync();
         await _minioContainer.DisposeAsync();
@@ -179,19 +183,17 @@ public class IntegrationTestInfrastructure : IAsyncLifetime
             options.UseSqlServer(_testDbContainer.GetConnectionString()));
     }
 
-    private async Task EnsureBucketExistenceAsync()
-    {
-        using var scope = Factory.Services.CreateScope();
-        var s3 = scope.ServiceProvider.GetRequiredService<IAmazonS3>();
-
-        if (!await AmazonS3Util.DoesS3BucketExistV2Async(s3, BootstrapConstants.TestBucket))
-            await s3.PutBucketAsync(BootstrapConstants.TestBucket);
-    }
-
     public async Task<bool> CheckPresenceInBucket(IAmazonS3 s3, string url, CancellationToken cancellationToken)
     {
-        var data = await s3.GetObjectMetadataAsync(BootstrapConstants.TestBucket, url, cancellationToken);
+        try
+        {
+            var data = await s3.GetObjectMetadataAsync(BootstrapConstants.TestBucket, url, cancellationToken);
 
-        return data is not null;
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
     }
 }
