@@ -4,7 +4,6 @@ using AutoMapper;
 using Moq;
 using Vladify.BusinessLogic.Constants;
 using Vladify.BusinessLogic.Exceptions;
-using Vladify.BusinessLogic.Messages;
 using Vladify.BusinessLogic.Models;
 using Vladify.BusinessLogic.Models.SongModels;
 using Vladify.BusinessLogic.Services;
@@ -21,6 +20,7 @@ public class SongServiceTest
     private readonly Mock<ISongRepository> _songRepositoryMock;
     private readonly Mock<IMapper> _mapperMock;
     private readonly Mock<IModerationIntegrationClient> _moderationClient;
+    private readonly Mock<IStorageService> _storageServiceMock;
     private readonly SongService _songService;
 
     public SongServiceTest()
@@ -30,6 +30,7 @@ public class SongServiceTest
         _songRepositoryMock = _fixture.Freeze<Mock<ISongRepository>>();
         _mapperMock = _fixture.Freeze<Mock<IMapper>>();
         _moderationClient = _fixture.Freeze<Mock<IModerationIntegrationClient>>();
+        _storageServiceMock = _fixture.Freeze<Mock<IStorageService>>();
 
         _songService = _fixture.Create<SongService>();
     }
@@ -41,13 +42,14 @@ public class SongServiceTest
         var songEntity = _fixture.Create<Song>();
         var taskDto = _fixture.Create<ModerationTaskDto>();
         var expectedModel = _fixture.Create<SongModel>();
-        var message = _fixture.Create<SongCreatedMessage>();
 
         _mapperMock.Setup(m => m.Map<Song>(request)).Returns(songEntity);
         _songRepositoryMock.Setup(m => m.AddWithoutSaveChanges(songEntity))
             .Returns(songEntity);
         _mapperMock.Setup(m => m.Map<SongModel>(songEntity)).Returns(expectedModel);
         _moderationClient.Setup(m => m.CreateTaskAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(taskDto);
+        _storageServiceMock.Setup(m => m.UploadAsync(It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
 
         var result = await _songService.AddSongAsync(request, CancellationToken.None);
 
@@ -58,6 +60,36 @@ public class SongServiceTest
         _songRepositoryMock.Verify(m => m.AddWithoutSaveChanges(songEntity), Times.Once);
         _moderationClient.Verify(m => m.CreateTaskAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
         _songRepositoryMock.Verify(m => m.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+        _storageServiceMock.Verify(m => m.UploadAsync(It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Exactly(2));
+    }
+
+    [Fact]
+    public async Task AddSongAsync_Should_CleanupBlob_WhenFailedToUploadInTheMiddle()
+    {
+        var request = _fixture.Create<SongAddDto>();
+        var songEntity = _fixture.Create<Song>();
+        var taskDto = _fixture.Create<ModerationTaskDto>();
+        var expectedModel = _fixture.Create<SongModel>();
+
+        _mapperMock.Setup(m => m.Map<Song>(request)).Returns(songEntity);
+        _songRepositoryMock.Setup(m => m.AddWithoutSaveChanges(songEntity))
+            .Returns(songEntity);
+        _mapperMock.Setup(m => m.Map<SongModel>(songEntity)).Returns(expectedModel);
+        _moderationClient.Setup(m => m.CreateTaskAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(taskDto);
+        _storageServiceMock
+            .SetupSequence(m => m.UploadAsync(It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask)
+            .ThrowsAsync(new Exception("Upload failed"));
+
+        _storageServiceMock.Setup(m => m.DeleteAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        var ex = await Assert.ThrowsAsync<Exception>(
+            () => _songService.AddSongAsync(request, CancellationToken.None));
+
+        _moderationClient.Verify(m => m.CreateTaskAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+        _songRepositoryMock.Verify(m => m.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+        _storageServiceMock.Verify(m => m.DeleteAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Exactly(2));
     }
 
     [Fact]
@@ -198,6 +230,7 @@ public class SongServiceTest
 
         Assert.Equal("Song with such id not found!", exception.Message);
 
+        _storageServiceMock.Verify(m => m.DeleteAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
         _songRepositoryMock.Verify(m => m.GetByIdAsync(invalidSongId, It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Once);
         _songRepositoryMock.Verify(m => m.DeleteAsync(It.IsAny<Song>(), It.IsAny<CancellationToken>()), Times.Never);
     }
@@ -210,12 +243,14 @@ public class SongServiceTest
 
         _songRepositoryMock.Setup(m => m.GetByIdAsync(songEntity.Id, true, It.IsAny<CancellationToken>()))
             .ReturnsAsync(songEntity);
-
         _songRepositoryMock.Setup(m => m.DeleteAsync(songEntity, It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        _storageServiceMock.Setup(m => m.DeleteAsync(songEntity.AudioUrl, It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
         await _songService.DeleteSongAsync(songEntity.Id, requesterId, CancellationToken.None);
 
+        _storageServiceMock.Verify(m => m.DeleteAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Exactly(2));
         _songRepositoryMock.Verify(m => m.GetByIdAsync(songEntity.Id, true, It.IsAny<CancellationToken>()), Times.Once);
         _songRepositoryMock.Verify(m => m.DeleteAsync(songEntity, It.IsAny<CancellationToken>()), Times.Once);
     }
@@ -240,6 +275,7 @@ public class SongServiceTest
 
         Assert.Equal(ErrorMessageConstants.SongForbidden, exception.Message);
 
+        _storageServiceMock.Verify(m => m.DeleteAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
         _songRepositoryMock.Verify(m => m.GetByIdAsync(songId, true, It.IsAny<CancellationToken>()), Times.Once);
         _songRepositoryMock.Verify(m => m.DeleteAsync(It.IsAny<Song>(), It.IsAny<CancellationToken>()), Times.Never);
     }

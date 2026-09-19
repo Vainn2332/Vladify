@@ -1,9 +1,14 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Amazon.S3;
+using Amazon.S3.Util;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Vladify.DataAccess.Clients;
 using Vladify.DataAccess.Interfaces;
+using Vladify.DataAccess.Options;
 using Vladify.DataAccess.Repositories;
+using Vladify.DataAccess.Storage;
 using Vladify.GrpcContracts;
 
 namespace Vladify.DataAccess.Extensions;
@@ -28,7 +33,26 @@ public static class DalExtensions
             .AddScoped<IUserRepository, UserRepository>()
             .AddScoped<IPlaylistRepository, PlaylistRepository>()
             .AddScoped<ISongRepository, SongRepository>()
-            .AddScoped<IModerationIntegrationClient, ModerationIntegrationClient>();
+            .AddScoped<IModerationIntegrationClient, ModerationIntegrationClient>()
+            .AddScoped<IStorageService, S3Storage>();
+
+        return services;
+    }
+
+    public static IServiceCollection AddS3Storage(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddSingleton<IAmazonS3>(serviceProvider =>
+        {
+            var s3Options = serviceProvider.GetRequiredService<IOptions<S3Options>>().Value;
+
+            var config = new AmazonS3Config
+            {
+                ServiceURL = s3Options.ServiceUrl,
+                ForcePathStyle = true
+            };
+
+            return new AmazonS3Client(s3Options.AccessKey, s3Options.SecretKey, config);
+        });
 
         return services;
     }
@@ -52,4 +76,15 @@ public static class DalExtensions
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         await context.Database.MigrateAsync();
     }
+
+    public static async Task EnsureBucketExistenceAsync(this IServiceProvider services)
+    {
+        using var scope = services.CreateScope();
+        var s3 = scope.ServiceProvider.GetRequiredService<IAmazonS3>();
+        var opts = scope.ServiceProvider.GetRequiredService<IOptions<S3Options>>().Value;
+
+        if (!await AmazonS3Util.DoesS3BucketExistV2Async(s3, opts.BucketName))
+            await s3.PutBucketAsync(opts.BucketName);
+    }
+
 }

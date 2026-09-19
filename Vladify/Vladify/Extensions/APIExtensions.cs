@@ -6,6 +6,7 @@ using Vladify.BusinessLogic.Exceptions;
 using Vladify.BusinessLogic.Extensions;
 using Vladify.BusinessLogic.Options;
 using Vladify.Constants;
+using Vladify.DataAccess.Options;
 using Vladify.Middlewares;
 
 namespace Vladify.Extensions;
@@ -140,6 +141,12 @@ public static class ApiExtensions
             .BindConfiguration(RabbitMqOptions.SectionName)
             .ValidateDataAnnotations()
             .ValidateOnStart();
+
+        services
+           .AddOptions<S3Options>()
+           .BindConfiguration(S3Options.SectionName)
+           .ValidateDataAnnotations()
+           .ValidateOnStart();
 
         return services;
     }

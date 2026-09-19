@@ -13,6 +13,7 @@ builder.Services.AddAppServices(builder.Configuration);
 var app = builder.Build();
 
 await app.Services.MigrateDatabaseAsync();
+await app.Services.EnsureBucketExistenceAsync();
 
 if (app.Environment.IsDevelopment())
 {

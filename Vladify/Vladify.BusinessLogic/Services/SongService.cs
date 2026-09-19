@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FluentValidation;
 using Vladify.BusinessLogic.Constants;
 using Vladify.BusinessLogic.Exceptions;
 using Vladify.BusinessLogic.Models;
@@ -10,21 +11,51 @@ using Vladify.DataAccess.Interfaces;
 
 namespace Vladify.BusinessLogic.Services;
 
-public class SongService(ISongRepository _songRepository, IMapper _mapper, IModerationIntegrationClient moderationClient) : ISongService
+public class SongService(
+    ISongRepository _songRepository,
+    IMapper _mapper,
+    IValidator<SongAddDto> _validator,
+    IModerationIntegrationClient _moderationClient,
+    IStorageService _storageService) : ISongService
 {
     public async Task<SongModel> AddSongAsync(SongAddDto songAddDto, CancellationToken cancellationToken)
     {
+        var validationResult = await _validator.ValidateAsync(songAddDto, cancellationToken);
+        if (!validationResult.IsValid)
+        {
+            throw new ValidationFailedException(validationResult.Errors[0].ErrorMessage);
+        }
+
         var song = _mapper.Map<Song>(songAddDto);
-        song.Status = ModerationStatus.Pending;
+        song.Status = SongStatus.Pending;
 
         var newSong = _songRepository.AddWithoutSaveChanges(song);
 
+
+        var audioFileUrl = $"songs/{newSong.Id}{Path.GetExtension(songAddDto.Audio.FileName)}";
+        var coverFileUrl = $"covers/{newSong.Id}{Path.GetExtension(songAddDto.Cover.FileName)}";
+        try
+        {
+            await _storageService.UploadAsync(songAddDto.Audio.Content, audioFileUrl, songAddDto.Audio.ContentType, cancellationToken);
+            await _storageService.UploadAsync(songAddDto.Cover.Content, coverFileUrl, songAddDto.Cover.ContentType, cancellationToken);
+
+            newSong.AudioUrl = audioFileUrl;
+            newSong.CoverUrl = coverFileUrl;
+
+            await _songRepository.SaveChangesAsync(cancellationToken);
+        }
+        catch
+        {
+            await _storageService.DeleteAsync(audioFileUrl, cancellationToken);
+            await _storageService.DeleteAsync(coverFileUrl, cancellationToken);
+
+            throw;
+        }
+
+        await _moderationClient.CreateTaskAsync(newSong.Id.ToString(), cancellationToken);
+
         var songModel = _mapper.Map<SongModel>(newSong);
         songModel.Author = songAddDto.Author;
-
-        await moderationClient.CreateTaskAsync(songModel.Id.ToString(), cancellationToken);
-
-        await _songRepository.SaveChangesAsync(cancellationToken);
 
         return songModel;
     }
@@ -66,6 +97,9 @@ public class SongService(ISongRepository _songRepository, IMapper _mapper, IMode
         {
             throw new ForbiddenException(ErrorMessageConstants.SongForbidden);
         }
+
+        await _storageService.DeleteAsync(song.AudioUrl, cancellationToken);
+        await _storageService.DeleteAsync(song.CoverUrl, cancellationToken);
 
         await _songRepository.DeleteAsync(song, cancellationToken);
     }

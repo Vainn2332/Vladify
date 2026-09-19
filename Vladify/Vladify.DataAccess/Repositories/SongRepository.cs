@@ -28,7 +28,7 @@ public class SongRepository(ApplicationDbContext context) : Repository<Song>(con
 
         return query
             .Include(p => p.Owner)
-            .FirstOrDefaultAsync(u => u.Id == songId && u.Status == ModerationStatus.Approved, cancellationToken);
+            .FirstOrDefaultAsync(u => u.Id == songId && u.Status == SongStatus.Approved, cancellationToken);
     }
 
     public override Task<Song?> GetByIdAsync(Guid id, bool isTracking, CancellationToken cancellationToken)
@@ -48,7 +48,7 @@ public class SongRepository(ApplicationDbContext context) : Repository<Song>(con
     public override async Task<IEnumerable<Song>> GetAllAsync(int pageNumber, int pageSize, CancellationToken cancellationToken)
     {
         return await _context.Songs
-            .Where(s => s.Status == ModerationStatus.Approved)
+            .Where(s => s.Status == SongStatus.Approved)
             .Include(p => p.Owner)
             .OrderBy(p => p.Id)
             .Skip((pageNumber - 1) * pageSize)

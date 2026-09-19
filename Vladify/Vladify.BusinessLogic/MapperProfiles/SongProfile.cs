@@ -17,10 +17,6 @@ public class SongProfile : Profile
             .ForMember(dest => dest.CoverUrl, opt => opt.Ignore())
             .ForMember(dest => dest.Playlists, opt => opt.Ignore());
 
-        CreateMap<SongRequestModel, SongAddDto>()
-            .ForMember(dest => dest.Author, opt => opt.Ignore())
-            .ForMember(dest => dest.AuthorId, opt => opt.Ignore());
-
         CreateMap<Song, SongModel>()
             .ForMember(dest => dest.Author,
                 opt => opt.MapFrom(src => src.Owner.Name));

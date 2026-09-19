@@ -1,4 +1,5 @@
-﻿using AutoFixture;
+﻿using Amazon.S3;
+using AutoFixture;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -27,31 +28,52 @@ public class SongControllerTest
     {
         var testUser = await _infrastructure.SeedDataAsync(_fixture.Create<User>());
 
-        var request = _fixture.Create<SongRequestModel>();
+        var title = "Integration song";
+        var album = "Integration album";
 
         var token = IntegrationTestInfrastructure.GenerateTestJWT(testUser.EmailAddress);
         _infrastructure.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-        using var response = await _infrastructure.Client.PostAsJsonAsync(TestConstants.SongsApiRoute, request);
+        using var request = new MultipartFormDataContent()
+        {
+            { new StringContent(title),"Title"},
+            { new StringContent(album),"Album"},
+            { new StringContent("00:03:19"),"Duration"}
+        };
+        var audio = new ByteArrayContent(new byte[] { 1, 2, 3 });
+        audio.Headers.ContentType = new MediaTypeHeaderValue("audio/mpeg");
+        request.Add(audio, "Audio", "song.mp3");
+
+        var cover = new ByteArrayContent(new byte[] { 4, 5, 6 });
+        cover.Headers.ContentType = new MediaTypeHeaderValue("image/jpeg");
+        request.Add(cover, "Cover", "cover.jpg");
+
+        using var response = await _infrastructure.Client.PostAsync(TestConstants.SongsApiRoute, request);
         var result = await response.Content.ReadFromJsonAsync<SongModel>();
 
         using var scope = _infrastructure.Factory.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         var songInDb = await dbContext.Songs
-            .FirstOrDefaultAsync(s => s.Title == request.Title);
+            .FirstAsync(s => s.Title == title);
+
+        var s3 = scope.ServiceProvider.GetRequiredService<IAmazonS3>();
+        var isAudioPresentInS3 = await IntegrationTestInfrastructure.CheckPresenceInBucket(s3, songInDb.AudioUrl, CancellationToken.None);
+        var isCoverPresentInS3 = await IntegrationTestInfrastructure.CheckPresenceInBucket(s3, songInDb.CoverUrl, CancellationToken.None);
 
         await _infrastructure.ResetDataAsync();
 
         response.EnsureSuccessStatusCode();
         response.Should().NotBeNull();
 
-        result!.Album.Should().Be(request.Album);
+        result!.Title.Should().Be(title);
         result!.Id.Should().NotBeEmpty();
 
-        songInDb.Should().NotBeNull();
         songInDb!.Id.Should().NotBeEmpty();
-        songInDb.Title.Should().Be(request.Title);
+        songInDb.Title.Should().Be(title);
         songInDb.AuthorId.Should().Be(testUser.Id);
+
+        isAudioPresentInS3.Should().BeTrue();
+        isCoverPresentInS3.Should().BeTrue();
     }
 
     [Fact]
@@ -127,6 +149,8 @@ public class SongControllerTest
         user.OwnedSongs = new List<Song>() { song };
 
         var testUser = await _infrastructure.SeedDataAsync(user);
+        await _infrastructure.SeedDataInBlobAsync(song.AudioUrl, CancellationToken.None);
+        await _infrastructure.SeedDataInBlobAsync(song.CoverUrl, CancellationToken.None);
 
         var jwt = IntegrationTestInfrastructure.GenerateTestJWT(testUser.EmailAddress);
         _infrastructure.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
@@ -137,7 +161,14 @@ public class SongControllerTest
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         var oldSong = await context.Songs.FirstOrDefaultAsync(s => s.Id == song.Id);
 
+        var s3 = scope.ServiceProvider.GetRequiredService<IAmazonS3>();
+        var isAudioPresentInBuket = await IntegrationTestInfrastructure.CheckPresenceInBucket(s3, song.AudioUrl, CancellationToken.None);
+        var isCoverPresentInBucket = await IntegrationTestInfrastructure.CheckPresenceInBucket(s3, song.CoverUrl, CancellationToken.None);
+
         await _infrastructure.ResetDataAsync();
+
+        isAudioPresentInBuket.Should().BeFalse();
+        isCoverPresentInBucket.Should().BeFalse();
 
         response.EnsureSuccessStatusCode();
         oldSong.Should().BeNull();

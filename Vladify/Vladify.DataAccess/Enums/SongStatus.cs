@@ -1,6 +1,6 @@
 ﻿namespace Vladify.DataAccess.Enums;
 
-public enum ModerationStatus
+public enum SongStatus
 {
     Pending = 0,
     Approved = 1,
