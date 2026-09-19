@@ -107,7 +107,7 @@ public class SongAddDtoValidatorTest
         var result = _validator.TestValidate(model);
 
         result.ShouldHaveValidationErrorFor(p => p.Cover.FileName)
-            .WithErrorMessage("Unsupported audio format"); // см. заметку — в валидаторе тут баг в тексте
+            .WithErrorMessage("Unsupported audio format");
     }
 
     [Fact]

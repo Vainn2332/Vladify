@@ -149,6 +149,8 @@ public class SongControllerTest
         user.OwnedSongs = new List<Song>() { song };
 
         var testUser = await _infrastructure.SeedDataAsync(user);
+        await _infrastructure.SeedDataInBlobAsync(song.AudioUrl, CancellationToken.None);
+        await _infrastructure.SeedDataInBlobAsync(song.CoverUrl, CancellationToken.None);
 
         var jwt = IntegrationTestInfrastructure.GenerateTestJWT(testUser.EmailAddress);
         _infrastructure.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
@@ -159,7 +161,14 @@ public class SongControllerTest
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         var oldSong = await context.Songs.FirstOrDefaultAsync(s => s.Id == song.Id);
 
+        var s3 = scope.ServiceProvider.GetRequiredService<IAmazonS3>();
+        var isAudioPresentInBuket = await _infrastructure.CheckPresenceInBucket(s3, song.AudioUrl, CancellationToken.None);
+        var isCoverPresentInBucket = await _infrastructure.CheckPresenceInBucket(s3, song.CoverUrl, CancellationToken.None);
+
         await _infrastructure.ResetDataAsync();
+
+        isAudioPresentInBuket.Should().BeFalse();
+        isCoverPresentInBucket.Should().BeFalse();
 
         response.EnsureSuccessStatusCode();
         oldSong.Should().BeNull();

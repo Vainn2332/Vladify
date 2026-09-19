@@ -1,9 +1,6 @@
 ﻿using AutoFixture;
-using Microsoft.AspNetCore.Http;
-using System.Text;
 using Vladify.DataAccess.Entities;
 using Vladify.DataAccess.Enums;
-using Vladify.Dtos;
 
 namespace Vladify.IntegrationTests;
 
@@ -22,20 +19,6 @@ public static class AutoFixtureOptions
         .With(s => s.Playlists, () => null!)
         );
 
-        fixture.Customize<CreateSongRequest>(builder => builder
-         .With(s => s.Title, () => string.Join("", fixture.CreateMany<char>(TestConstants.TestDataStringValuesLength)))
-        .With(s => s.Album, () => string.Join("", fixture.CreateMany<char>(TestConstants.TestDataStringValuesLength)))
-        .With(s => s.Duration, () => TimeSpan.FromMinutes(new Random().Next(TestConstants.TestDataTimeSpanValuesMinDurationInSeconds, TestConstants.TestDataTimeSpanValuesMaxDurationInMinutes)))
-        .With(s => s.Audio, () =>
-        {
-            return CreateFileData();
-        })
-        .With(s => s.Cover, () =>
-        {
-            return CreateFileData();
-        })
-        );
-
         fixture.Customize<User>(builder => builder
        .With(s => s.EmailAddress, () => TestConstants.TestJwtEmailClaimValue)
        .With(s => s.OwnedSongs, () => null!)
@@ -48,13 +31,5 @@ public static class AutoFixtureOptions
         );
 
         return fixture;
-    }
-
-    private static FormFile CreateFileData()
-    {
-        var bytes = Encoding.UTF8.GetBytes("fake content");
-        var stream = new MemoryStream(bytes);
-
-        return new FormFile(stream, 0, 0, "testName", "testFileName");
     }
 }
