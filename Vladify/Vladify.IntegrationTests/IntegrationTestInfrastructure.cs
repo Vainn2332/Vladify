@@ -1,4 +1,5 @@
 ﻿using Amazon.S3;
+using Amazon.S3.Model;
 using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -152,6 +153,19 @@ public class IntegrationTestInfrastructure : IAsyncLifetime
         await dbContext.SaveChangesAsync();
 
         return entity;
+    }
+
+    public async Task SeedDataInBlobAsync(string key, CancellationToken cancellationToken)
+    {
+        using var scope = Factory.Services.CreateScope();
+        var s3 = scope.ServiceProvider.GetRequiredService<IAmazonS3>();
+
+        await s3.PutObjectAsync(new PutObjectRequest
+        {
+            BucketName = BootstrapConstants.TestBucket,
+            Key = key,
+            InputStream = new MemoryStream(new byte[] { 1, 2, 3 }),
+        }, cancellationToken);
     }
 
     public void ConfigureTestServices(IServiceCollection services)
