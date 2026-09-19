@@ -6,5 +6,5 @@ public interface IStorageService
 
     public string GetPresignedUrl(string key, TimeSpan expiration);
 
-    public Task DeleteAsync(string url, CancellationToken cancellationToken);
+    public Task DeleteAsync(string key, CancellationToken cancellationToken);
 }

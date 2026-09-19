@@ -57,8 +57,8 @@ public class SongControllerTest
             .FirstAsync(s => s.Title == title);
 
         var s3 = scope.ServiceProvider.GetRequiredService<IAmazonS3>();
-        var isAudioPresentInS3 = await _infrastructure.CheckPresenceInBucket(s3, songInDb.AudioUrl, CancellationToken.None);
-        var isCoverPresentInS3 = await _infrastructure.CheckPresenceInBucket(s3, songInDb.CoverUrl, CancellationToken.None);
+        var isAudioPresentInS3 = await IntegrationTestInfrastructure.CheckPresenceInBucket(s3, songInDb.AudioUrl, CancellationToken.None);
+        var isCoverPresentInS3 = await IntegrationTestInfrastructure.CheckPresenceInBucket(s3, songInDb.CoverUrl, CancellationToken.None);
 
         await _infrastructure.ResetDataAsync();
 
@@ -162,8 +162,8 @@ public class SongControllerTest
         var oldSong = await context.Songs.FirstOrDefaultAsync(s => s.Id == song.Id);
 
         var s3 = scope.ServiceProvider.GetRequiredService<IAmazonS3>();
-        var isAudioPresentInBuket = await _infrastructure.CheckPresenceInBucket(s3, song.AudioUrl, CancellationToken.None);
-        var isCoverPresentInBucket = await _infrastructure.CheckPresenceInBucket(s3, song.CoverUrl, CancellationToken.None);
+        var isAudioPresentInBuket = await IntegrationTestInfrastructure.CheckPresenceInBucket(s3, song.AudioUrl, CancellationToken.None);
+        var isCoverPresentInBucket = await IntegrationTestInfrastructure.CheckPresenceInBucket(s3, song.CoverUrl, CancellationToken.None);
 
         await _infrastructure.ResetDataAsync();
 

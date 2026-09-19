@@ -197,7 +197,7 @@ public class IntegrationTestInfrastructure : IAsyncLifetime
             options.UseSqlServer(_testDbContainer.GetConnectionString()));
     }
 
-    public async Task<bool> CheckPresenceInBucket(IAmazonS3 s3, string url, CancellationToken cancellationToken)
+    public static async Task<bool> CheckPresenceInBucket(IAmazonS3 s3, string url, CancellationToken cancellationToken)
     {
         try
         {
