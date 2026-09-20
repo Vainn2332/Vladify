@@ -9,8 +9,10 @@ using Vladify.BusinessLogic.Models.UserModels;
 using Vladify.BusinessLogic.Options;
 using Vladify.DataAccess;
 using Vladify.DataAccess.Entities;
+using Vladify.IntegrationTests.Constants;
+using Vladify.IntegrationTests.Infrastructure;
 
-namespace Vladify.IntegrationTests;
+namespace Vladify.IntegrationTests.Tests;
 
 [Collection("FixtureCollection")]
 public class UserControllerTest
@@ -45,7 +47,7 @@ public class UserControllerTest
         user.Should().NotBeNull();
         user.ExternalId.Should().Be(requestBody.ExternalId);
 
-        await _infrastructure.ResetDataAsync();
+        await _infrastructure.DataResetter.ResetDataAsync();
     }
 
     [Fact]
@@ -67,16 +69,16 @@ public class UserControllerTest
         response.Should().NotBeNull();
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
 
-        await _infrastructure.ResetDataAsync();
+        await _infrastructure.DataResetter.ResetDataAsync();
     }
 
     [Fact]
     public async Task DeleteUser_Should_DeleteFromDb_When_ValidInput()
     {
         var existingUser = _fixture.Create<User>();
-        await _infrastructure.SeedDataAsync(existingUser);
+        await _infrastructure.DataSeeder.SeedDataAsync(existingUser);
         var request = new HttpRequestMessage(HttpMethod.Delete, $"{TestConstants.UsersApiRoute}/{existingUser.Id}");
-        var jwt = IntegrationTestInfrastructure.GenerateTestJWT();
+        var jwt = JwtBuilder.GenerateTestJWT();
         request.Headers.Add("Authorization", $"Bearer {jwt}");
 
         using var response = await _infrastructure.Client.SendAsync(request);
@@ -89,14 +91,14 @@ public class UserControllerTest
         user.Should().BeNull();
         response.Should().NotBeNull();
 
-        await _infrastructure.ResetDataAsync();
+        await _infrastructure.DataResetter.ResetDataAsync();
     }
 
     [Fact]
     public async Task DeleteUser_Should_ReturnUnauthorizedStatusCode_When_NotAuthorized()
     {
         var existingUser = _fixture.Create<User>();
-        await _infrastructure.SeedDataAsync(existingUser);
+        await _infrastructure.DataSeeder.SeedDataAsync(existingUser);
         var request = new HttpRequestMessage(HttpMethod.Delete, $"{TestConstants.UsersApiRoute}/{existingUser.Id}");
 
         var client = _infrastructure.Factory.CreateClient();
@@ -111,6 +113,6 @@ public class UserControllerTest
         response.Should().NotBeNull();
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
 
-        await _infrastructure.ResetDataAsync();
+        await _infrastructure.DataResetter.ResetDataAsync();
     }
 }

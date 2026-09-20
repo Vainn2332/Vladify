@@ -12,7 +12,7 @@ using Vladify.BusinessLogic.ServiceInterfaces;
 using Vladify.BusinessLogic.Services;
 using Vladify.DataAccess.Entities;
 using Vladify.DataAccess.Interfaces;
-using Vladify.IntegrationTests;
+using Vladify.IntegrationTests.Infrastructure;
 
 namespace Vladify.UnitTests;
 

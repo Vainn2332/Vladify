@@ -8,8 +8,10 @@ using System.Net.Http.Json;
 using Vladify.BusinessLogic.Models.PlaylistModels;
 using Vladify.DataAccess;
 using Vladify.DataAccess.Entities;
+using Vladify.IntegrationTests.Constants;
+using Vladify.IntegrationTests.Infrastructure;
 
-namespace Vladify.IntegrationTests;
+namespace Vladify.IntegrationTests.Tests;
 
 [Collection("FixtureCollection")]
 public class PlaylistsControllerTest
@@ -26,11 +28,11 @@ public class PlaylistsControllerTest
     [Fact]
     public async Task CreatePlaylist_ShouldSaveToDatabase_WhenValidInput()
     {
-        var testUser = await _infrastructure.SeedDataAsync(_fixture.Create<User>());
+        var testUser = await _infrastructure.DataSeeder.SeedDataAsync(_fixture.Create<User>());
 
         var dto = _fixture.Create<PlaylistAddDto>();
 
-        var token = IntegrationTestInfrastructure.GenerateTestJWT();
+        var token = JwtBuilder.GenerateTestJWT();
         _infrastructure.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
         using var response = await _infrastructure.Client.PostAsJsonAsync(TestConstants.PlaylistsApiRoute, dto);
@@ -41,7 +43,7 @@ public class PlaylistsControllerTest
         var playlistInDb = await dbContext.Playlists
             .FirstOrDefaultAsync(p => p.Name == dto.Name && p.AuthorId == testUser.Id);
 
-        await _infrastructure.ResetDataAsync();
+        await _infrastructure.DataResetter.ResetDataAsync();
 
         response.EnsureSuccessStatusCode();
         result.Should().NotBeNull();
@@ -65,9 +67,9 @@ public class PlaylistsControllerTest
         playlist.Songs = new List<Song>() { song };
         testUser.Playlists = new List<Playlist>() { playlist };
 
-        var existingUser = await _infrastructure.SeedDataAsync(testUser);
+        var existingUser = await _infrastructure.DataSeeder.SeedDataAsync(testUser);
 
-        var token = IntegrationTestInfrastructure.GenerateTestJWT();
+        var token = JwtBuilder.GenerateTestJWT();
         _infrastructure.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
         var url = $"{TestConstants.PlaylistsApiRoute}/{playlist.Id}/songs/{song.Id}";
@@ -80,7 +82,7 @@ public class PlaylistsControllerTest
             .Include(p => p.Songs)
             .FirstOrDefaultAsync(p => p.Id == playlist.Id);
 
-        await _infrastructure.ResetDataAsync();
+        await _infrastructure.DataResetter.ResetDataAsync();
 
         response.EnsureSuccessStatusCode();
         result.Should().NotBeNull();
@@ -96,15 +98,15 @@ public class PlaylistsControllerTest
         playlist.AuthorId = user.Id;
         user.Playlists = new List<Playlist>() { playlist };
 
-        var testUser = await _infrastructure.SeedDataAsync(user);
+        var testUser = await _infrastructure.DataSeeder.SeedDataAsync(user);
 
-        var token = IntegrationTestInfrastructure.GenerateTestJWT();
+        var token = JwtBuilder.GenerateTestJWT();
         _infrastructure.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
         using var response = await _infrastructure.Client.GetAsync($"{TestConstants.PlaylistsApiRoute}/{playlist.Id}");
         var result = await response.Content.ReadFromJsonAsync<PlaylistModel>();
 
-        await _infrastructure.ResetDataAsync();
+        await _infrastructure.DataResetter.ResetDataAsync();
 
         response.EnsureSuccessStatusCode();
         result.Should().NotBeNull();
@@ -116,12 +118,12 @@ public class PlaylistsControllerTest
     public async Task GetPlaylistById_Should_ReturnNotFound_When_NotExists()
     {
         var invalidId = Guid.NewGuid();
-        var token = IntegrationTestInfrastructure.GenerateTestJWT();
+        var token = JwtBuilder.GenerateTestJWT();
         _infrastructure.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
         using var response = await _infrastructure.Client.GetAsync($"{TestConstants.PlaylistsApiRoute}/{invalidId}");
 
-        await _infrastructure.ResetDataAsync();
+        await _infrastructure.DataResetter.ResetDataAsync();
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
@@ -136,15 +138,15 @@ public class PlaylistsControllerTest
         playlist2.AuthorId = user.Id;
         user.Playlists = new List<Playlist>() { playlist1, playlist2 };
 
-        var testUser = await _infrastructure.SeedDataAsync(user);
+        var testUser = await _infrastructure.DataSeeder.SeedDataAsync(user);
 
-        var token = IntegrationTestInfrastructure.GenerateTestJWT();
+        var token = JwtBuilder.GenerateTestJWT();
         _infrastructure.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
         using var response = await _infrastructure.Client.GetAsync($"{TestConstants.PlaylistsApiRoute}?PageNumber=1&PageSize=10");
         var result = await response.Content.ReadFromJsonAsync<IEnumerable<PlaylistModel>>();
 
-        await _infrastructure.ResetDataAsync();
+        await _infrastructure.DataResetter.ResetDataAsync();
 
         response.EnsureSuccessStatusCode();
         result.Should().NotBeNull();
@@ -154,14 +156,14 @@ public class PlaylistsControllerTest
     [Fact]
     public async Task UpdatePlaylist_Should_UpdateData_When_ValidInput()
     {
-        var testUser = await _infrastructure.SeedDataAsync(_fixture.Create<User>());
+        var testUser = await _infrastructure.DataSeeder.SeedDataAsync(_fixture.Create<User>());
         var playlist = _fixture.Create<Playlist>();
         playlist.AuthorId = testUser.Id;
-        var existingPlaylist = await _infrastructure.SeedDataAsync(playlist);
+        var existingPlaylist = await _infrastructure.DataSeeder.SeedDataAsync(playlist);
 
         var updateDto = _fixture.Create<PlaylistUpdateDto>();
 
-        var token = IntegrationTestInfrastructure.GenerateTestJWT();
+        var token = JwtBuilder.GenerateTestJWT();
         _infrastructure.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
         using var response = await _infrastructure.Client.PutAsJsonAsync($"{TestConstants.PlaylistsApiRoute}/{existingPlaylist.Id}", updateDto);
@@ -171,7 +173,7 @@ public class PlaylistsControllerTest
         var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         var playlistInDb = await dbContext.Playlists.FindAsync(existingPlaylist.Id);
 
-        await _infrastructure.ResetDataAsync();
+        await _infrastructure.DataResetter.ResetDataAsync();
 
         response.EnsureSuccessStatusCode();
         result.Should().NotBeNull();
@@ -184,12 +186,12 @@ public class PlaylistsControllerTest
     [Fact]
     public async Task DeletePlaylist_Should_RemoveFromDatabase_When_ValidInput()
     {
-        var testUser = await _infrastructure.SeedDataAsync(_fixture.Create<User>());
+        var testUser = await _infrastructure.DataSeeder.SeedDataAsync(_fixture.Create<User>());
         var playlist = _fixture.Create<Playlist>();
         playlist.AuthorId = testUser.Id;
-        var existingPlaylist = await _infrastructure.SeedDataAsync(playlist);
+        var existingPlaylist = await _infrastructure.DataSeeder.SeedDataAsync(playlist);
 
-        var token = IntegrationTestInfrastructure.GenerateTestJWT();
+        var token = JwtBuilder.GenerateTestJWT();
         _infrastructure.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
         using var response = await _infrastructure.Client.DeleteAsync($"{TestConstants.PlaylistsApiRoute}/{existingPlaylist.Id}");
@@ -198,7 +200,7 @@ public class PlaylistsControllerTest
         var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         var playlistInDb = await dbContext.Playlists.FindAsync(existingPlaylist.Id);
 
-        await _infrastructure.ResetDataAsync();
+        await _infrastructure.DataResetter.ResetDataAsync();
 
         response.EnsureSuccessStatusCode();
         playlistInDb.Should().BeNull();
@@ -219,9 +221,9 @@ public class PlaylistsControllerTest
 
         user.Playlists = new List<Playlist>() { playlist };
 
-        var testUser = await _infrastructure.SeedDataAsync(user);
+        var testUser = await _infrastructure.DataSeeder.SeedDataAsync(user);
 
-        var token = IntegrationTestInfrastructure.GenerateTestJWT();
+        var token = JwtBuilder.GenerateTestJWT();
         _infrastructure.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
         var url = $"{TestConstants.PlaylistsApiRoute}/{playlist.Id}/songs/{song.Id}";
@@ -234,7 +236,7 @@ public class PlaylistsControllerTest
             .Include(p => p.Songs)
             .FirstOrDefaultAsync(p => p.Id == playlist.Id);
 
-        await _infrastructure.ResetDataAsync();
+        await _infrastructure.DataResetter.ResetDataAsync();
 
         response.EnsureSuccessStatusCode();
         result.Should().NotBeNull();
