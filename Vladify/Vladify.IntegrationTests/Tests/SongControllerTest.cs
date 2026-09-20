@@ -29,12 +29,12 @@ public class SongControllerTest
     [Fact]
     public async Task AddSongAsync_Should_SaveToDatabase_When_ValidInput()
     {
-        var testUser = await _infrastructure.SeedDataAsync(_fixture.Create<User>());
+        var testUser = await _infrastructure.DataSeeder.SeedDataAsync(_fixture.Create<User>());
 
         var title = "Integration song";
         var album = "Integration album";
 
-        var token = IntegrationTestInfrastructure.GenerateTestJWT(testUser.EmailAddress);
+        var token = JwtBuilder.GenerateTestJWT(testUser.EmailAddress);
         _infrastructure.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
         using var request = new MultipartFormDataContent()
@@ -60,10 +60,10 @@ public class SongControllerTest
             .FirstAsync(s => s.Title == title);
 
         var s3 = scope.ServiceProvider.GetRequiredService<IAmazonS3>();
-        var isAudioPresentInS3 = await IntegrationTestInfrastructure.CheckPresenceInBucket(s3, songInDb.AudioUrl, CancellationToken.None);
-        var isCoverPresentInS3 = await IntegrationTestInfrastructure.CheckPresenceInBucket(s3, songInDb.CoverUrl, CancellationToken.None);
+        var isAudioPresentInS3 = await StorageInspector.CheckPresenceInBucket(s3, songInDb.AudioUrl, CancellationToken.None);
+        var isCoverPresentInS3 = await StorageInspector.CheckPresenceInBucket(s3, songInDb.CoverUrl, CancellationToken.None);
 
-        await _infrastructure.ResetDataAsync();
+        await _infrastructure.DataResetter.ResetDataAsync();
 
         response.EnsureSuccessStatusCode();
         response.Should().NotBeNull();
@@ -86,15 +86,15 @@ public class SongControllerTest
         var song = _fixture.Create<Song>();
         song.AuthorId = user.Id;
         user.OwnedSongs = new List<Song>() { song };
-        var testUser = await _infrastructure.SeedDataAsync(user);
+        var testUser = await _infrastructure.DataSeeder.SeedDataAsync(user);
 
-        var jwt = IntegrationTestInfrastructure.GenerateTestJWT();
+        var jwt = JwtBuilder.GenerateTestJWT();
         _infrastructure.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
 
         using var response = await _infrastructure.Client.GetAsync($"{TestConstants.SongsApiRoute}/{song.Id}");
         var result = await response.Content.ReadFromJsonAsync<SongModel>();
 
-        await _infrastructure.ResetDataAsync();
+        await _infrastructure.DataResetter.ResetDataAsync();
 
         response.EnsureSuccessStatusCode();
         response.Should().NotBeNull();
@@ -105,12 +105,12 @@ public class SongControllerTest
     public async Task GetSongAsync_Should_ReturnNotFoundStatusCode_When_NotFound()
     {
         var invalidSongId = Guid.NewGuid();
-        var jwt = IntegrationTestInfrastructure.GenerateTestJWT();
+        var jwt = JwtBuilder.GenerateTestJWT();
         _infrastructure.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
 
         using var response = await _infrastructure.Client.GetAsync($"{TestConstants.SongsApiRoute}/{invalidSongId}");
 
-        await _infrastructure.ResetDataAsync();
+        await _infrastructure.DataResetter.ResetDataAsync();
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
         response.Should().NotBeNull();
@@ -124,17 +124,17 @@ public class SongControllerTest
         song.AuthorId = user.Id;
         user.OwnedSongs = new List<Song>() { song };
 
-        var testUser = await _infrastructure.SeedDataAsync(user);
+        var testUser = await _infrastructure.DataSeeder.SeedDataAsync(user);
 
         var updateRequest = _fixture.Create<UpdateSongRequestModel>();
 
-        var jwt = IntegrationTestInfrastructure.GenerateTestJWT(testUser.EmailAddress);
+        var jwt = JwtBuilder.GenerateTestJWT(testUser.EmailAddress);
         _infrastructure.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
 
         using var response = await _infrastructure.Client.PutAsJsonAsync($"{TestConstants.SongsApiRoute}/{song.Id}", updateRequest);
         var result = await response.Content.ReadFromJsonAsync<SongModel>();
 
-        await _infrastructure.ResetDataAsync();
+        await _infrastructure.DataResetter.ResetDataAsync();
 
         response.EnsureSuccessStatusCode();
         response.Should().NotBeNull();
@@ -151,11 +151,11 @@ public class SongControllerTest
         song.AuthorId = user.Id;
         user.OwnedSongs = new List<Song>() { song };
 
-        var testUser = await _infrastructure.SeedDataAsync(user);
-        await _infrastructure.SeedDataInBlobAsync(song.AudioUrl, CancellationToken.None);
-        await _infrastructure.SeedDataInBlobAsync(song.CoverUrl, CancellationToken.None);
+        var testUser = await _infrastructure.DataSeeder.SeedDataAsync(user);
+        await _infrastructure.DataSeeder.SeedDataInBlobAsync(song.AudioUrl, CancellationToken.None);
+        await _infrastructure.DataSeeder.SeedDataInBlobAsync(song.CoverUrl, CancellationToken.None);
 
-        var jwt = IntegrationTestInfrastructure.GenerateTestJWT(testUser.EmailAddress);
+        var jwt = JwtBuilder.GenerateTestJWT(testUser.EmailAddress);
         _infrastructure.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
 
         using var response = await _infrastructure.Client.DeleteAsync($"{TestConstants.SongsApiRoute}/{song.Id}");
@@ -165,10 +165,10 @@ public class SongControllerTest
         var oldSong = await context.Songs.FirstOrDefaultAsync(s => s.Id == song.Id);
 
         var s3 = scope.ServiceProvider.GetRequiredService<IAmazonS3>();
-        var isAudioPresentInBuket = await IntegrationTestInfrastructure.CheckPresenceInBucket(s3, song.AudioUrl, CancellationToken.None);
-        var isCoverPresentInBucket = await IntegrationTestInfrastructure.CheckPresenceInBucket(s3, song.CoverUrl, CancellationToken.None);
+        var isAudioPresentInBuket = await StorageInspector.CheckPresenceInBucket(s3, song.AudioUrl, CancellationToken.None);
+        var isCoverPresentInBucket = await StorageInspector.CheckPresenceInBucket(s3, song.CoverUrl, CancellationToken.None);
 
-        await _infrastructure.ResetDataAsync();
+        await _infrastructure.DataResetter.ResetDataAsync();
 
         isAudioPresentInBuket.Should().BeFalse();
         isCoverPresentInBucket.Should().BeFalse();
