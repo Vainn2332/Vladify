@@ -1,4 +1,4 @@
-﻿namespace Vladify.IntegrationTests;
+﻿namespace Vladify.IntegrationTests.Constants;
 
 public static class TestConstants
 {

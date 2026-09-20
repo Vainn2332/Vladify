@@ -9,7 +9,10 @@ using System.Net.Http.Json;
 using Vladify.BusinessLogic.Models.SongModels;
 using Vladify.DataAccess;
 using Vladify.DataAccess.Entities;
-namespace Vladify.IntegrationTests;
+using Vladify.IntegrationTests.Constants;
+using Vladify.IntegrationTests.Infrastructure;
+
+namespace Vladify.IntegrationTests.Tests;
 
 [Collection("FixtureCollection")]
 public class SongControllerTest

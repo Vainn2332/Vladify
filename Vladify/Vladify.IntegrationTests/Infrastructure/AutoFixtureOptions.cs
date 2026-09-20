@@ -1,8 +1,9 @@
 ﻿using AutoFixture;
 using Vladify.DataAccess.Entities;
 using Vladify.DataAccess.Enums;
+using Vladify.IntegrationTests.Constants;
 
-namespace Vladify.IntegrationTests;
+namespace Vladify.IntegrationTests.Infrastructure;
 
 public static class AutoFixtureOptions
 {

@@ -1,4 +1,4 @@
-﻿namespace Vladify.IntegrationTests;
+﻿namespace Vladify.IntegrationTests.Constants;
 
 internal static class BootstrapConstants
 {
