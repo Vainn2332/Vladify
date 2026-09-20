@@ -9,7 +9,7 @@ namespace Vladify.IntegrationTests.Infrastructure;
 
 public sealed class DataResetter : IAsyncDisposable
 {
-    private Respawner _respawner;
+    private Respawner _respawner = null!;
     private readonly DbConnection _connection;
     private readonly IServiceProvider _serviceProvider;
 
