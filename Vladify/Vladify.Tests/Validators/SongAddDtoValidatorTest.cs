@@ -3,7 +3,7 @@ using Vladify.BusinessLogic.Models;
 using Vladify.BusinessLogic.Models.SongModels;
 using Vladify.BusinessLogic.Validators;
 
-namespace Vladify.UnitTests;
+namespace Vladify.UnitTests.Validators;
 
 public class SongAddDtoValidatorTest
 {

@@ -12,7 +12,7 @@ using Vladify.DataAccess.Entities;
 using Vladify.DataAccess.Interfaces;
 using Vladify.IntegrationTests.Infrastructure;
 
-namespace Vladify.UnitTests;
+namespace Vladify.UnitTests.ServiceTests;
 
 public class PlaylistServiceTest
 {
