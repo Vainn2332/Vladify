@@ -1,8 +1,8 @@
 ﻿namespace Vladify.DataAccess.Dtos.Pagination;
 
-public class PagedResult<T>
+public class PagedResult<TData>
 {
-    public required ICollection<T> Data { get; set; }
+    public required ICollection<TData> Data { get; set; }
 
     public bool HasNextPage { get; set; }
 }
