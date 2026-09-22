@@ -4,10 +4,11 @@ using AutoMapper;
 using Moq;
 using Vladify.BusinessLogic.Constants;
 using Vladify.BusinessLogic.Exceptions;
-using Vladify.BusinessLogic.Models;
+using Vladify.BusinessLogic.Models.Pagination;
 using Vladify.BusinessLogic.Models.SongModels;
 using Vladify.BusinessLogic.Services;
 using Vladify.DataAccess.Dtos;
+using Vladify.DataAccess.Dtos.Pagination;
 using Vladify.DataAccess.Entities;
 using Vladify.DataAccess.Interfaces;
 using Vladify.IntegrationTests.Infrastructure;
@@ -96,18 +97,25 @@ public class SongServiceTest
     public async Task GetSongsAsync_Should_ReturnSongs_WhenOk()
     {
         var paginationFilter = _fixture.Create<PaginationFilter>();
-        var songEntityList = _fixture.CreateMany<Song>(paginationFilter.PageSize);
-        var expectedModels = _fixture.CreateMany<SongModel>(paginationFilter.PageSize);
+        var pagedEntities = new PagedResult<Song>
+        {
+            Data = _fixture.CreateMany<Song>(paginationFilter.PageSize).ToList()
+        };
+        var expectedResult = new PagedResult<SongModel>
+        {
+            Data = _fixture.CreateMany<SongModel>(paginationFilter.PageSize).ToList()
+        };
 
         _songRepositoryMock.Setup(m => m.GetAllAsync(paginationFilter.PageNumber, paginationFilter.PageSize, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(songEntityList);
-        _mapperMock.Setup(m => m.Map<IEnumerable<SongModel>>(songEntityList))
-            .Returns(expectedModels);
+            .ReturnsAsync(pagedEntities);
+        _mapperMock.Setup(m => m.Map<PagedResult<SongModel>>(pagedEntities))
+            .Returns(expectedResult);
 
         var result = await _songService.GetSongsAsync(paginationFilter, CancellationToken.None);
 
         Assert.NotNull(result);
-        Assert.Equal(paginationFilter.PageSize, result.Count());
+        Assert.Same(expectedResult, result);
+        Assert.Equal(paginationFilter.PageSize, result.Data.Count);
 
         _songRepositoryMock.Verify(m => m.GetAllAsync(paginationFilter.PageNumber, paginationFilter.PageSize, It.IsAny<CancellationToken>()), Times.Once);
     }

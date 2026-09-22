@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using Vladify.BusinessLogic.Models.Pagination;
 using Vladify.BusinessLogic.Models.PlaylistModels;
 using Vladify.DataAccess;
 using Vladify.DataAccess.Entities;
@@ -144,13 +145,13 @@ public class PlaylistsControllerTest
         _infrastructure.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
         using var response = await _infrastructure.Client.GetAsync($"{TestConstants.PlaylistsApiRoute}?PageNumber=1&PageSize=10");
-        var result = await response.Content.ReadFromJsonAsync<IEnumerable<PlaylistModel>>();
+        var result = await response.Content.ReadFromJsonAsync<PagedResponse<PlaylistModel>>();
 
         await _infrastructure.DataResetter.ResetDataAsync();
 
         response.EnsureSuccessStatusCode();
         result.Should().NotBeNull();
-        result.Should().HaveCount(2);
+        result.Data.Should().HaveCount(2);
     }
 
     [Fact]

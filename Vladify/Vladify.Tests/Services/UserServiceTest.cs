@@ -6,10 +6,11 @@ using Moq;
 using Vladify.BusinessLogic.Constants;
 using Vladify.BusinessLogic.Exceptions;
 using Vladify.BusinessLogic.Messages;
-using Vladify.BusinessLogic.Models;
+using Vladify.BusinessLogic.Models.Pagination;
 using Vladify.BusinessLogic.Models.UserModels;
 using Vladify.BusinessLogic.ServiceInterfaces;
 using Vladify.BusinessLogic.Services;
+using Vladify.DataAccess.Dtos.Pagination;
 using Vladify.DataAccess.Entities;
 using Vladify.DataAccess.Interfaces;
 using Vladify.IntegrationTests.Infrastructure;
@@ -80,17 +81,24 @@ public class UserServiceTest
     public async Task GetUsersAsync_Should_ReturnUsers_WhenOk()
     {
         var paginationFilter = _fixture.Create<PaginationFilter>();
-        var userEntityList = _fixture.CreateMany<User>(paginationFilter.PageSize);
-        var expectedModels = _fixture.CreateMany<UserModel>(paginationFilter.PageSize);
+        var pagedEntities = new PagedResult<User>
+        {
+            Data = _fixture.CreateMany<User>(paginationFilter.PageSize).ToList()
+        };
+        var expectedResult = new PagedResult<UserModel>
+        {
+            Data = _fixture.CreateMany<UserModel>(paginationFilter.PageSize).ToList()
+        };
         _userRepositoryMock.Setup(m => m.GetAllAsync(paginationFilter.PageNumber, paginationFilter.PageSize, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(userEntityList);
-        _mapperMock.Setup(m => m.Map<IEnumerable<UserModel>>(userEntityList))
-            .Returns(expectedModels);
+            .ReturnsAsync(pagedEntities);
+        _mapperMock.Setup(m => m.Map<PagedResult<UserModel>>(pagedEntities))
+            .Returns(expectedResult);
 
         var result = await _userService.GetUsersAsync(paginationFilter, CancellationToken.None);
 
         Assert.NotNull(result);
-        Assert.Equal(paginationFilter.PageSize, expectedModels.Count());
+        Assert.Same(expectedResult, result);
+        Assert.Equal(paginationFilter.PageSize, result.Data.Count);
 
         _userRepositoryMock.Verify(m => m.GetAllAsync(paginationFilter.PageNumber, paginationFilter.PageSize, It.IsAny<CancellationToken>()), Times.Once);
     }
