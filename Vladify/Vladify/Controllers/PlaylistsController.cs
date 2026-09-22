@@ -17,7 +17,7 @@ namespace Vladify.Controllers;
 [ValidationFilter]
 public class PlaylistsController(IPlaylistService _playlistService, IMapper _mapper, IUserService _userService) : ControllerBase
 {
-    [HttpPost, ValidationFilter]
+    [HttpPost]
     public async Task<PlaylistModel> CreatePlaylist(
         PlaylistAddDto playlistAddDto,
         CancellationToken cancellationToken = default
