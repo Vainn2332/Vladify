@@ -101,14 +101,14 @@ public class SongServiceTest
         {
             Data = _fixture.CreateMany<Song>(paginationFilter.PageSize).ToList()
         };
-        var expectedResult = new PagedResult<SongModel>
+        var expectedResult = new PagedResponse<SongModel>
         {
             Data = _fixture.CreateMany<SongModel>(paginationFilter.PageSize).ToList()
         };
 
         _songRepositoryMock.Setup(m => m.GetAllAsync(paginationFilter.PageNumber, paginationFilter.PageSize, It.IsAny<CancellationToken>()))
             .ReturnsAsync(pagedEntities);
-        _mapperMock.Setup(m => m.Map<PagedResult<SongModel>>(pagedEntities))
+        _mapperMock.Setup(m => m.Map<PagedResponse<SongModel>>(pagedEntities))
             .Returns(expectedResult);
 
         var result = await _songService.GetSongsAsync(paginationFilter, CancellationToken.None);

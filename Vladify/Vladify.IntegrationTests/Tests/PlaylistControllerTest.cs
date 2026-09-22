@@ -145,11 +145,12 @@ public class PlaylistsControllerTest
         _infrastructure.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
         using var response = await _infrastructure.Client.GetAsync($"{TestConstants.PlaylistsApiRoute}?PageNumber=1&PageSize=10");
-        var result = await response.Content.ReadFromJsonAsync<PagedResponse<PlaylistModel>>();
 
         await _infrastructure.DataResetter.ResetDataAsync();
 
         response.EnsureSuccessStatusCode();
+
+        var result = await response.Content.ReadFromJsonAsync<PagedResponse<PlaylistModel>>();
         result.Should().NotBeNull();
         result.Data.Should().HaveCount(2);
     }

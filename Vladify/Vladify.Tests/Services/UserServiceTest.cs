@@ -85,13 +85,13 @@ public class UserServiceTest
         {
             Data = _fixture.CreateMany<User>(paginationFilter.PageSize).ToList()
         };
-        var expectedResult = new PagedResult<UserModel>
+        var expectedResult = new PagedResponse<UserModel>
         {
             Data = _fixture.CreateMany<UserModel>(paginationFilter.PageSize).ToList()
         };
         _userRepositoryMock.Setup(m => m.GetAllAsync(paginationFilter.PageNumber, paginationFilter.PageSize, It.IsAny<CancellationToken>()))
             .ReturnsAsync(pagedEntities);
-        _mapperMock.Setup(m => m.Map<PagedResult<UserModel>>(pagedEntities))
+        _mapperMock.Setup(m => m.Map<PagedResponse<UserModel>>(pagedEntities))
             .Returns(expectedResult);
 
         var result = await _userService.GetUsersAsync(paginationFilter, CancellationToken.None);

@@ -166,7 +166,7 @@ public class PlaylistServiceTest
             Data = _fixture.CreateMany<Playlist>(paginationFilter.PageSize).ToList()
         };
         var expectedModels = _fixture.CreateMany<PlaylistModel>(paginationFilter.PageSize).ToList();
-        var expectedResult = new PagedResult<PlaylistModel>
+        var expectedResult = new PagedResponse<PlaylistModel>
         {
             Data = expectedModels,
             HasNextPage = true
@@ -176,7 +176,7 @@ public class PlaylistServiceTest
             .Setup(m => m.GetPlaylistsOfUserAsync(userId, paginationFilter.PageNumber, paginationFilter.PageSize, It.IsAny<CancellationToken>()))
             .ReturnsAsync(pagedEntities);
         _mapperMock
-            .Setup(m => m.Map<PagedResult<PlaylistModel>>(pagedEntities))
+            .Setup(m => m.Map<PagedResponse<PlaylistModel>>(pagedEntities))
             .Returns(expectedResult);
 
         var result = await _playlistService.GetPlaylistsOfUserAsync(userId, paginationFilter, CancellationToken.None);
