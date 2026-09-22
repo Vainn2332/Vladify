@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Vladify.BusinessLogic.Constants;
 using Vladify.BusinessLogic.Exceptions;
-using Vladify.BusinessLogic.Models;
+using Vladify.BusinessLogic.Models.Pagination;
 using Vladify.BusinessLogic.Models.PlaylistModels;
 using Vladify.BusinessLogic.ServiceInterfaces;
 using Vladify.DataAccess.Entities;
@@ -36,11 +36,11 @@ public class PlaylistService(IPlaylistRepository _repository, IRepository<Song> 
         return _mapper.Map<PlaylistModel>(playlist);
     }
 
-    public async Task<IEnumerable<PlaylistModel>> GetPlaylistsOfUserAsync(Guid userId, PaginationFilter filter, CancellationToken cancellationToken)
+    public async Task<PagedResponse<PlaylistModel>> GetPlaylistsOfUserAsync(Guid userId, PaginationFilter filter, CancellationToken cancellationToken)
     {
         var playlists = await _repository.GetPlaylistsOfUserAsync(userId, filter.PageNumber, filter.PageSize, cancellationToken);
 
-        return _mapper.Map<IEnumerable<PlaylistModel>>(playlists);
+        return _mapper.Map<PagedResponse<PlaylistModel>>(playlists);
     }
 
     public async Task<PlaylistModel> UpdatePlaylistAsync(PlaylistUpdateRequestModel playlistUpdateRequestModel, Guid requesterId, CancellationToken cancellationToken)

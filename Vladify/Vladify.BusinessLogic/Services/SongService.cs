@@ -2,7 +2,7 @@
 using FluentValidation;
 using Vladify.BusinessLogic.Constants;
 using Vladify.BusinessLogic.Exceptions;
-using Vladify.BusinessLogic.Models;
+using Vladify.BusinessLogic.Models.Pagination;
 using Vladify.BusinessLogic.Models.SongModels;
 using Vladify.BusinessLogic.ServiceInterfaces;
 using Vladify.DataAccess.Entities;
@@ -67,11 +67,11 @@ public class SongService(
         return _mapper.Map<SongModel>(song);
     }
 
-    public async Task<IEnumerable<SongModel>> GetSongsAsync(PaginationFilter filter, CancellationToken cancellationToken)
+    public async Task<PagedResponse<SongModel>> GetSongsAsync(PaginationFilter filter, CancellationToken cancellationToken)
     {
         var songs = await _songRepository.GetAllAsync(filter.PageNumber, filter.PageSize, cancellationToken);
 
-        return _mapper.Map<IEnumerable<SongModel>>(songs);
+        return _mapper.Map<PagedResponse<SongModel>>(songs);
     }
 
     public async Task<SongModel> UpdateSongAsync(SongUpdateDto songUpdateDto, Guid requesterId, CancellationToken cancellationToken)

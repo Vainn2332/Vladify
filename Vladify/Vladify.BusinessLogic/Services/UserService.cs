@@ -3,7 +3,7 @@ using MassTransit;
 using Vladify.BusinessLogic.Constants;
 using Vladify.BusinessLogic.Exceptions;
 using Vladify.BusinessLogic.Messages;
-using Vladify.BusinessLogic.Models;
+using Vladify.BusinessLogic.Models.Pagination;
 using Vladify.BusinessLogic.Models.UserModels;
 using Vladify.BusinessLogic.ServiceInterfaces;
 using Vladify.DataAccess.Entities;
@@ -41,11 +41,11 @@ public class UserService(IUserRepository _userRepository, IAuth0Service _authSer
         return _mapper.Map<UserModel>(user);
     }
 
-    public async Task<IEnumerable<UserModel>> GetUsersAsync(PaginationFilter filter, CancellationToken cancellationToken)
+    public async Task<PagedResponse<UserModel>> GetUsersAsync(PaginationFilter filter, CancellationToken cancellationToken)
     {
         var users = await _userRepository.GetAllAsync(filter.PageNumber, filter.PageSize, cancellationToken);
 
-        return _mapper.Map<IEnumerable<UserModel>>(users);
+        return _mapper.Map<PagedResponse<UserModel>>(users);
     }
 
     public async Task<UserModel> UpdateUserAsync(UserUpdateDto userUpdateDto, Guid requesterId, CancellationToken cancellationToken)
