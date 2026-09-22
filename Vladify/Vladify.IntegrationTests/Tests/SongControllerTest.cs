@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using Vladify.BusinessLogic.Models.Pagination;
 using Vladify.BusinessLogic.Models.SongModels;
 using Vladify.DataAccess;
 using Vladify.DataAccess.Entities;
@@ -114,6 +115,65 @@ public class SongControllerTest
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
         response.Should().NotBeNull();
+    }
+
+    [Fact]
+    public async Task GetAllSongs_Should_SetHasNextPageTrue_When_MoreItemsThanPage()
+    {
+        var user = _fixture.Create<User>();
+        var songs = _fixture.CreateMany<Song>(3).ToList();
+        foreach (var song in songs)
+            song.AuthorId = user.Id;
+        user.OwnedSongs = songs;
+
+        await _infrastructure.DataSeeder.SeedDataAsync(user);
+
+        var jwt = JwtBuilder.GenerateTestJWT();
+        _infrastructure.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
+
+        using var response = await _infrastructure.Client.GetAsync($"{TestConstants.SongsApiRoute}?PageNumber=1&PageSize=2");
+
+        await _infrastructure.DataResetter.ResetDataAsync();
+
+        response.EnsureSuccessStatusCode();
+
+        var result = await response.Content.ReadFromJsonAsync<PagedResponse<SongModel>>();
+
+        await _infrastructure.DataResetter.ResetDataAsync();
+
+        result.Should().NotBeNull();
+        result.Data.Should().HaveCount(2);
+        result.HasNextPage.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task GetAllSongs_Should_SetHasNextPageFalse_When_LastPageIsFull()
+    {
+
+        var user = _fixture.Create<User>();
+        var songs = _fixture.CreateMany<Song>(2).ToList();
+        foreach (var song in songs)
+            song.AuthorId = user.Id;
+        user.OwnedSongs = songs;
+
+        await _infrastructure.DataSeeder.SeedDataAsync(user);
+
+        var jwt = JwtBuilder.GenerateTestJWT();
+        _infrastructure.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
+
+        using var response = await _infrastructure.Client.GetAsync($"{TestConstants.SongsApiRoute}?PageNumber=1&PageSize=2");
+
+        await _infrastructure.DataResetter.ResetDataAsync();
+
+        response.EnsureSuccessStatusCode();
+
+        var result = await response.Content.ReadFromJsonAsync<PagedResponse<SongModel>>();
+
+        await _infrastructure.DataResetter.ResetDataAsync();
+
+        result.Should().NotBeNull();
+        result.Data.Should().HaveCount(2);
+        result.HasNextPage.Should().BeFalse();
     }
 
     [Fact]
