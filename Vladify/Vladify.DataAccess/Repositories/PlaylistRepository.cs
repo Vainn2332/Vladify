@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Vladify.DataAccess.Dtos.Pagination;
 using Vladify.DataAccess.Entities;
 using Vladify.DataAccess.Interfaces;
 
@@ -36,26 +37,47 @@ public class PlaylistRepository(ApplicationDbContext _context) : Repository<Play
             .FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
     }
 
-    public async Task<IEnumerable<Playlist>> GetPlaylistsAsync(int pageNumber, int pageSize, CancellationToken cancellationToken)
+    public async Task<PagedResult<Playlist>> GetPlaylistsAsync(int pageNumber, int pageSize, CancellationToken cancellationToken)
     {
-        return await _context.Playlists
+        var playlists = await _context.Playlists
             .Include(p => p.Songs)
             .ThenInclude(p => p.Owner)
             .Include(p => p.Owner)
             .OrderBy(p => p.Id)
             .Skip((pageNumber - 1) * pageSize)
-            .Take(pageSize)
+            .Take(pageSize + 1)
             .ToListAsync(cancellationToken);
+
+        var hasNextPage = playlists.Count > pageSize;
+        if (hasNextPage)
+            playlists.RemoveAt(playlists.Count - 1);
+
+        return new PagedResult<Playlist>
+        {
+            Data = playlists,
+            HasNextPage = hasNextPage
+        };
+
     }
 
-    public async Task<IEnumerable<Playlist>> GetPlaylistsOfUserAsync(Guid userId, int pageNumber, int pageSize, CancellationToken cancellationToken)
+    public async Task<PagedResult<Playlist>> GetPlaylistsOfUserAsync(Guid userId, int pageNumber, int pageSize, CancellationToken cancellationToken)
     {
-        return await _context.Playlists
+        var playlists = await _context.Playlists
             .Where(s => s.AuthorId == userId)
             .OrderBy(p => p.Id)
             .Skip((pageNumber - 1) * pageSize)
-            .Take(pageSize)
+            .Take(pageSize + 1)
             .ToListAsync(cancellationToken);
+
+        var hasNextPage = playlists.Count > pageSize;
+        if (hasNextPage)
+            playlists.RemoveAt(playlists.Count - 1);
+
+        return new PagedResult<Playlist>
+        {
+            Data = playlists,
+            HasNextPage = hasNextPage
+        };
     }
 
     public async Task<Playlist> DeleteSongFromPlaylistAsync(Playlist playlist, Song song, CancellationToken cancellationToken)
