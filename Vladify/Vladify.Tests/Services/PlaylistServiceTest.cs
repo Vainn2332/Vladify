@@ -5,14 +5,15 @@ using FluentAssertions;
 using Moq;
 using Vladify.BusinessLogic.Constants;
 using Vladify.BusinessLogic.Exceptions;
-using Vladify.BusinessLogic.Models;
+using Vladify.BusinessLogic.Models.Pagination;
 using Vladify.BusinessLogic.Models.PlaylistModels;
 using Vladify.BusinessLogic.Services;
+using Vladify.DataAccess.Dtos.Pagination;
 using Vladify.DataAccess.Entities;
 using Vladify.DataAccess.Interfaces;
 using Vladify.IntegrationTests.Infrastructure;
 
-namespace Vladify.UnitTests.ServiceTests;
+namespace Vladify.UnitTests.Services;
 
 public class PlaylistServiceTest
 {
@@ -154,24 +155,36 @@ public class PlaylistServiceTest
 
         _playlistRepositoryMock.Verify(m => m.GetPlaylistAsync(invalidPlaylistId, false, It.IsAny<CancellationToken>()), Times.Once);
     }
-
     [Fact]
     public async Task GetPlaylistsOfUserAsync_Should_ReturnPlaylists_WhenOk()
     {
         var userId = Guid.NewGuid();
         var paginationFilter = _fixture.Create<PaginationFilter>();
-        var playlistsEntityList = _fixture.CreateMany<Playlist>(paginationFilter.PageSize);
-        var expectedModels = _fixture.CreateMany<PlaylistModel>(paginationFilter.PageSize);
 
-        _playlistRepositoryMock.Setup(m => m.GetPlaylistsOfUserAsync(userId, paginationFilter.PageNumber, paginationFilter.PageSize, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(playlistsEntityList);
-        _mapperMock.Setup(m => m.Map<IEnumerable<PlaylistModel>>(playlistsEntityList))
-            .Returns(expectedModels);
+        var pagedEntities = new PagedResult<Playlist>
+        {
+            Data = _fixture.CreateMany<Playlist>(paginationFilter.PageSize).ToList()
+        };
+        var expectedModels = _fixture.CreateMany<PlaylistModel>(paginationFilter.PageSize).ToList();
+        var expectedResult = new PagedResponse<PlaylistModel>
+        {
+            Data = expectedModels,
+            HasNextPage = true
+        };
+
+        _playlistRepositoryMock
+            .Setup(m => m.GetPlaylistsOfUserAsync(userId, paginationFilter.PageNumber, paginationFilter.PageSize, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(pagedEntities);
+        _mapperMock
+            .Setup(m => m.Map<PagedResponse<PlaylistModel>>(pagedEntities))
+            .Returns(expectedResult);
 
         var result = await _playlistService.GetPlaylistsOfUserAsync(userId, paginationFilter, CancellationToken.None);
 
         result.Should().NotBeNull();
-        result.Should().HaveCount(paginationFilter.PageSize);
+        result.Should().BeSameAs(expectedResult);
+        result.Data.Should().HaveCount(paginationFilter.PageSize);
+        result.HasNextPage.Should().BeTrue();
 
         _playlistRepositoryMock.Verify(m => m.GetPlaylistsOfUserAsync(userId, paginationFilter.PageNumber, paginationFilter.PageSize, It.IsAny<CancellationToken>()), Times.Once);
     }

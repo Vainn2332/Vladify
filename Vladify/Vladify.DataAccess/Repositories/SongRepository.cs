@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Vladify.DataAccess.Dtos.Pagination;
 using Vladify.DataAccess.Entities;
 using Vladify.DataAccess.Enums;
+using Vladify.DataAccess.Extensions;
 using Vladify.DataAccess.Interfaces;
 
 namespace Vladify.DataAccess.Repositories;
@@ -45,15 +47,13 @@ public class SongRepository(ApplicationDbContext context) : Repository<Song>(con
             .FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
     }
 
-    public override async Task<IEnumerable<Song>> GetAllAsync(int pageNumber, int pageSize, CancellationToken cancellationToken)
+    public override Task<PagedResult<Song>> GetAllAsync(int pageNumber, int pageSize, CancellationToken cancellationToken)
     {
-        return await _context.Songs
+        return _context.Songs
             .Where(s => s.Status == SongStatus.Approved)
             .Include(p => p.Owner)
             .OrderBy(p => p.Id)
-            .Skip((pageNumber - 1) * pageSize)
-            .Take(pageSize)
-            .ToListAsync(cancellationToken);
+            .ToPagedResultAsync(pageNumber, pageSize, cancellationToken);
     }
 
     public override async Task<Song> UpdateAsync(Song song, CancellationToken cancellationToken)

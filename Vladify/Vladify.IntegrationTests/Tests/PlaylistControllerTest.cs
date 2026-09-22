@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using Vladify.BusinessLogic.Models.Pagination;
 using Vladify.BusinessLogic.Models.PlaylistModels;
 using Vladify.DataAccess;
 using Vladify.DataAccess.Entities;
@@ -144,13 +145,66 @@ public class PlaylistsControllerTest
         _infrastructure.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
         using var response = await _infrastructure.Client.GetAsync($"{TestConstants.PlaylistsApiRoute}?PageNumber=1&PageSize=10");
-        var result = await response.Content.ReadFromJsonAsync<IEnumerable<PlaylistModel>>();
 
         await _infrastructure.DataResetter.ResetDataAsync();
 
         response.EnsureSuccessStatusCode();
+
+        var result = await response.Content.ReadFromJsonAsync<PagedResponse<PlaylistModel>>();
         result.Should().NotBeNull();
-        result.Should().HaveCount(2);
+        result.Data.Should().HaveCount(2);
+    }
+
+    [Fact]
+    public async Task GetAllPlaylistsOfUser_Should_SetHasNextPageTrue_When_MoreItemsThanPage()
+    {
+        var user = _fixture.Create<User>();
+        var playlists = _fixture.CreateMany<Playlist>(3).ToList();
+        foreach (var playlist in playlists)
+            playlist.AuthorId = user.Id;
+        user.Playlists = playlists;
+
+        await _infrastructure.DataSeeder.SeedDataAsync(user);
+
+        var token = JwtBuilder.GenerateTestJWT();
+        _infrastructure.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        using var response = await _infrastructure.Client.GetAsync($"{TestConstants.PlaylistsApiRoute}?PageNumber=1&PageSize=2");
+
+        await _infrastructure.DataResetter.ResetDataAsync();
+
+        response.EnsureSuccessStatusCode();
+
+        var result = await response.Content.ReadFromJsonAsync<PagedResponse<PlaylistModel>>();
+        result.Should().NotBeNull();
+        result.Data.Should().HaveCount(2);
+        result.HasNextPage.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task GetAllPlaylistsOfUser_Should_SetHasNextPageFalse_When_LastPageIsFull()
+    {
+        var user = _fixture.Create<User>();
+        var playlists = _fixture.CreateMany<Playlist>(2).ToList();
+        foreach (var playlist in playlists)
+            playlist.AuthorId = user.Id;
+        user.Playlists = playlists;
+
+        await _infrastructure.DataSeeder.SeedDataAsync(user);
+
+        var token = JwtBuilder.GenerateTestJWT();
+        _infrastructure.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        using var response = await _infrastructure.Client.GetAsync($"{TestConstants.PlaylistsApiRoute}?PageNumber=1&PageSize=2");
+
+        await _infrastructure.DataResetter.ResetDataAsync();
+
+        response.EnsureSuccessStatusCode();
+
+        var result = await response.Content.ReadFromJsonAsync<PagedResponse<PlaylistModel>>();
+        result.Should().NotBeNull();
+        result.Data.Should().HaveCount(2);
+        result.HasNextPage.Should().BeFalse();
     }
 
     [Fact]

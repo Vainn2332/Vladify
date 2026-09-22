@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Vladify.BusinessLogic.Constants;
 using Vladify.BusinessLogic.Exceptions;
 using Vladify.BusinessLogic.Extensions;
-using Vladify.BusinessLogic.Models;
+using Vladify.BusinessLogic.Models.Pagination;
 using Vladify.BusinessLogic.Models.PlaylistModels;
 using Vladify.BusinessLogic.ServiceInterfaces;
 using Vladify.Filters;
@@ -17,7 +17,7 @@ namespace Vladify.Controllers;
 [ValidationFilter]
 public class PlaylistsController(IPlaylistService _playlistService, IMapper _mapper, IUserService _userService) : ControllerBase
 {
-    [HttpPost, ValidationFilter]
+    [HttpPost]
     public async Task<PlaylistModel> CreatePlaylist(
         PlaylistAddDto playlistAddDto,
         CancellationToken cancellationToken = default
@@ -57,7 +57,7 @@ public class PlaylistsController(IPlaylistService _playlistService, IMapper _map
     }
 
     [HttpGet]
-    public async Task<IEnumerable<PlaylistModel>> GetAllPlaylistsOfUser(
+    public async Task<PagedResponse<PlaylistModel>> GetAllPlaylistsOfUser(
         [FromQuery] PaginationFilter filter,
         CancellationToken cancellationToken = default
         )

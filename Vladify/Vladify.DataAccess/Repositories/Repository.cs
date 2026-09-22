@@ -1,4 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Vladify.DataAccess.Dtos.Pagination;
+using Vladify.DataAccess.Extensions;
 using Vladify.DataAccess.Interfaces;
 
 namespace Vladify.DataAccess.Repositories;
@@ -22,13 +24,11 @@ public class Repository<TEntity>(ApplicationDbContext context) : IRepository<TEn
         return entry.Entity;
     }
 
-    public virtual async Task<IEnumerable<TEntity>> GetAllAsync(int pageNumber, int pageSize, CancellationToken cancellationToken)
+    public virtual Task<PagedResult<TEntity>> GetAllAsync(int pageNumber, int pageSize, CancellationToken cancellationToken)
     {
-        return await _context.Set<TEntity>()
+        return _context.Set<TEntity>()
             .OrderBy(p => p.Id)
-            .Skip((pageNumber - 1) * pageSize)
-            .Take(pageSize)
-            .ToListAsync(cancellationToken);
+            .ToPagedResultAsync(pageNumber, pageSize, cancellationToken);
     }
 
     public virtual Task<TEntity?> GetByIdAsync(Guid id, bool isTracking, CancellationToken cancellationToken)

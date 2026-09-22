@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Vladify.BusinessLogic.MapperProfiles;
+using Vladify.BusinessLogic.Models.Pagination;
 using Vladify.BusinessLogic.Models.SongModels;
 using Vladify.BusinessLogic.Options;
 using Vladify.BusinessLogic.ServiceInterfaces;
@@ -51,6 +52,7 @@ public static class BusinessLogicLayerExtensions
     private static IServiceCollection AddValidators(this IServiceCollection services)
     {
         services.AddScoped<IValidator<SongAddDto>, SongAddDtoValidator>();
+        services.AddScoped<IValidator<PaginationFilter>, PaginationFilterValidator>();
 
         return services;
     }

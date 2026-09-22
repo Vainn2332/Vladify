@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Vladify.DataAccess.Dtos.Pagination;
 using Vladify.DataAccess.Entities;
+using Vladify.DataAccess.Extensions;
 using Vladify.DataAccess.Interfaces;
 
 namespace Vladify.DataAccess.Repositories;
@@ -36,26 +38,12 @@ public class PlaylistRepository(ApplicationDbContext _context) : Repository<Play
             .FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
     }
 
-    public async Task<IEnumerable<Playlist>> GetPlaylistsAsync(int pageNumber, int pageSize, CancellationToken cancellationToken)
+    public Task<PagedResult<Playlist>> GetPlaylistsOfUserAsync(Guid userId, int pageNumber, int pageSize, CancellationToken cancellationToken)
     {
-        return await _context.Playlists
-            .Include(p => p.Songs)
-            .ThenInclude(p => p.Owner)
-            .Include(p => p.Owner)
-            .OrderBy(p => p.Id)
-            .Skip((pageNumber - 1) * pageSize)
-            .Take(pageSize)
-            .ToListAsync(cancellationToken);
-    }
-
-    public async Task<IEnumerable<Playlist>> GetPlaylistsOfUserAsync(Guid userId, int pageNumber, int pageSize, CancellationToken cancellationToken)
-    {
-        return await _context.Playlists
+        return _context.Playlists
             .Where(s => s.AuthorId == userId)
             .OrderBy(p => p.Id)
-            .Skip((pageNumber - 1) * pageSize)
-            .Take(pageSize)
-            .ToListAsync(cancellationToken);
+            .ToPagedResultAsync(pageNumber, pageSize, cancellationToken);
     }
 
     public async Task<Playlist> DeleteSongFromPlaylistAsync(Playlist playlist, Song song, CancellationToken cancellationToken)
