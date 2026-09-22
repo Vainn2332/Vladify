@@ -8,7 +8,6 @@ public interface IPlaylistRepository : IRepository<Playlist>
     public Task<Playlist> AddPlaylistAsync(Playlist playlist, CancellationToken cancellationToken);
     public Task<Playlist> AddSongToPlaylistAsync(Playlist playlist, Song song, CancellationToken cancellationToken);
     public Task<Playlist?> GetPlaylistAsync(Guid id, bool isTracking, CancellationToken cancellationToken);
-    public Task<PagedResult<Playlist>> GetPlaylistsAsync(int pageNumber, int pageSize, CancellationToken cancellationToken);
     public Task<PagedResult<Playlist>> GetPlaylistsOfUserAsync(Guid userId, int pageNumber, int pageSize, CancellationToken cancellationToken);
     public Task<Playlist> DeleteSongFromPlaylistAsync(Playlist playlist, Song song, CancellationToken cancellationToken);
 }
