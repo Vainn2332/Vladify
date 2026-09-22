@@ -53,7 +53,7 @@ public class SongRepository(ApplicationDbContext context) : Repository<Song>(con
             .Include(p => p.Owner)
             .OrderBy(p => p.Id)
             .Skip((pageNumber - 1) * pageSize)
-            .Take(pageSize)
+            .Take(pageSize + 1)
             .ToListAsync(cancellationToken);
 
         var hasNextPage = songs.Count > pageSize;
