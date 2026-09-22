@@ -120,6 +120,8 @@ public class SongControllerTest
     [Fact]
     public async Task GetAllSongs_Should_SetHasNextPageTrue_When_MoreItemsThanPage()
     {
+        await _infrastructure.DataResetter.ResetDataAsync();
+
         var user = _fixture.Create<User>();
         var songs = _fixture.CreateMany<Song>(3).ToList();
         foreach (var song in songs)
@@ -138,9 +140,6 @@ public class SongControllerTest
         response.EnsureSuccessStatusCode();
 
         var result = await response.Content.ReadFromJsonAsync<PagedResponse<SongModel>>();
-
-        await _infrastructure.DataResetter.ResetDataAsync();
-
         result.Should().NotBeNull();
         result.Data.Should().HaveCount(2);
         result.HasNextPage.Should().BeTrue();
@@ -149,6 +148,7 @@ public class SongControllerTest
     [Fact]
     public async Task GetAllSongs_Should_SetHasNextPageFalse_When_LastPageIsFull()
     {
+        await _infrastructure.DataResetter.ResetDataAsync();
 
         var user = _fixture.Create<User>();
         var songs = _fixture.CreateMany<Song>(2).ToList();
@@ -168,9 +168,6 @@ public class SongControllerTest
         response.EnsureSuccessStatusCode();
 
         var result = await response.Content.ReadFromJsonAsync<PagedResponse<SongModel>>();
-
-        await _infrastructure.DataResetter.ResetDataAsync();
-
         result.Should().NotBeNull();
         result.Data.Should().HaveCount(2);
         result.HasNextPage.Should().BeFalse();
