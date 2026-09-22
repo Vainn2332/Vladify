@@ -31,7 +31,7 @@ public class SongsController(ISongService _songService, IUserService _userServic
         return await _songService.AddSongAsync(songAddDto, cancellationToken);
     }
 
-    [HttpGet]
+    [HttpGet, ValidationFilter]
     public Task<PagedResponse<SongModel>> GetAllSongs(
         [FromQuery] PaginationFilter filter,
         CancellationToken cancellationToken = default
