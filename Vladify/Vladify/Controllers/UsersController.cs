@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Vladify.BusinessLogic.Constants;
 using Vladify.BusinessLogic.Exceptions;
 using Vladify.BusinessLogic.Extensions;
-using Vladify.BusinessLogic.Models;
+using Vladify.BusinessLogic.Models.Pagination;
 using Vladify.BusinessLogic.Models.UserModels;
 using Vladify.BusinessLogic.ServiceInterfaces;
 using Vladify.Filters;
@@ -23,7 +23,7 @@ public class UsersController(IUserService _userService, IMapper _mapper) : Contr
 
     [Authorize]
     [HttpGet, ValidationFilter]
-    public Task<IEnumerable<UserModel>> GetUsers(
+    public Task<PagedResponse<UserModel>> GetUsers(
         [FromQuery] PaginationFilter paginationFilter,
         CancellationToken cancellationToken = default)
     {

@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Vladify.BusinessLogic.Exceptions;
 using Vladify.BusinessLogic.Extensions;
-using Vladify.BusinessLogic.Models;
+using Vladify.BusinessLogic.Models.Pagination;
 using Vladify.BusinessLogic.Models.SongModels;
 using Vladify.BusinessLogic.ServiceInterfaces;
 using Vladify.Dtos;
@@ -32,7 +32,7 @@ public class SongsController(ISongService _songService, IUserService _userServic
     }
 
     [HttpGet]
-    public Task<IEnumerable<SongModel>> GetAllSongs(
+    public Task<PagedResponse<SongModel>> GetAllSongs(
         [FromQuery] PaginationFilter filter,
         CancellationToken cancellationToken = default
         )
