@@ -50,7 +50,11 @@ public class PlaylistsController(IPlaylistService _playlistService, IMapper _map
     [HttpGet("{id}")]
     public async Task<PlaylistModel> GetPlaylistById(Guid id, CancellationToken cancellationToken = default)
     {
-        var playlist = await _playlistService.GetPlaylistByIdAsync(id, false, cancellationToken)
+        var userEmail = User.GetEmail();
+        var user = await _userService.GetUserByEmailAsync(userEmail, false, cancellationToken)
+            ?? throw new NotFoundException(ErrorMessageConstants.UserNotFoundById);
+
+        var playlist = await _playlistService.GetPlaylistByIdAsync(id, user.Id, false, cancellationToken)
             ?? throw new NotFoundException(ErrorMessageConstants.PlaylistNotFoundById);
 
         return playlist;
