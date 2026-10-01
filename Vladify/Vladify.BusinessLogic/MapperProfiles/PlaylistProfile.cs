@@ -15,7 +15,8 @@ public class PlaylistProfile : Profile
 
         CreateMap<Playlist, PlaylistModel>()
             .ForMember(dest => dest.AuthorName,
-                opt => opt.MapFrom(src => src.Owner.Name));
+                opt => opt.MapFrom(src => src.Owner.Name))
+            .ForMember(dest => dest.IsOwner, opt => opt.Ignore());
 
         CreateMap<PlaylistAddDto, PlaylistRequestModel>()
             .ForMember(dest => dest.AuthorId, opt => opt.Ignore());
