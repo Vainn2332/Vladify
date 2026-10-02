@@ -6,5 +6,5 @@ internal static class BootstrapConstants
     public const string MinioPassword = "minioadmin";
     public const string TestBucket = "test-bucket";
 
-    public const string MinioImageContainerVersion = "minio/minio:RELEASE.2025-09-07T16-13-09Z";
+    public const string MinioImageContainerVersion = "cgr.dev/chainguard/minio:latest";
 }
