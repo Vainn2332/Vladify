@@ -17,7 +17,7 @@ public class PlaylistService(IPlaylistRepository _repository, IRepository<Song> 
 
         var playlist = await _repository.AddPlaylistAsync(entityPlaylist, cancellationToken);
 
-        return _mapper.Map<PlaylistModel>(playlist);
+        return MapToModel(playlist, playlistRequestModel.AuthorId);
     }
 
     public async Task<PlaylistModel> AddSongToPlaylistAsync(Guid playlistId, Guid songId, Guid requesterId, CancellationToken cancellationToken)
@@ -26,21 +26,27 @@ public class PlaylistService(IPlaylistRepository _repository, IRepository<Song> 
 
         var newPlaylist = await _repository.AddSongToPlaylistAsync(playlist, song, cancellationToken);
 
-        return _mapper.Map<PlaylistModel>(newPlaylist);
+        return MapToModel(newPlaylist, requesterId);
     }
 
-    public async Task<PlaylistModel?> GetPlaylistByIdAsync(Guid playlistId, bool isTracking, CancellationToken cancellationToken)
+    public async Task<PlaylistModel?> GetPlaylistByIdAsync(Guid playlistId, Guid requesterId, bool isTracking, CancellationToken cancellationToken)
     {
         var playlist = await _repository.GetPlaylistAsync(playlistId, isTracking, cancellationToken);
 
-        return _mapper.Map<PlaylistModel>(playlist);
+        return playlist is null ? null : MapToModel(playlist, requesterId);
     }
 
     public async Task<PagedResponse<PlaylistModel>> GetPlaylistsOfUserAsync(Guid userId, PaginationFilter filter, CancellationToken cancellationToken)
     {
         var playlists = await _repository.GetPlaylistsOfUserAsync(userId, filter.PageNumber, filter.PageSize, cancellationToken);
 
-        return _mapper.Map<PagedResponse<PlaylistModel>>(playlists);
+        var pagedResponse = _mapper.Map<PagedResponse<PlaylistModel>>(playlists);
+        foreach (var playlist in pagedResponse.Data)
+        {
+            playlist.IsOwner = true;
+        }
+
+        return pagedResponse;
     }
 
     public async Task<PlaylistModel> UpdatePlaylistAsync(PlaylistUpdateRequestModel playlistUpdateRequestModel, Guid requesterId, CancellationToken cancellationToken)
@@ -56,7 +62,7 @@ public class PlaylistService(IPlaylistRepository _repository, IRepository<Song> 
 
         var updatedPlaylist = await _repository.UpdateAsync(playlist, cancellationToken);
 
-        return _mapper.Map<PlaylistModel>(updatedPlaylist);
+        return MapToModel(updatedPlaylist, requesterId);
     }
 
     public async Task DeletePlaylistAsync(Guid playlistId, Guid requesterId, CancellationToken cancellationToken)
@@ -81,7 +87,7 @@ public class PlaylistService(IPlaylistRepository _repository, IRepository<Song> 
         }
         var newPlaylist = await _repository.DeleteSongFromPlaylistAsync(playlist, song, cancellationToken);
 
-        return _mapper.Map<PlaylistModel>(newPlaylist);
+        return MapToModel(newPlaylist, requesterId);
     }
 
     private async Task<(Playlist playlist, Song song)> GetAndValidatePlaylistAndSongAsync(
@@ -102,5 +108,13 @@ public class PlaylistService(IPlaylistRepository _repository, IRepository<Song> 
         }
 
         return (playlist, song);
+    }
+
+    private PlaylistModel MapToModel(Playlist playlist, Guid requesterId)
+    {
+        var model = _mapper.Map<PlaylistModel>(playlist);
+        model.IsOwner = playlist.AuthorId == requesterId;
+
+        return model;
     }
 }

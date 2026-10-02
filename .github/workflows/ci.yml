@@ -46,7 +46,7 @@ jobs:
 
     - name: Build
       run: dotnet build ./Vladify --no-restore --configuration Release
-    
+
     - name: Running Tests
       run: dotnet test ./Vladify --no-build --configuration Release --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
         

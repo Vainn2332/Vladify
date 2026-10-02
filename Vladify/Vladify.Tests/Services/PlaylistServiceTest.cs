@@ -125,6 +125,7 @@ public class PlaylistServiceTest
     public async Task GetPlaylistByIdAsync_Should_ReturnPlaylistModel_WhenFound()
     {
         var playlistId = Guid.NewGuid();
+        var requesterId = Guid.NewGuid();
         var playlistEntity = _fixture.Create<Playlist>();
         var expectedModel = _fixture.Create<PlaylistModel>();
 
@@ -132,7 +133,7 @@ public class PlaylistServiceTest
             .ReturnsAsync(playlistEntity);
         _mapperMock.Setup(m => m.Map<PlaylistModel>(playlistEntity)).Returns(expectedModel);
 
-        var result = await _playlistService.GetPlaylistByIdAsync(playlistId, false, CancellationToken.None);
+        var result = await _playlistService.GetPlaylistByIdAsync(playlistId, requesterId, false, CancellationToken.None);
 
         result.Should().NotBeNull();
         result.Should().BeOfType<PlaylistModel>();
@@ -141,20 +142,62 @@ public class PlaylistServiceTest
     }
 
     [Fact]
+    public async Task GetPlaylistByIdAsync_Should_SetIsOwnerTrue_WhenRequesterIsOwner()
+    {
+        var playlistId = Guid.NewGuid();
+        var requesterId = Guid.NewGuid();
+        var playlistEntity = _fixture.Create<Playlist>();
+        playlistEntity.AuthorId = requesterId;
+        var expectedModel = _fixture.Create<PlaylistModel>();
+        expectedModel.IsOwner = false;
+
+        _playlistRepositoryMock.Setup(m => m.GetPlaylistAsync(playlistId, It.IsAny<bool>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(playlistEntity);
+        _mapperMock.Setup(m => m.Map<PlaylistModel>(playlistEntity)).Returns(expectedModel);
+
+        var result = await _playlistService.GetPlaylistByIdAsync(playlistId, requesterId, false, CancellationToken.None);
+
+        result.Should().NotBeNull();
+        result!.IsOwner.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task GetPlaylistByIdAsync_Should_SetIsOwnerFalse_WhenRequesterIsNotOwner()
+    {
+        var playlistId = Guid.NewGuid();
+        var requesterId = Guid.NewGuid();
+        var playlistEntity = _fixture.Create<Playlist>();
+        playlistEntity.AuthorId = Guid.NewGuid();
+        var expectedModel = _fixture.Create<PlaylistModel>();
+        expectedModel.IsOwner = true;
+
+        _playlistRepositoryMock.Setup(m => m.GetPlaylistAsync(playlistId, It.IsAny<bool>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(playlistEntity);
+        _mapperMock.Setup(m => m.Map<PlaylistModel>(playlistEntity)).Returns(expectedModel);
+
+        var result = await _playlistService.GetPlaylistByIdAsync(playlistId, requesterId, false, CancellationToken.None);
+
+        result.Should().NotBeNull();
+        result!.IsOwner.Should().BeFalse();
+    }
+
+    [Fact]
     public async Task GetPlaylistByIdAsync_Should_ReturnNull_WhenNotFound()
     {
         var invalidPlaylistId = Guid.NewGuid();
+        var requesterId = Guid.NewGuid();
 
         _playlistRepositoryMock.Setup(m => m.GetPlaylistAsync(invalidPlaylistId, It.IsAny<bool>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((Playlist?)null);
-        _mapperMock.Setup(m => m.Map<PlaylistModel>(null)).Returns((PlaylistModel)null!);
 
-        var result = await _playlistService.GetPlaylistByIdAsync(invalidPlaylistId, false, CancellationToken.None);
+        var result = await _playlistService.GetPlaylistByIdAsync(invalidPlaylistId, requesterId, false, CancellationToken.None);
 
         result.Should().BeNull();
 
         _playlistRepositoryMock.Verify(m => m.GetPlaylistAsync(invalidPlaylistId, false, It.IsAny<CancellationToken>()), Times.Once);
+        _mapperMock.Verify(m => m.Map<PlaylistModel>(It.IsAny<object>()), Times.Never);
     }
+
     [Fact]
     public async Task GetPlaylistsOfUserAsync_Should_ReturnPlaylists_WhenOk()
     {
@@ -166,6 +209,7 @@ public class PlaylistServiceTest
             Data = _fixture.CreateMany<Playlist>(paginationFilter.PageSize).ToList()
         };
         var expectedModels = _fixture.CreateMany<PlaylistModel>(paginationFilter.PageSize).ToList();
+        expectedModels.ForEach(m => m.IsOwner = false);
         var expectedResult = new PagedResponse<PlaylistModel>
         {
             Data = expectedModels,
@@ -184,6 +228,7 @@ public class PlaylistServiceTest
         result.Should().NotBeNull();
         result.Should().BeSameAs(expectedResult);
         result.Data.Should().HaveCount(paginationFilter.PageSize);
+        result.Data.Should().OnlyContain(p => p.IsOwner);
         result.HasNextPage.Should().BeTrue();
 
         _playlistRepositoryMock.Verify(m => m.GetPlaylistsOfUserAsync(userId, paginationFilter.PageNumber, paginationFilter.PageSize, It.IsAny<CancellationToken>()), Times.Once);
@@ -422,7 +467,9 @@ public class PlaylistServiceTest
         playlistEntity.AuthorId = requesterId;
 
         var updatedPlaylistEntity = _fixture.Create<Playlist>();
+        updatedPlaylistEntity.AuthorId = requesterId;
         var expectedModel = _fixture.Create<PlaylistModel>();
+        expectedModel.IsOwner = false;
 
         _playlistRepositoryMock.Setup(m => m.GetPlaylistAsync(requestModel.Id, true, It.IsAny<CancellationToken>()))
             .ReturnsAsync(playlistEntity);
@@ -439,6 +486,7 @@ public class PlaylistServiceTest
         result.Should().NotBeNull();
         result.Should().BeOfType<PlaylistModel>();
         result.Should().BeEquivalentTo(expectedModel);
+        result.IsOwner.Should().BeTrue();
 
         _playlistRepositoryMock.Verify(m => m.GetPlaylistAsync(requestModel.Id, true, It.IsAny<CancellationToken>()), Times.Once);
         _playlistRepositoryMock.Verify(m => m.UpdateAsync(playlistEntity, It.IsAny<CancellationToken>()), Times.Once);

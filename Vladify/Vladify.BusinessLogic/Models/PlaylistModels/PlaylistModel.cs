@@ -11,4 +11,6 @@ public class PlaylistModel
     public required string AuthorName { get; set; }
 
     public required IEnumerable<SongModel> Songs { get; set; }
+
+    public bool IsOwner { get; set; }
 }

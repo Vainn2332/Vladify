@@ -113,11 +113,41 @@ public class PlaylistsControllerTest
         result.Should().NotBeNull();
         result!.Id.Should().Be(playlist.Id);
         result.Name.Should().Be(playlist.Name);
+        result.IsOwner.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task GetPlaylistById_Should_SetIsOwnerFalse_When_RequesterIsNotOwner()
+    {
+        await _infrastructure.DataSeeder.SeedDataAsync(_fixture.Create<User>());
+
+        var owner = _fixture.Create<User>();
+        owner.EmailAddress = "playlist-owner@mail.com";
+        var playlist = _fixture.Create<Playlist>();
+        playlist.AuthorId = owner.Id;
+        owner.Playlists = new List<Playlist>() { playlist };
+
+        await _infrastructure.DataSeeder.SeedDataAsync(owner);
+
+        var token = JwtBuilder.GenerateTestJWT();
+        _infrastructure.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        using var response = await _infrastructure.Client.GetAsync($"{TestConstants.PlaylistsApiRoute}/{playlist.Id}");
+        var result = await response.Content.ReadFromJsonAsync<PlaylistModel>();
+
+        await _infrastructure.DataResetter.ResetDataAsync();
+
+        response.EnsureSuccessStatusCode();
+        result.Should().NotBeNull();
+        result!.Id.Should().Be(playlist.Id);
+        result.IsOwner.Should().BeFalse();
     }
 
     [Fact]
     public async Task GetPlaylistById_Should_ReturnNotFound_When_NotExists()
     {
+        await _infrastructure.DataSeeder.SeedDataAsync(_fixture.Create<User>());
+
         var invalidId = Guid.NewGuid();
         var token = JwtBuilder.GenerateTestJWT();
         _infrastructure.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
