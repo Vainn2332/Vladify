@@ -123,8 +123,14 @@ public class IntegrationTestInfrastructure : IAsyncLifetime
     public async Task DisposeAsync()
     {
         Client?.Dispose();
-        await Factory.DisposeAsync();
-        await DataResetter.DisposeAsync();
+        if (Factory is not null)
+        {
+            await Factory.DisposeAsync();
+        }
+        if (DataResetter is not null)
+        {
+            await DataResetter.DisposeAsync();
+        }
         await _testDbContainer.DisposeAsync();
         await _minioContainer.DisposeAsync();
     }
