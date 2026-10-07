@@ -32,6 +32,11 @@ public static class ApiExtensions
         return app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
     }
 
+    public static IApplicationBuilder UseNetworkDelay(this IApplicationBuilder app)
+    {
+        return app.UseMiddleware<NetworkDelayMiddleware>();
+    }
+
     public static IEndpointRouteBuilder MapScalar(this IEndpointRouteBuilder app, IConfiguration configuration)
     {
         app.MapScalarApiReference(options =>
@@ -147,6 +152,14 @@ public static class ApiExtensions
            .BindConfiguration(S3Options.SectionName)
            .ValidateDataAnnotations()
            .ValidateOnStart();
+
+        services
+            .AddOptions<NetworkDelayOptions>()
+            .BindConfiguration(NetworkDelayOptions.SectionName)
+            .ValidateDataAnnotations()
+            .Validate(options => options.MinDelayMs <= options.MaxDelayMs,
+                $"{NetworkDelayOptions.SectionName}:MinDelayMs must not be greater than MaxDelayMs")
+            .ValidateOnStart();
 
         return services;
     }
