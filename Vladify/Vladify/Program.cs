@@ -17,6 +17,8 @@ await app.Services.EnsureBucketExistenceAsync();
 
 if (app.Environment.IsDevelopment())
 {
+    app.UseNetworkDelay();
+
     app.MapOpenApi();
 
     app.MapScalar(builder.Configuration);
