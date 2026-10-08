@@ -1,5 +1,6 @@
 ﻿using Amazon.S3;
 using Amazon.S3.Model;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Vladify.DataAccess.Constants;
 using Vladify.DataAccess.Interfaces;
@@ -7,11 +8,14 @@ using Vladify.DataAccess.Options;
 
 namespace Vladify.DataAccess.Storage;
 
-public class S3Storage(IAmazonS3 _s3Client, IOptions<S3Options> _options) : IStorageService
+public class S3Storage(
+    IAmazonS3 _s3Client,
+    [FromKeyedServices(StorageConstants.PresignClientKey)] IAmazonS3 _presignClient,
+    IOptions<S3Options> _options) : IStorageService
 {
     private readonly string _bucket = _options.Value.BucketName;
     private readonly Protocol _protocol =
-        new Uri(_options.Value.ServiceUrl).Scheme == Uri.UriSchemeHttps ? Protocol.HTTPS : Protocol.HTTP;
+        new Uri(_presignClient.Config.ServiceURL).Scheme == Uri.UriSchemeHttps ? Protocol.HTTPS : Protocol.HTTP;
 
     public async Task UploadAsync(Stream file, string key, string contentType, CancellationToken cancellationToken)
     {
@@ -28,7 +32,7 @@ public class S3Storage(IAmazonS3 _s3Client, IOptions<S3Options> _options) : ISto
 
     public string GetPresignedUrl(string key)
     {
-        return _s3Client.GetPreSignedURL(new GetPreSignedUrlRequest
+        return _presignClient.GetPreSignedURL(new GetPreSignedUrlRequest
         {
             BucketName = _bucket,
             Key = key,
