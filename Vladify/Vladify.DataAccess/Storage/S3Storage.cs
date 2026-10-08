@@ -1,6 +1,7 @@
 ﻿using Amazon.S3;
 using Amazon.S3.Model;
 using Microsoft.Extensions.Options;
+using Vladify.DataAccess.Constants;
 using Vladify.DataAccess.Interfaces;
 using Vladify.DataAccess.Options;
 
@@ -23,13 +24,13 @@ public class S3Storage(IAmazonS3 _s3Client, IOptions<S3Options> _options) : ISto
 
     }
 
-    public string GetPresignedUrl(string key, TimeSpan expiration)
+    public string GetPresignedUrl(string key)
     {
         return _s3Client.GetPreSignedURL(new GetPreSignedUrlRequest
         {
             BucketName = _bucket,
             Key = key,
-            Expires = DateTime.UtcNow.Add(expiration)
+            Expires = DateTime.UtcNow.Add(StorageConstants.PresignedUrlExpiration)
         });
     }
 
