@@ -10,6 +10,8 @@ namespace Vladify.DataAccess.Storage;
 public class S3Storage(IAmazonS3 _s3Client, IOptions<S3Options> _options) : IStorageService
 {
     private readonly string _bucket = _options.Value.BucketName;
+    private readonly Protocol _protocol =
+        new Uri(_options.Value.ServiceUrl).Scheme == Uri.UriSchemeHttps ? Protocol.HTTPS : Protocol.HTTP;
 
     public async Task UploadAsync(Stream file, string key, string contentType, CancellationToken cancellationToken)
     {
@@ -30,7 +32,8 @@ public class S3Storage(IAmazonS3 _s3Client, IOptions<S3Options> _options) : ISto
         {
             BucketName = _bucket,
             Key = key,
-            Expires = DateTime.UtcNow.Add(StorageConstants.PresignedUrlExpiration)
+            Expires = DateTime.UtcNow.Add(StorageConstants.PresignedUrlExpiration),
+            Protocol = _protocol
         });
     }
 
