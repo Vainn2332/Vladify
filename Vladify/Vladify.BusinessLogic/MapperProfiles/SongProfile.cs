@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Vladify.BusinessLogic.MapperProfiles.Converters;
 using Vladify.BusinessLogic.Messages;
 using Vladify.BusinessLogic.Models.SongModels;
 using Vladify.DataAccess.Entities;
@@ -18,8 +19,9 @@ public class SongProfile : Profile
             .ForMember(dest => dest.Playlists, opt => opt.Ignore());
 
         CreateMap<Song, SongModel>()
-            .ForMember(dest => dest.Author,
-                opt => opt.MapFrom(src => src.Owner.Name));
+            .ForMember(dest => dest.Author, opt => opt.MapFrom(src => src.Owner.Name))
+            .ForMember(dest => dest.AudioUrl, opt => opt.ConvertUsing<PresignedUrlConverter, string>())
+            .ForMember(dest => dest.CoverUrl, opt => opt.ConvertUsing<PresignedUrlConverter, string>());
 
         CreateMap<UpdateSongRequestModel, SongUpdateDto>()
             .ForMember(dest => dest.Id, opt => opt.Ignore());
