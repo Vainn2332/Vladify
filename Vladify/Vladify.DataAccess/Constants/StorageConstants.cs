@@ -2,5 +2,5 @@
 
 public static class StorageConstants
 {
-    public static readonly TimeSpan PresignedUrlExpiration = TimeSpan.FromMinutes(10);
+    public static readonly TimeSpan PresignedUrlExpiration = TimeSpan.FromHours(1);
 }
