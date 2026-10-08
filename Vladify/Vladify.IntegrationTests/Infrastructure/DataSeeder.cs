@@ -8,6 +8,8 @@ namespace Vladify.IntegrationTests.Infrastructure;
 
 public class DataSeeder(IServiceProvider serviceProvider)
 {
+    public static readonly MemoryStream SeedStreamData = new MemoryStream(new byte[] { 1, 2, 3 });
+
     public async Task<T> SeedDataAsync<T>(T entity) where T : class
     {
         using var scope = serviceProvider.CreateScope();
@@ -28,7 +30,7 @@ public class DataSeeder(IServiceProvider serviceProvider)
         {
             BucketName = BootstrapConstants.TestBucket,
             Key = key,
-            InputStream = new MemoryStream(new byte[] { 1, 2, 3 }),
+            InputStream = SeedStreamData,
         }, cancellationToken);
     }
 }
