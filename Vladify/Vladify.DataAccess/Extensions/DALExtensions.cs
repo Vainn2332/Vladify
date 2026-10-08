@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Vladify.DataAccess.Clients;
+using Vladify.DataAccess.Constants;
 using Vladify.DataAccess.Interfaces;
 using Vladify.DataAccess.Options;
 using Vladify.DataAccess.Repositories;
@@ -39,22 +40,35 @@ public static class DalExtensions
         return services;
     }
 
-    public static IServiceCollection AddS3Storage(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddS3Storage(this IServiceCollection services)
     {
         services.AddSingleton<IAmazonS3>(serviceProvider =>
         {
             var s3Options = serviceProvider.GetRequiredService<IOptions<S3Options>>().Value;
 
-            var config = new AmazonS3Config
-            {
-                ServiceURL = s3Options.ServiceUrl,
-                ForcePathStyle = true
-            };
+            return CreateS3Client(s3Options, s3Options.ServiceUrl);
+        });
 
-            return new AmazonS3Client(s3Options.AccessKey, s3Options.SecretKey, config);
+        // Presigned URLs are opened by the browser, so they must be signed for a host it can reach.
+        services.AddKeyedSingleton<IAmazonS3>(StorageConstants.PresignClientKey, (serviceProvider, _) =>
+        {
+            var s3Options = serviceProvider.GetRequiredService<IOptions<S3Options>>().Value;
+
+            return CreateS3Client(s3Options, s3Options.PublicServiceUrl ?? s3Options.ServiceUrl);
         });
 
         return services;
+    }
+
+    private static AmazonS3Client CreateS3Client(S3Options s3Options, string serviceUrl)
+    {
+        var config = new AmazonS3Config
+        {
+            ServiceURL = serviceUrl,
+            ForcePathStyle = true
+        };
+
+        return new AmazonS3Client(s3Options.AccessKey, s3Options.SecretKey, config);
     }
 
     public static IServiceCollection AddGrpcClients(this IServiceCollection services, IConfiguration configuration)

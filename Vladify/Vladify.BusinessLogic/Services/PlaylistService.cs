@@ -9,7 +9,7 @@ using Vladify.DataAccess.Interfaces;
 
 namespace Vladify.BusinessLogic.Services;
 
-public class PlaylistService(IPlaylistRepository _repository, IRepository<Song> _songRepository, IMapper _mapper) : IPlaylistService
+public class PlaylistService(IPlaylistRepository _repository, ISongRepository _songRepository, IMapper _mapper) : IPlaylistService
 {
     public async Task<PlaylistModel> AddPlaylistAsync(PlaylistRequestModel playlistRequestModel, CancellationToken cancellationToken)
     {
@@ -99,7 +99,7 @@ public class PlaylistService(IPlaylistRepository _repository, IRepository<Song> 
         var playlist = await _repository.GetPlaylistAsync(playlistId, true, cancellationToken)
             ?? throw new NotFoundException(ErrorMessageConstants.PlaylistNotFoundById);
 
-        var song = await _songRepository.GetByIdAsync(songId, true, cancellationToken)
+        var song = await _songRepository.GetApprovedSongByIdAsync(songId, true, cancellationToken)
             ?? throw new NotFoundException(ErrorMessageConstants.SongNotFoundById);
 
         if (playlist.AuthorId != requesterId)

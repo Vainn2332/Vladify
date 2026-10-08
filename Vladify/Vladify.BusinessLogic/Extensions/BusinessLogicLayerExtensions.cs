@@ -26,7 +26,7 @@ public static class BusinessLogicLayerExtensions
             .AddValidators()
             .AddRabbitMQ()
             .AddMapping()
-            .AddS3Storage(configuration)
+            .AddS3Storage()
             .AddGrpcClients(configuration);
     }
 

@@ -103,6 +103,40 @@ public class SongControllerTest
     }
 
     [Fact]
+    public async Task GetSongAsync_Should_ReturnDownloadablePresignedUrls_When_FilesExistInStorage()
+    {
+        var user = _fixture.Create<User>();
+        var song = _fixture.Create<Song>();
+        song.AuthorId = user.Id;
+        user.OwnedSongs = new List<Song>() { song };
+        await _infrastructure.DataSeeder.SeedDataAsync(user);
+        await _infrastructure.DataSeeder.SeedDataInBlobAsync(song.AudioUrl, CancellationToken.None);
+        await _infrastructure.DataSeeder.SeedDataInBlobAsync(song.CoverUrl, CancellationToken.None);
+
+        var jwt = JwtBuilder.GenerateTestJWT();
+        _infrastructure.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
+
+        using var response = await _infrastructure.Client.GetAsync($"{TestConstants.SongsApiRoute}/{song.Id}");
+        var result = await response.Content.ReadFromJsonAsync<SongModel>();
+
+        using var storageClient = new HttpClient();
+        byte[] audio, cover;
+        try
+        {
+            audio = await storageClient.GetByteArrayAsync(result!.AudioUrl);
+            cover = await storageClient.GetByteArrayAsync(result.CoverUrl);
+        }
+        finally
+        {
+            await _infrastructure.DataResetter.ResetDataAsync();
+        }
+
+        response.EnsureSuccessStatusCode();
+        audio.Should().Equal(DataSeeder.SeedBlobData);
+        cover.Should().Equal(DataSeeder.SeedBlobData);
+    }
+
+    [Fact]
     public async Task GetSongAsync_Should_ReturnNotFoundStatusCode_When_NotFound()
     {
         var invalidSongId = Guid.NewGuid();

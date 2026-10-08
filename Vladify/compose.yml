@@ -69,6 +69,7 @@ services:
       - ConnectionStrings__ApplicationDbContext=Server=sqlserver,1433;Database=${DbName};User Id=sa;Password=${DbPassword};TrustServerCertificate=True
       - RabbitMqOptions__ServerHost=rabbitmq
       - S3Options__ServiceUrl=http://minio:9000
+      - S3Options__PublicServiceUrl=http://localhost:9000
     ports:
       - "8080:8080"
     networks:

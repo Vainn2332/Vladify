@@ -1,6 +1,6 @@
 ﻿namespace Vladify.IntegrationTests.Constants;
 
-internal static class BootstrapConstants
+public static class BootstrapConstants
 {
     public const string MinioUser = "minioadmin";
     public const string MinioPassword = "minioadmin";
