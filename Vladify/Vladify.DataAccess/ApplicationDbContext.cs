@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Vladify.DataAccess.Constants;
 using Vladify.DataAccess.DbConfig;
 using Vladify.DataAccess.Entities;
+using Vladify.DataAccess.Enums;
 using Vladify.DataAccess.Fakers;
 
 namespace Vladify.DataAccess;
@@ -36,9 +37,34 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         var userIds = users.Select(u => u.Id);
 
         var songs = new SongFaker(userIds).Generate(DataAccessLayerConstants.SongSeedDataAmount);
+        var approvedSongIds = songs
+            .Where(s => s.Status == SongStatus.Approved)
+            .Select(s => s.Id)
+            .ToList();
+
+        var playlists = new PlaylistFaker(userIds).Generate(DataAccessLayerConstants.PlaylistSeedDataAmount);
+
+        var faker = new Faker();
+        var playlistSongs = playlists
+            .SelectMany(playlist =>
+            {
+                int songsAmount = faker.Random.Int(
+                    DataAccessLayerConstants.MinSongsInSeedPlaylist,
+                    Math.Min(DataAccessLayerConstants.MaxSongsInSeedPlaylist, approvedSongIds.Count));
+
+                return faker.PickRandom(approvedSongIds, songsAmount)
+                    .Select(songId => new { PlaylistsId = playlist.Id, SongsId = songId });
+            })
+            .ToList();
 
         modelBuilder.Entity<User>().HasData(users);
         modelBuilder.Entity<Song>().HasData(songs);
+        modelBuilder.Entity<Playlist>().HasData(playlists);
+
+        modelBuilder.Entity<Playlist>()
+            .HasMany(p => p.Songs)
+            .WithMany(s => s.Playlists)
+            .UsingEntity(linkTable => linkTable.HasData(playlistSongs));
     }
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
