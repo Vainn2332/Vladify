@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Vladify.DataAccess.Dtos.Pagination;
 using Vladify.DataAccess.Entities;
+using Vladify.DataAccess.Enums;
 using Vladify.DataAccess.Extensions;
 using Vladify.DataAccess.Interfaces;
 
@@ -32,7 +33,8 @@ public class PlaylistRepository(ApplicationDbContext _context) : Repository<Play
     public Task<Playlist?> GetPlaylistAsync(Guid id, bool isTracking, CancellationToken cancellationToken)
     {
         return (isTracking ? _context.Playlists : _context.Playlists.AsNoTracking())
-            .Include(p => p.Songs)
+            .Include(p => p.Songs
+                .Where(s => s.Status == SongStatus.Approved))
             .ThenInclude(p => p.Owner)
             .Include(p => p.Owner)
             .FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
