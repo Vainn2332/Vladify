@@ -1,8 +1,10 @@
-﻿using Vladify.DataAccess.Dtos;
+﻿using Vladify.DataAccess.Entities;
 
 namespace Vladify.DataAccess.Interfaces;
 
 public interface ISearchRepository
 {
-    public Task<SearchResult> SearchAsync(string query, CancellationToken cancellationToken);
+    public Task<List<Song>> SearchSongsAsync(string query, int limit, CancellationToken cancellationToken);
+    public Task<List<Playlist>> SearchPlaylistsAsync(string query, int limit, CancellationToken cancellationToken);
+    public Task<List<User>> SearchUsersAsync(string query, int limit, CancellationToken cancellationToken);
 }
