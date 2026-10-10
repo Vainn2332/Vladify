@@ -28,5 +28,7 @@ public class UserProfile : Profile
 
         CreateMap<UserModel, UserCreatedMessage>()
            .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.Id));
+
+        CreateMap<User, UserSearchResult>();
     }
 }

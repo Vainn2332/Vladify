@@ -36,5 +36,10 @@ public class SongProfile : Profile
             .ForMember(dest => dest.CoverUrl, opt => opt.Ignore());
 
         CreateMap<SongModel, SongCreatedMessage>();
+
+        CreateMap<Song, SongSearchResult>()
+            .ForMember(dest => dest.Author, opt => opt.MapFrom(src => src.Owner.Name))
+            .ForMember(dest => dest.AudioUrl, opt => opt.ConvertUsing<PresignedUrlConverter, string>())
+            .ForMember(dest => dest.CoverUrl, opt => opt.ConvertUsing<PresignedUrlConverter, string>());
     }
 }
