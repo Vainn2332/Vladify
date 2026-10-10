@@ -19,6 +19,7 @@ public class SearchFilterValidator : AbstractValidator<SearchFilter>
     public SearchFilterValidator()
     {
         RuleFor(filter => filter.Query)
+            .Cascade(CascadeMode.Stop)
             .Must(query => !string.IsNullOrWhiteSpace(query))
             .WithMessage(Constraints.FieldRequiredMessage)
             .Must(query => query.Trim().Length is >= Constraints.MinQueryLength and <= Constraints.MaxQueryLength)
