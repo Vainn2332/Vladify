@@ -31,26 +31,26 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
     private static void SeedData(ModelBuilder modelBuilder)
     {
-        Randomizer.Seed = new Random(DataAccessLayerConstants.RandomSeedDataNumber);
+        Randomizer.Seed = new Random(SeedingConstants.RandomSeedDataNumber);
 
-        var users = new UserFaker().Generate(DataAccessLayerConstants.UserSeedDataAmount);
+        var users = new UserFaker().Generate(SeedingConstants.UserSeedDataAmount);
         var userIds = users.Select(u => u.Id);
 
-        var songs = new SongFaker(userIds).Generate(DataAccessLayerConstants.SongSeedDataAmount);
+        var songs = new SongFaker(userIds).Generate(SeedingConstants.SongSeedDataAmount);
         var approvedSongIds = songs
             .Where(s => s.Status == SongStatus.Approved)
             .Select(s => s.Id)
             .ToList();
 
-        var playlists = new PlaylistFaker(userIds).Generate(DataAccessLayerConstants.PlaylistSeedDataAmount);
+        var playlists = new PlaylistFaker(userIds).Generate(SeedingConstants.PlaylistSeedDataAmount);
 
         var faker = new Faker();
         var playlistSongs = playlists
             .SelectMany(playlist =>
             {
                 int songsAmount = faker.Random.Int(
-                    DataAccessLayerConstants.MinSongsInSeedPlaylist,
-                    Math.Min(DataAccessLayerConstants.MaxSongsInSeedPlaylist, approvedSongIds.Count));
+                    SeedingConstants.MinSongsInSeedPlaylist,
+                    Math.Min(SeedingConstants.MaxSongsInSeedPlaylist, approvedSongIds.Count));
 
                 return faker.PickRandom(approvedSongIds, songsAmount)
                     .Select(songId => new { PlaylistsId = playlist.Id, SongsId = songId });
