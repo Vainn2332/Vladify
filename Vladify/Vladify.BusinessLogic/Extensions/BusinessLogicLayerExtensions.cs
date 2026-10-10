@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Vladify.BusinessLogic.MapperProfiles;
+using Vladify.BusinessLogic.Models;
 using Vladify.BusinessLogic.Models.Pagination;
 using Vladify.BusinessLogic.Models.SongModels;
 using Vladify.BusinessLogic.Options;
@@ -44,7 +45,8 @@ public static class BusinessLogicLayerExtensions
             .AddScoped<ISongService, SongService>()
             .AddScoped<IUserService, UserService>()
             .AddScoped<IAuth0Service, Auth0Service>()
-            .AddScoped<IPlaylistService, PlaylistService>();
+            .AddScoped<IPlaylistService, PlaylistService>()
+            .AddScoped<ISearchService, SearchService>();
 
         return services;
     }
@@ -53,6 +55,7 @@ public static class BusinessLogicLayerExtensions
     {
         services.AddScoped<IValidator<SongAddDto>, SongAddDtoValidator>();
         services.AddScoped<IValidator<PaginationFilter>, PaginationFilterValidator>();
+        services.AddScoped<IValidator<SearchFilter>, SearchFilterValidator>();
 
         return services;
     }
