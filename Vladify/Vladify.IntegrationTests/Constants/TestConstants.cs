@@ -8,6 +8,8 @@ public static class TestConstants
 
     public const string PlaylistsApiRoute = "/api/playlists";
 
+    public const string SearchApiRoute = "/api/search";
+
     public const string TestSecretKey = "superSecretTestKeyThatIsIntendedOnlyForTestPurposes!";
 
     public const string Issuer = "testIssuer";
