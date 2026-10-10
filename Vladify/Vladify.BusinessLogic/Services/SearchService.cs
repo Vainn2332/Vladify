@@ -13,7 +13,7 @@ public class SearchService(ISearchRepository _searchRepository, IMapper _mapper)
 {
     public async Task<SearchResult> SearchAsync(SearchFilter filter, CancellationToken cancellationToken)
     {
-        var query = filter.Query!.Trim();
+        var query = filter.Query.Trim();
 
         var songs = await _searchRepository.SearchSongsAsync(query, SearchConstants.SongSearchResultLimit, cancellationToken);
         var playlists = await _searchRepository.SearchPlaylistsAsync(query, SearchConstants.PlaylistSearchResultLimit, cancellationToken);

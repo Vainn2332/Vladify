@@ -14,7 +14,7 @@ public class SearchFilterValidatorTest
     [InlineData("   ")]
     public void SearchFilterValidator_ShouldReturnError_WhenQueryIsEmpty(string? query)
     {
-        var result = _validator.TestValidate(new SearchFilter(query));
+        var result = _validator.TestValidate(new SearchFilter(query!));
 
         result.ShouldHaveValidationErrorFor(filter => filter.Query);
     }

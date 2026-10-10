@@ -1,6 +1,6 @@
 ﻿namespace Vladify.DataAccess.Constants;
 
-public class SeedingConstants
+public static class SeedingConstants
 {
     public const int RandomSeedDataNumber = 38;
 
