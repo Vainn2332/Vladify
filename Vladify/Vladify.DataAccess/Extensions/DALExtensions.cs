@@ -35,7 +35,8 @@ public static class DalExtensions
             .AddScoped<IPlaylistRepository, PlaylistRepository>()
             .AddScoped<ISongRepository, SongRepository>()
             .AddScoped<IModerationIntegrationClient, ModerationIntegrationClient>()
-            .AddScoped<IStorageService, S3Storage>();
+            .AddScoped<IStorageService, S3Storage>()
+            .AddScoped<ISearchRepository, SearchRepository>();
 
         return services;
     }
