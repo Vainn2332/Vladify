@@ -22,6 +22,7 @@ public class SearchRepository(ApplicationDbContext context) : ISearchRepository
     {
         return context.Playlists
             .AsNoTracking()
+            .Include(s => s.Owner)
             .Where(p => p.Name.Contains(query))
             .OrderBy(p => p.Name).ThenBy(p => p.Id)
             .Take(limit)

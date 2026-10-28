@@ -12,7 +12,7 @@ file static class Constraints
     public static readonly TimeSpan MaxSongDuration = TimeSpan.FromMinutes(30);
 
     public static readonly string[] AudioExtensions = { ".mp3", ".wav", ".flac" };
-    public static readonly string[] CoverImageExtensions = { ".jpg", ".jpeg", ".png", ".icon" };
+    public static readonly string[] CoverImageExtensions = { ".jpg", ".jpeg", ".png", ".ico" };
 
     public const string LengthExceededMessage = "The length of field '{PropertyName}' exceeds {MaxLength}!";
 

@@ -29,6 +29,7 @@ public class PlaylistProfile : Profile
             .ForMember(dest => dest.Owner, opt => opt.Ignore())
             .ForMember(dest => dest.Songs, opt => opt.Ignore());
 
-        CreateMap<Playlist, PlaylistSearchResult>();
+        CreateMap<Playlist, PlaylistSearchResult>()
+            .ForMember(dest => dest.AuthorName, opt => opt.MapFrom(src => src.Owner.Name));
     }
 }
