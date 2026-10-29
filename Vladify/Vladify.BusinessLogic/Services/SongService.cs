@@ -74,6 +74,19 @@ public class SongService(
         return _mapper.Map<PagedResponse<SongModel>>(songs);
     }
 
+    public async Task<PagedResponse<SongModel>> GetSongsOfAuthorAsync(PaginationFilter filter, Guid authorId, Guid requesterId, CancellationToken cancellationToken)
+    {
+        var songs = await _songRepository.GetSongsOfAuthorAsync(authorId, false, filter.PageNumber, filter.PageSize, cancellationToken);
+
+        var pagedResponse = _mapper.Map<PagedResponse<SongModel>>(songs);
+        foreach (var song in pagedResponse.Data)
+        {
+            song.IsAuthor = authorId == requesterId;
+        }
+
+        return pagedResponse;
+    }
+
     public async Task<SongModel> UpdateSongAsync(SongUpdateDto songUpdateDto, Guid requesterId, CancellationToken cancellationToken)
     {
         var song = await _songRepository.GetByIdAsync(songUpdateDto.Id, true, cancellationToken)
@@ -103,4 +116,6 @@ public class SongService(
 
         await _songRepository.DeleteAsync(song, cancellationToken);
     }
+
+
 }

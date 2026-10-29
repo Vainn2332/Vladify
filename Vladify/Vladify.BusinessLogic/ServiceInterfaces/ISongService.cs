@@ -7,6 +7,7 @@ public interface ISongService
 {
     public Task<SongModel?> GetSongByIdAsync(Guid songId, bool isTracking, CancellationToken cancellationToken);
     public Task<PagedResponse<SongModel>> GetSongsAsync(PaginationFilter filter, CancellationToken cancellationToken);
+    public Task<PagedResponse<SongModel>> GetSongsOfAuthorAsync(PaginationFilter filter, Guid AuthorId, Guid requesterId, CancellationToken cancellationToken);
     public Task<SongModel> AddSongAsync(SongAddDto songAddDto, CancellationToken cancellationToken);
     public Task<SongModel> UpdateSongAsync(SongUpdateDto songUpdateDto, Guid requesterId, CancellationToken cancellationToken);
     public Task DeleteSongAsync(Guid songId, Guid requesterId, CancellationToken cancellationToken);
