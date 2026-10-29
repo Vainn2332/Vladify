@@ -79,6 +79,11 @@ public static class DalExtensions
             var url = configuration["GrpcClients:ModerationServiceUrl"]
                 ?? throw new InvalidOperationException("ModerationServiceUrl is not configured!");
 
+            if (string.IsNullOrEmpty(url))
+            {
+                throw new InvalidOperationException("ModerationServiceUrl is not configured!");
+            }
+
             options.Address = new Uri(url);
         });
 
