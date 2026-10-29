@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using FluentValidation;
+﻿using FluentValidation;
 using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -63,11 +62,6 @@ public static class BusinessLogicLayerExtensions
     private static IServiceCollection AddMapping(this IServiceCollection services)
     {
         services.AddAutoMapper(cfg => { }, typeof(SongProfile).Assembly);
-
-        var sp = services.BuildServiceProvider();
-        var mapper = sp.GetRequiredService<IMapper>();
-
-        mapper.ConfigurationProvider.AssertConfigurationIsValid();
 
         return services;
     }
