@@ -13,7 +13,7 @@ namespace Vladify.Controllers;
 [Route("api/songs")]
 [ApiController]
 [Authorize]
-public class SongsController(ISongService _songService, IUserService _userService, IMapper _mapper, ILogger<SongsController> _logger) : ControllerBase
+public class SongsController(ISongService _songService, IUserService _userService, IMapper _mapper) : ControllerBase
 {
     [HttpPost, ValidationFilter]
     public async Task<SongModel> CreateSong(
@@ -40,17 +40,15 @@ public class SongsController(ISongService _songService, IUserService _userServic
         return _songService.GetSongsAsync(filter, cancellationToken);
     }
 
-    [HttpGet("author/{authorId}")]
+    [HttpGet("author/{authorId}"), ValidationFilter]
     public async Task<PagedResponse<SongModel>> GetSongsOfAuthor(
         Guid authorId,
         [FromQuery] PaginationFilter filter,
         CancellationToken cancellationToken = default)
     {
-        _logger.LogDebug("start");
         var email = User.GetEmail();
         var user = await _userService.GetUserByEmailAsync(email, false, cancellationToken)
             ?? throw new NotFoundException("User with such id not found!");
-        _logger.LogDebug("end");
 
         return await _songService.GetSongsOfAuthorAsync(filter, authorId, user.Id, cancellationToken);
     }
