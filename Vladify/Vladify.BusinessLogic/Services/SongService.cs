@@ -16,10 +16,14 @@ public class SongService(
     IMapper _mapper,
     IValidator<SongAddDto> _validator,
     IModerationIntegrationClient _moderationClient,
-    IStorageService _storageService) : ISongService
+    IStorageService _storageService,
+    IAudioProcessingService _audioProcessingService) : ISongService
 {
     public async Task<SongModel> AddSongAsync(SongAddDto songAddDto, CancellationToken cancellationToken)
     {
+        var duration = await _audioProcessingService.GetSongDurationAsync(songAddDto.Audio);
+        songAddDto.Duration = duration;
+
         var validationResult = await _validator.ValidateAsync(songAddDto, cancellationToken);
         if (!validationResult.IsValid)
         {
