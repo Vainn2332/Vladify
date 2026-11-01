@@ -4,7 +4,7 @@ using Vladify.BusinessLogic.Models.SongModels;
 namespace Vladify.Dtos;
 
 /// <summary>
-/// This class must be manually mapped to SongAddDto in the business logic layer(AutoMapper doesn't see it because dto is in API layer)
+/// This class must be manually mapped to SongAddDto in the business logic layer(AutoMapper doesn't see it because dto is in API layer because of AspNet's IFormFile)
 /// </summary>
 public class CreateSongRequest
 {
@@ -12,12 +12,9 @@ public class CreateSongRequest
 
     public required string Album { get; set; }
 
-    public required TimeSpan Duration { get; set; }
-
     public required IFormFile Audio { get; set; }
 
     public required IFormFile Cover { get; set; }
-
 
     public SongAddDto ToSongAddDto()
     {
@@ -25,7 +22,6 @@ public class CreateSongRequest
         {
             Title = this.Title,
             Album = this.Album,
-            Duration = this.Duration,
             Audio = new FileData
             {
                 FileName = this.Audio.FileName,
