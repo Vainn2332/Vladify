@@ -2,6 +2,7 @@
 using FluentValidation;
 using Vladify.BusinessLogic.Constants;
 using Vladify.BusinessLogic.Exceptions;
+using Vladify.BusinessLogic.Models;
 using Vladify.BusinessLogic.Models.Pagination;
 using Vladify.BusinessLogic.Models.SongModels;
 using Vladify.BusinessLogic.ServiceInterfaces;
@@ -21,7 +22,9 @@ public class SongService(
 {
     public async Task<SongModel> AddSongAsync(SongAddDto songAddDto, CancellationToken cancellationToken)
     {
-        var duration = await _audioProcessingService.GetSongDurationAsync(songAddDto.Audio);
+        using var audioStream = await BufferFileToDiskAsync(songAddDto.Audio, cancellationToken);
+
+        var duration = await _audioProcessingService.GetSongDurationAsync(audioStream);
         songAddDto.Duration = duration;
 
         var validationResult = await _validator.ValidateAsync(songAddDto, cancellationToken);
@@ -40,13 +43,15 @@ public class SongService(
         var coverFileUrl = $"covers/{newSong.Id}{Path.GetExtension(songAddDto.Cover.FileName)}";
         try
         {
-            await _storageService.UploadAsync(songAddDto.Audio.Content, audioFileUrl, songAddDto.Audio.ContentType, cancellationToken);
+            await _storageService.UploadAsync(audioStream, audioFileUrl, songAddDto.Audio.ContentType, cancellationToken);
             await _storageService.UploadAsync(songAddDto.Cover.Content, coverFileUrl, songAddDto.Cover.ContentType, cancellationToken);
 
             newSong.AudioUrl = audioFileUrl;
             newSong.CoverUrl = coverFileUrl;
 
             await _songRepository.SaveChangesAsync(cancellationToken);
+
+            //await _moderationClient.CreateTaskAsync(newSong.Id.ToString(), cancellationToken);
         }
         catch
         {
@@ -55,8 +60,6 @@ public class SongService(
 
             throw;
         }
-
-        await _moderationClient.CreateTaskAsync(newSong.Id.ToString(), cancellationToken);
 
         var songModel = _mapper.Map<SongModel>(newSong);
         songModel.Author = songAddDto.Author;
@@ -121,5 +124,23 @@ public class SongService(
         await _songRepository.DeleteAsync(song, cancellationToken);
     }
 
+    private async Task<FileStream> BufferFileToDiskAsync(FileData fileData, CancellationToken cancellationToken)
+    {
+        var tempPath = Path.GetTempFileName();
+
+        var localStream = new FileStream(tempPath, FileMode.Create, FileAccess.ReadWrite, FileShare.None, BufferConstants.BufferStreamingSize, FileOptions.DeleteOnClose);
+
+        try
+        {
+            await fileData.Content.CopyToAsync(localStream, cancellationToken);
+
+            return localStream;
+        }
+        catch
+        {
+            await localStream.DisposeAsync();
+            throw;
+        }
+    }
 
 }
