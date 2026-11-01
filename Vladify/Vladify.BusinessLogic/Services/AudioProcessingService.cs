@@ -1,33 +1,25 @@
-﻿using FFMpegCore;
-using Vladify.BusinessLogic.Models;
+﻿using ATL;
+using Vladify.BusinessLogic.Constants;
+using Vladify.BusinessLogic.Exceptions;
 using Vladify.BusinessLogic.ServiceInterfaces;
 
 namespace Vladify.BusinessLogic.Services;
 
-public class AudioProcessingService : IAudioProcessingService
+public class AudioProcessingService() : IAudioProcessingService
 {
-    public async Task<TimeSpan> GetSongDurationAsync(FileData audioFile)
+    public Task<TimeSpan> GetSongDurationAsync(FileStream audioFile)
     {
-        var tmpPath = Path.GetTempFileName();
-
-        try
+        if (!audioFile.CanSeek)
         {
-            using (var stream = audioFile.Content)
-            using (var fs = new FileStream(tmpPath, FileMode.Create, FileAccess.Write))
-            {
-                await stream.CopyToAsync(fs);
-            }
-
-            var mediaInfo = await FFProbe.AnalyseAsync(tmpPath);
-
-            return mediaInfo.Duration;
+            throw new NotSeekableStreamException(ErrorMessageConstants.NotSeekableStream);
         }
-        finally
-        {
-            if (File.Exists(tmpPath))
-            {
-                File.Delete(tmpPath);
-            }
-        }
+
+        audioFile.Position = 0;
+        var track = new Track(audioFile);
+        var duration = TimeSpan.FromSeconds(track.Duration);
+
+        audioFile.Position = 0; // reset
+
+        return Task.FromResult(duration);
     }
 }
