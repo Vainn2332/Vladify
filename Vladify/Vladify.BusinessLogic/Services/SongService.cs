@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using FluentValidation;
+using MassTransit;
 using Vladify.BusinessLogic.Constants;
 using Vladify.BusinessLogic.Exceptions;
+using Vladify.BusinessLogic.Messages;
 using Vladify.BusinessLogic.Models;
 using Vladify.BusinessLogic.Models.Pagination;
 using Vladify.BusinessLogic.Models.SongModels;
@@ -16,8 +18,8 @@ public class SongService(
     ISongRepository _songRepository,
     IMapper _mapper,
     IValidator<SongAddDto> _validator,
-    IModerationIntegrationClient _moderationClient,
     IStorageService _storageService,
+    IPublishEndpoint _publishEndpoint,
     IAudioProcessingService _audioProcessingService) : ISongService
 {
     public async Task<SongModel> AddSongAsync(SongAddDto songAddDto, CancellationToken cancellationToken)
@@ -49,9 +51,16 @@ public class SongService(
             newSong.AudioUrl = audioFileUrl;
             newSong.CoverUrl = coverFileUrl;
 
-            await _songRepository.SaveChangesAsync(cancellationToken);
 
-            //await _moderationClient.CreateTaskAsync(newSong.Id.ToString(), cancellationToken);
+            await _publishEndpoint.Publish(new SongCreatedMessage()
+            {
+                Id = newSong.Id,
+                Title = newSong.Title,
+                Album = newSong.Album,
+                Author = songAddDto.Author
+            }, cancellationToken);
+
+            await _songRepository.SaveChangesAsync(cancellationToken);
         }
         catch
         {

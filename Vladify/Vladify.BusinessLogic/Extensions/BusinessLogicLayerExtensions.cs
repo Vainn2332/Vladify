@@ -26,8 +26,7 @@ public static class BusinessLogicLayerExtensions
             .AddValidators()
             .AddRabbitMQ()
             .AddMapping()
-            .AddS3Storage()
-            .AddGrpcClients(configuration);
+            .AddS3Storage();
     }
 
     private static IServiceCollection AddSqlServerDb(this IServiceCollection services, IConfiguration configuration)
