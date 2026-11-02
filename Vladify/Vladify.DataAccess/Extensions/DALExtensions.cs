@@ -4,13 +4,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Vladify.DataAccess.Clients;
 using Vladify.DataAccess.Constants;
 using Vladify.DataAccess.Interfaces;
 using Vladify.DataAccess.Options;
 using Vladify.DataAccess.Repositories;
 using Vladify.DataAccess.Storage;
-using Vladify.GrpcContracts;
 
 namespace Vladify.DataAccess.Extensions;
 
@@ -34,7 +32,6 @@ public static class DalExtensions
             .AddScoped<IUserRepository, UserRepository>()
             .AddScoped<IPlaylistRepository, PlaylistRepository>()
             .AddScoped<ISongRepository, SongRepository>()
-            .AddScoped<IModerationIntegrationClient, ModerationIntegrationClient>()
             .AddScoped<IStorageService, S3Storage>()
             .AddScoped<ISearchRepository, SearchRepository>();
 
@@ -70,24 +67,6 @@ public static class DalExtensions
         };
 
         return new AmazonS3Client(s3Options.AccessKey, s3Options.SecretKey, config);
-    }
-
-    public static IServiceCollection AddGrpcClients(this IServiceCollection services, IConfiguration configuration)
-    {
-        services.AddGrpcClient<ModerationGrpc.ModerationGrpcClient>(options =>
-        {
-            var url = configuration["GrpcClients:ModerationServiceUrl"]
-                ?? throw new InvalidOperationException("ModerationServiceUrl is not configured!");
-
-            if (string.IsNullOrEmpty(url))
-            {
-                throw new InvalidOperationException("ModerationServiceUrl is not configured!");
-            }
-
-            options.Address = new Uri(url);
-        });
-
-        return services;
     }
 
     public static async Task MigrateDatabaseAsync(this IServiceProvider services)

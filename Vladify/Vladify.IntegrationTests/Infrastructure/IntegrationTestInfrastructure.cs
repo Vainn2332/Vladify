@@ -12,7 +12,6 @@ using Testcontainers.Minio;
 using Testcontainers.MsSql;
 using Vladify.BusinessLogic.ServiceInterfaces;
 using Vladify.DataAccess;
-using Vladify.DataAccess.Dtos;
 using Vladify.DataAccess.Interfaces;
 using Vladify.IntegrationTests.Constants;
 
@@ -106,11 +105,6 @@ public class IntegrationTestInfrastructure : IAsyncLifetime
         publishEndpointMock
             .Setup(m => m.Publish(It.IsAny<object>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
-
-        var moderationMock = new Mock<IModerationIntegrationClient>();
-        var fakeModerationTaskDto = new ModerationTaskDto() { Id = Guid.NewGuid() };
-        moderationMock.Setup(m => m.CreateTaskAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(fakeModerationTaskDto);
 
         services.AddScoped(serviceProvider => authServiceMock.Object);
         services.AddScoped(serviceProvider => publishEndpointMock.Object);
