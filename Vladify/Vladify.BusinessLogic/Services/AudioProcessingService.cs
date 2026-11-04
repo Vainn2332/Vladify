@@ -7,7 +7,7 @@ namespace Vladify.BusinessLogic.Services;
 
 public class AudioProcessingService() : IAudioProcessingService
 {
-    public Task<TimeSpan> GetSongDurationAsync(FileStream audioFile)
+    public Task<TimeSpan> GetSongDurationAsync(Stream audioFile)
     {
         if (!audioFile.CanSeek)
         {
