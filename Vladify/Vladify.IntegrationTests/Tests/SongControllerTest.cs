@@ -278,7 +278,6 @@ public class SongControllerTest
             .Excluding(p => p.Playlists));
     }
 
-
     [Fact]
     public async Task UpdateSongAsync_Should_UpdateSong_When_ValidInput()
     {
