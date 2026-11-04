@@ -8,7 +8,7 @@ public class SongAddDto
 
     public string Author { get; set; } = null!;
 
-    public required TimeSpan Duration { get; set; }
+    public TimeSpan Duration { get; set; } = TimeSpan.Zero;
 
     public Guid AuthorId { get; set; }
 

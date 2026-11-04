@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using FluentValidation;
+﻿using FluentValidation;
 using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -27,8 +26,7 @@ public static class BusinessLogicLayerExtensions
             .AddValidators()
             .AddRabbitMQ()
             .AddMapping()
-            .AddS3Storage()
-            .AddGrpcClients(configuration);
+            .AddS3Storage();
     }
 
     private static IServiceCollection AddSqlServerDb(this IServiceCollection services, IConfiguration configuration)
@@ -46,7 +44,8 @@ public static class BusinessLogicLayerExtensions
             .AddScoped<IUserService, UserService>()
             .AddScoped<IAuth0Service, Auth0Service>()
             .AddScoped<IPlaylistService, PlaylistService>()
-            .AddScoped<ISearchService, SearchService>();
+            .AddScoped<ISearchService, SearchService>()
+            .AddScoped<IAudioProcessingService, AudioProcessingService>();
 
         return services;
     }
@@ -63,11 +62,6 @@ public static class BusinessLogicLayerExtensions
     private static IServiceCollection AddMapping(this IServiceCollection services)
     {
         services.AddAutoMapper(cfg => { }, typeof(SongProfile).Assembly);
-
-        var sp = services.BuildServiceProvider();
-        var mapper = sp.GetRequiredService<IMapper>();
-
-        mapper.ConfigurationProvider.AssertConfigurationIsValid();
 
         return services;
     }

@@ -65,4 +65,19 @@ public class SongRepository(ApplicationDbContext context) : Repository<Song>(con
 
         return song;
     }
+
+    public Task<PagedResult<Song>> GetSongsOfAuthorAsync(Guid authorId, bool onlyApproved, bool isTracking, int pageNumber, int pageSize, CancellationToken cancellationToken)
+    {
+        var query = _context.Songs.AsQueryable();
+        if (!isTracking)
+        {
+            query = query.AsNoTracking();
+        }
+
+        return query
+            .Where(s => s.AuthorId == authorId && (!onlyApproved || s.Status == SongStatus.Approved))
+            .Include(p => p.Owner)
+            .OrderBy(p => p.Id)
+            .ToPagedResultAsync(pageNumber, pageSize, cancellationToken);
+    }
 }

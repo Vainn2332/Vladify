@@ -61,7 +61,7 @@ public class PlaylistsController(IPlaylistService _playlistService, IMapper _map
     }
 
     [HttpGet]
-    public async Task<PagedResponse<PlaylistModel>> GetAllPlaylistsOfUser(
+    public async Task<PagedResponse<PlaylistModel>> GetAllPlaylists(
         [FromQuery] PaginationFilter filter,
         CancellationToken cancellationToken = default
         )

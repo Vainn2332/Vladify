@@ -1,7 +1,10 @@
 ﻿using AutoMapper;
 using FluentValidation;
+using MassTransit;
 using Vladify.BusinessLogic.Constants;
 using Vladify.BusinessLogic.Exceptions;
+using Vladify.BusinessLogic.Messages;
+using Vladify.BusinessLogic.Models;
 using Vladify.BusinessLogic.Models.Pagination;
 using Vladify.BusinessLogic.Models.SongModels;
 using Vladify.BusinessLogic.ServiceInterfaces;
@@ -15,11 +18,17 @@ public class SongService(
     ISongRepository _songRepository,
     IMapper _mapper,
     IValidator<SongAddDto> _validator,
-    IModerationIntegrationClient _moderationClient,
-    IStorageService _storageService) : ISongService
+    IStorageService _storageService,
+    IPublishEndpoint _publishEndpoint,
+    IAudioProcessingService _audioProcessingService) : ISongService
 {
     public async Task<SongModel> AddSongAsync(SongAddDto songAddDto, CancellationToken cancellationToken)
     {
+        using var audioStream = await BufferFileToDiskAsync(songAddDto.Audio, cancellationToken);
+
+        var duration = await _audioProcessingService.GetSongDurationAsync(audioStream);
+        songAddDto.Duration = duration;
+
         var validationResult = await _validator.ValidateAsync(songAddDto, cancellationToken);
         if (!validationResult.IsValid)
         {
@@ -36,11 +45,20 @@ public class SongService(
         var coverFileUrl = $"covers/{newSong.Id}{Path.GetExtension(songAddDto.Cover.FileName)}";
         try
         {
-            await _storageService.UploadAsync(songAddDto.Audio.Content, audioFileUrl, songAddDto.Audio.ContentType, cancellationToken);
+            await _storageService.UploadAsync(audioStream, audioFileUrl, songAddDto.Audio.ContentType, cancellationToken);
             await _storageService.UploadAsync(songAddDto.Cover.Content, coverFileUrl, songAddDto.Cover.ContentType, cancellationToken);
 
             newSong.AudioUrl = audioFileUrl;
             newSong.CoverUrl = coverFileUrl;
+
+
+            await _publishEndpoint.Publish(new SongCreatedMessage()
+            {
+                Id = newSong.Id,
+                Title = newSong.Title,
+                Album = newSong.Album,
+                Author = songAddDto.Author
+            }, cancellationToken);
 
             await _songRepository.SaveChangesAsync(cancellationToken);
         }
@@ -51,8 +69,6 @@ public class SongService(
 
             throw;
         }
-
-        await _moderationClient.CreateTaskAsync(newSong.Id.ToString(), cancellationToken);
 
         var songModel = _mapper.Map<SongModel>(newSong);
         songModel.Author = songAddDto.Author;
@@ -72,6 +88,20 @@ public class SongService(
         var songs = await _songRepository.GetAllAsync(filter.PageNumber, filter.PageSize, cancellationToken);
 
         return _mapper.Map<PagedResponse<SongModel>>(songs);
+    }
+
+    public async Task<PagedResponse<SongModel>> GetSongsOfAuthorAsync(PaginationFilter filter, Guid authorId, Guid requesterId, CancellationToken cancellationToken)
+    {
+        var showOnlyApproved = authorId != requesterId;
+        var songs = await _songRepository.GetSongsOfAuthorAsync(authorId, showOnlyApproved, false, filter.PageNumber, filter.PageSize, cancellationToken);
+
+        var pagedResponse = _mapper.Map<PagedResponse<SongModel>>(songs);
+        foreach (var song in pagedResponse.Data)
+        {
+            song.IsAuthor = authorId == requesterId;
+        }
+
+        return pagedResponse;
     }
 
     public async Task<SongModel> UpdateSongAsync(SongUpdateDto songUpdateDto, Guid requesterId, CancellationToken cancellationToken)
@@ -102,5 +132,24 @@ public class SongService(
         await _storageService.DeleteAsync(song.CoverUrl, cancellationToken);
 
         await _songRepository.DeleteAsync(song, cancellationToken);
+    }
+
+    private static async Task<FileStream> BufferFileToDiskAsync(FileData fileData, CancellationToken cancellationToken)
+    {
+        var tempPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+
+        var localStream = new FileStream(tempPath, FileMode.Create, FileAccess.ReadWrite, FileShare.None, BufferConstants.BufferStreamingSize, FileOptions.DeleteOnClose);
+
+        try
+        {
+            await fileData.Content.CopyToAsync(localStream, cancellationToken);
+
+            return localStream;
+        }
+        catch
+        {
+            await localStream.DisposeAsync();
+            throw;
+        }
     }
 }

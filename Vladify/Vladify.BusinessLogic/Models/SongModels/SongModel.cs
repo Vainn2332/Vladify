@@ -14,6 +14,8 @@ public class SongModel
 
     public required string CoverUrl { get; set; }
 
+    public bool IsAuthor { get; set; } = false;
+
     public Guid AuthorId { get; set; }
 
     public TimeSpan Duration { get; set; } = TimeSpan.Zero;

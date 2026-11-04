@@ -40,6 +40,31 @@ public class SongsController(ISongService _songService, IUserService _userServic
         return _songService.GetSongsAsync(filter, cancellationToken);
     }
 
+    [HttpGet("my"), ValidationFilter]
+    public async Task<PagedResponse<SongModel>> GetMySongs(
+       [FromQuery] PaginationFilter filter,
+       CancellationToken cancellationToken = default)
+    {
+        var email = User.GetEmail();
+        var user = await _userService.GetUserByEmailAsync(email, false, cancellationToken)
+            ?? throw new NotFoundException("User with such id not found!");
+
+        return await _songService.GetSongsOfAuthorAsync(filter, user.Id, user.Id, cancellationToken);
+    }
+
+    [HttpGet("author/{authorId}"), ValidationFilter]
+    public async Task<PagedResponse<SongModel>> GetSongsOfAuthor(
+        Guid authorId,
+        [FromQuery] PaginationFilter filter,
+        CancellationToken cancellationToken = default)
+    {
+        var email = User.GetEmail();
+        var user = await _userService.GetUserByEmailAsync(email, false, cancellationToken)
+            ?? throw new NotFoundException("User with such id not found!");
+
+        return await _songService.GetSongsOfAuthorAsync(filter, authorId, user.Id, cancellationToken);
+    }
+
     [HttpGet("{id}")]
     public async Task<SongModel> GetSongById(Guid id, CancellationToken cancellationToken = default)
     {

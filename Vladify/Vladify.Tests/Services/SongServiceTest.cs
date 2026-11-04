@@ -1,26 +1,32 @@
 ﻿using AutoFixture;
 using AutoFixture.AutoMoq;
 using AutoMapper;
+using FluentAssertions;
+using MassTransit;
 using Moq;
 using Vladify.BusinessLogic.Constants;
 using Vladify.BusinessLogic.Exceptions;
+using Vladify.BusinessLogic.Messages;
 using Vladify.BusinessLogic.Models.Pagination;
 using Vladify.BusinessLogic.Models.SongModels;
+using Vladify.BusinessLogic.ServiceInterfaces;
 using Vladify.BusinessLogic.Services;
 using Vladify.DataAccess.Dtos;
 using Vladify.DataAccess.Dtos.Pagination;
 using Vladify.DataAccess.Entities;
+using Vladify.DataAccess.Enums;
 using Vladify.DataAccess.Interfaces;
 using Vladify.IntegrationTests.Infrastructure;
 
-namespace Vladify.UnitTests.ServiceTests;
+namespace Vladify.UnitTests.Services;
 
 public class SongServiceTest
 {
     private readonly IFixture _fixture;
     private readonly Mock<ISongRepository> _songRepositoryMock;
     private readonly Mock<IMapper> _mapperMock;
-    private readonly Mock<IModerationIntegrationClient> _moderationClient;
+    private readonly Mock<IAudioProcessingService> _audioProcessingService;
+    private readonly Mock<IPublishEndpoint> _publishEndpointMock;
     private readonly Mock<IStorageService> _storageServiceMock;
     private readonly SongService _songService;
 
@@ -30,9 +36,9 @@ public class SongServiceTest
 
         _songRepositoryMock = _fixture.Freeze<Mock<ISongRepository>>();
         _mapperMock = _fixture.Freeze<Mock<IMapper>>();
-        _moderationClient = _fixture.Freeze<Mock<IModerationIntegrationClient>>();
         _storageServiceMock = _fixture.Freeze<Mock<IStorageService>>();
-
+        _audioProcessingService = _fixture.Freeze<Mock<IAudioProcessingService>>();
+        _publishEndpointMock = _fixture.Freeze<Mock<IPublishEndpoint>>();
         _songService = _fixture.Create<SongService>();
     }
 
@@ -40,15 +46,24 @@ public class SongServiceTest
     public async Task AddSongAsync_Should_ReturnSongModel_WhenOk()
     {
         var request = _fixture.Create<SongAddDto>();
+        request.Audio.Content = new MemoryStream(new byte[] { 1, 2 });
+        request.Cover.Content = new MemoryStream(new byte[] { 1, 2 });
+
         var songEntity = _fixture.Create<Song>();
         var taskDto = _fixture.Create<ModerationTaskDto>();
         var expectedModel = _fixture.Create<SongModel>();
+        var songDuration = _fixture.Create<TimeSpan>();
 
-        _mapperMock.Setup(m => m.Map<Song>(request)).Returns(songEntity);
+        _audioProcessingService.Setup(m => m.GetSongDurationAsync(It.IsAny<FileStream>()))
+            .ReturnsAsync(songDuration);
+        _mapperMock.Setup(m => m.Map<Song>(request))
+            .Returns(songEntity);
         _songRepositoryMock.Setup(m => m.AddWithoutSaveChanges(songEntity))
             .Returns(songEntity);
-        _mapperMock.Setup(m => m.Map<SongModel>(songEntity)).Returns(expectedModel);
-        _moderationClient.Setup(m => m.CreateTaskAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(taskDto);
+        _publishEndpointMock.Setup(m => m.Publish(It.IsAny<SongCreatedMessage>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        _mapperMock.Setup(m => m.Map<SongModel>(songEntity))
+            .Returns(expectedModel);
         _storageServiceMock.Setup(m => m.UploadAsync(It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
@@ -59,15 +74,19 @@ public class SongServiceTest
         Assert.Equal(request.Author, result.Author);
 
         _songRepositoryMock.Verify(m => m.AddWithoutSaveChanges(songEntity), Times.Once);
-        _moderationClient.Verify(m => m.CreateTaskAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
         _songRepositoryMock.Verify(m => m.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
         _storageServiceMock.Verify(m => m.UploadAsync(It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Exactly(2));
+        _audioProcessingService.Verify(m => m.GetSongDurationAsync(It.IsAny<FileStream>()), Times.Once);
+        _publishEndpointMock.Verify(m => m.Publish(It.IsAny<SongCreatedMessage>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
     public async Task AddSongAsync_Should_CleanupBlob_WhenFailedToUploadInTheMiddle()
     {
         var request = _fixture.Create<SongAddDto>();
+        request.Audio.Content = new MemoryStream(new byte[] { 1, 2 });
+        request.Cover.Content = new MemoryStream(new byte[] { 1, 2 });
+
         var songEntity = _fixture.Create<Song>();
         var taskDto = _fixture.Create<ModerationTaskDto>();
         var expectedModel = _fixture.Create<SongModel>();
@@ -76,7 +95,6 @@ public class SongServiceTest
         _songRepositoryMock.Setup(m => m.AddWithoutSaveChanges(songEntity))
             .Returns(songEntity);
         _mapperMock.Setup(m => m.Map<SongModel>(songEntity)).Returns(expectedModel);
-        _moderationClient.Setup(m => m.CreateTaskAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(taskDto);
         _storageServiceMock
             .SetupSequence(m => m.UploadAsync(It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask)
@@ -88,9 +106,9 @@ public class SongServiceTest
         var ex = await Assert.ThrowsAsync<Exception>(
             () => _songService.AddSongAsync(request, CancellationToken.None));
 
-        _moderationClient.Verify(m => m.CreateTaskAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
         _songRepositoryMock.Verify(m => m.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
         _storageServiceMock.Verify(m => m.DeleteAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Exactly(2));
+        _publishEndpointMock.Verify(m => m.Publish(It.IsAny<SongCreatedMessage>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -154,6 +172,66 @@ public class SongServiceTest
         Assert.Null(result);
 
         _songRepositoryMock.Verify(m => m.GetApprovedSongByIdAsync(invalidSongId, It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task GetSongsOfAuthorAsync_Should_ReturnOnlyApprovedSongs_When_RequesterIsNotTheAuthor()
+    {
+        var filter = new PaginationFilter()
+        {
+            PageNumber = 1,
+            PageSize = 15
+        };
+        var requesterId = Guid.NewGuid();
+        var differentAuthorId = Guid.NewGuid();
+
+        var songs = _fixture.CreateMany<Song>(15);
+        var approvedSongs = songs.Where(s => s.Status == SongStatus.Approved).ToList();
+
+        var pagedResult = new PagedResult<Song>() { Data = approvedSongs, HasNextPage = false };
+        var pagedResponse = new PagedResponse<SongModel>()
+        {
+            Data = _fixture.CreateMany<SongModel>(approvedSongs.Count).ToList(),
+            HasNextPage = false
+        };
+
+        _songRepositoryMock.Setup(m => m.GetSongsOfAuthorAsync(differentAuthorId, true, It.IsAny<bool>(), filter.PageNumber, filter.PageSize, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(pagedResult);
+        _mapperMock.Setup(m => m.Map<PagedResponse<SongModel>>(pagedResult)).Returns(pagedResponse);
+
+        var result = await _songService.GetSongsOfAuthorAsync(filter, differentAuthorId, requesterId, CancellationToken.None);
+
+        result.Data.Should().BeEquivalentTo(pagedResponse.Data);
+        result.Data.Should().AllSatisfy(song => song.IsAuthor.Should().BeFalse("requester is NOT the author"));
+    }
+
+    [Fact]
+    public async Task GetSongsOfAuthorAsync_Should_ReturnAllSongs_When_RequesterIsTheAuthor()
+    {
+        var filter = new PaginationFilter()
+        {
+            PageNumber = 1,
+            PageSize = 15
+        };
+        var requesterId = Guid.NewGuid();
+
+        var songs = _fixture.CreateMany<Song>(15).ToList();
+
+        var pagedResult = new PagedResult<Song>() { Data = songs, HasNextPage = false };
+        var pagedResponse = new PagedResponse<SongModel>()
+        {
+            Data = _fixture.CreateMany<SongModel>(songs.Count).ToList(),
+            HasNextPage = false
+        };
+
+        _songRepositoryMock.Setup(m => m.GetSongsOfAuthorAsync(requesterId, false, It.IsAny<bool>(), filter.PageNumber, filter.PageSize, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(pagedResult);
+        _mapperMock.Setup(m => m.Map<PagedResponse<SongModel>>(pagedResult)).Returns(pagedResponse);
+
+        var result = await _songService.GetSongsOfAuthorAsync(filter, requesterId, requesterId, CancellationToken.None);
+
+        result.Data.Should().BeEquivalentTo(pagedResponse.Data);
+        result.Data.Should().AllSatisfy(song => song.IsAuthor.Should().BeTrue("requester  the author"));
     }
 
     [Fact]

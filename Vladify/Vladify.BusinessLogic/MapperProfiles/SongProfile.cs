@@ -21,7 +21,8 @@ public class SongProfile : Profile
         CreateMap<Song, SongModel>()
             .ForMember(dest => dest.Author, opt => opt.MapFrom(src => src.Owner.Name))
             .ForMember(dest => dest.AudioUrl, opt => opt.ConvertUsing<PresignedUrlConverter, string>())
-            .ForMember(dest => dest.CoverUrl, opt => opt.ConvertUsing<PresignedUrlConverter, string>());
+            .ForMember(dest => dest.CoverUrl, opt => opt.ConvertUsing<PresignedUrlConverter, string>())
+            .ForMember(dest => dest.IsAuthor, opt => opt.Ignore());
 
         CreateMap<UpdateSongRequestModel, SongUpdateDto>()
             .ForMember(dest => dest.Id, opt => opt.Ignore());
