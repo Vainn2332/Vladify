@@ -134,9 +134,9 @@ public class SongService(
         await _songRepository.DeleteAsync(song, cancellationToken);
     }
 
-    private async Task<FileStream> BufferFileToDiskAsync(FileData fileData, CancellationToken cancellationToken)
+    private static async Task<FileStream> BufferFileToDiskAsync(FileData fileData, CancellationToken cancellationToken)
     {
-        var tempPath = Path.GetTempFileName();
+        var tempPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
 
         var localStream = new FileStream(tempPath, FileMode.Create, FileAccess.ReadWrite, FileShare.None, BufferConstants.BufferStreamingSize, FileOptions.DeleteOnClose);
 

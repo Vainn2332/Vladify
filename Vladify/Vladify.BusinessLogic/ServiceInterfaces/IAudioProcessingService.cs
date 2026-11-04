@@ -2,5 +2,5 @@
 
 public interface IAudioProcessingService
 {
-    public Task<TimeSpan> GetSongDurationAsync(Stream fileData);
+    public Task<TimeSpan> GetSongDurationAsync(Stream audioFile);
 }
