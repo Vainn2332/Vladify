@@ -60,6 +60,7 @@ public class IntegrationTestInfrastructure : IAsyncLifetime
                     ["Auth0:Domain"] = "test",
                     ["Auth0:TokenUrl"] = "test",
                     ["S3Options:ServiceUrl"] = minioUrl,
+                    ["S3Options:PublicServiceUrl"] = minioUrl,
                     ["S3Options:AccessKey"] = BootstrapConstants.MinioUser,
                     ["S3Options:SecretKey"] = BootstrapConstants.MinioPassword,
                     ["S3Options:BucketName"] = BootstrapConstants.TestBucket
@@ -94,7 +95,8 @@ public class IntegrationTestInfrastructure : IAsyncLifetime
         services
             .RemoveAll<DbContextOptions<ApplicationDbContext>>()
             .RemoveAll<IAuth0Service>()
-            .RemoveAll<IPublishEndpoint>();
+            .RemoveAll<IPublishEndpoint>()
+            .RemoveAll<IAudioProcessingService>();
 
         var authServiceMock = new Mock<IAuth0Service>();
         authServiceMock.Setup(m => m.DeleteUserFromAuth0Async(It.IsAny<string>())).Returns(Task.CompletedTask);
@@ -104,8 +106,14 @@ public class IntegrationTestInfrastructure : IAsyncLifetime
             .Setup(m => m.Publish(It.IsAny<object>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
+        var audioProcessingServiceMock = new Mock<IAudioProcessingService>();
+        audioProcessingServiceMock
+            .Setup(m => m.GetSongDurationAsync(It.IsAny<FileStream>()))
+            .Returns(Task.FromResult(TestConstants.MockAudioProcessingServiceDurationOutput));
+
         services.AddScoped(serviceProvider => authServiceMock.Object);
         services.AddScoped(serviceProvider => publishEndpointMock.Object);
+        services.AddScoped(serviceProvider => audioProcessingServiceMock.Object);
 
         services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(_testDbContainer.GetConnectionString()));

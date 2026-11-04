@@ -23,4 +23,6 @@ public static class TestConstants
     public const int TestDataTimeSpanValuesMinDurationInSeconds = 10;
 
     public const string TestJwtEmailClaimValue = "testtt@mail.ru";
+
+    public static readonly TimeSpan MockAudioProcessingServiceDurationOutput = TimeSpan.FromMinutes(2);
 }

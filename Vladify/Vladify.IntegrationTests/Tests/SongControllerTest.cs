@@ -42,7 +42,6 @@ public class SongControllerTest
         {
             { new StringContent(title),"Title"},
             { new StringContent(album),"Album"},
-            { new StringContent("00:03:19"),"Duration"}
         };
         var audio = new ByteArrayContent(new byte[] { 1, 2, 3 });
         audio.Headers.ContentType = new MediaTypeHeaderValue("audio/mpeg");
@@ -237,6 +236,8 @@ public class SongControllerTest
     [Fact]
     public async Task DeleteSongAsync_Should_DeleteSong_When_ValidInput()
     {
+        await _infrastructure.DataResetter.ResetDataAsync();
+
         var user = _fixture.Create<User>();
         var song = _fixture.Create<Song>();
         song.AuthorId = user.Id;
@@ -259,7 +260,6 @@ public class SongControllerTest
         var isAudioPresentInBuket = await StorageInspector.CheckPresenceInBucket(s3, song.AudioUrl, CancellationToken.None);
         var isCoverPresentInBucket = await StorageInspector.CheckPresenceInBucket(s3, song.CoverUrl, CancellationToken.None);
 
-        await _infrastructure.DataResetter.ResetDataAsync();
 
         isAudioPresentInBuket.Should().BeFalse();
         isCoverPresentInBucket.Should().BeFalse();
