@@ -92,8 +92,8 @@ public class SongService(
 
     public async Task<PagedResponse<SongModel>> GetSongsOfAuthorAsync(PaginationFilter filter, Guid authorId, Guid requesterId, CancellationToken cancellationToken)
     {
-        var onlyApproved = authorId != requesterId;
-        var songs = await _songRepository.GetSongsOfAuthorAsync(authorId, onlyApproved, false, filter.PageNumber, filter.PageSize, cancellationToken);
+        var showOnlyApproved = authorId != requesterId;
+        var songs = await _songRepository.GetSongsOfAuthorAsync(authorId, showOnlyApproved, false, filter.PageNumber, filter.PageSize, cancellationToken);
 
         var pagedResponse = _mapper.Map<PagedResponse<SongModel>>(songs);
         foreach (var song in pagedResponse.Data)
