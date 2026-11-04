@@ -10,6 +10,7 @@ using Vladify.BusinessLogic.Models.Pagination;
 using Vladify.BusinessLogic.Models.SongModels;
 using Vladify.DataAccess;
 using Vladify.DataAccess.Entities;
+using Vladify.DataAccess.Enums;
 using Vladify.IntegrationTests.Constants;
 using Vladify.IntegrationTests.Infrastructure;
 
@@ -207,8 +208,82 @@ public class SongControllerTest
     }
 
     [Fact]
+    public async Task GetSongsOfAuthorAsync_Should_ReturnOnlyApprovedSongs()
+    {
+        await _infrastructure.DataResetter.ResetDataAsync();
+
+        var songOwner = _fixture.Create<User>();
+        var songs = _fixture.CreateMany<Song>(10).ToList();
+        foreach (var song in songs)
+            song.AuthorId = songOwner.Id;
+        songOwner.OwnedSongs = songs;
+
+        var requester = _fixture.Create<User>();
+        requester.EmailAddress = "someOtherEmail@blabla.com";
+
+        await _infrastructure.DataSeeder.SeedDataAsync(songOwner);
+        await _infrastructure.DataSeeder.SeedDataAsync(requester);
+
+
+        var jwt = JwtBuilder.GenerateTestJWT(requester.EmailAddress);
+        _infrastructure.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
+
+        using var response = await _infrastructure.Client.GetAsync($"{TestConstants.SongsApiRoute}/author/{songOwner.Id}?PageNumber=1&PageSize=10");
+        var result = await response.Content.ReadFromJsonAsync<PagedResponse<SongModel>>();
+
+        using var scope = _infrastructure.Factory.Services.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        var approvedSongsInDb = await context.Songs.Where(s => s.Status == SongStatus.Approved).ToListAsync();
+
+        await _infrastructure.DataResetter.ResetDataAsync();
+
+        response.Should().NotBeNull();
+        result?.Data.Should().BeEquivalentTo(approvedSongsInDb, options => options
+            .Excluding(p => p.AudioUrl)
+            .Excluding(p => p.CoverUrl)
+            .Excluding(p => p.Status)
+            .Excluding(p => p.Owner)
+            .Excluding(p => p.Playlists));
+    }
+
+    [Fact]
+    public async Task GetMySongs_Should_ReturnAllSongsOfUser()
+    {
+        await _infrastructure.DataResetter.ResetDataAsync();
+
+        var songOwner = _fixture.Create<User>();
+        var songs = _fixture.CreateMany<Song>(10).ToList();
+        foreach (var song in songs)
+            song.AuthorId = songOwner.Id;
+        songOwner.OwnedSongs = songs;
+
+        await _infrastructure.DataSeeder.SeedDataAsync(songOwner);
+
+        var jwt = JwtBuilder.GenerateTestJWT(songOwner.EmailAddress);
+        _infrastructure.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
+
+        using var response = await _infrastructure.Client.GetAsync($"{TestConstants.SongsApiRoute}/my?PageNumber=1&PageSize=10");
+        var result = await response.Content.ReadFromJsonAsync<PagedResponse<SongModel>>();
+
+        using var scope = _infrastructure.Factory.Services.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        var SongsInDb = await context.Songs.ToListAsync();
+
+        response.Should().NotBeNull();
+        result?.Data.Should().BeEquivalentTo(SongsInDb, options => options
+            .Excluding(p => p.AudioUrl)
+            .Excluding(p => p.CoverUrl)
+            .Excluding(p => p.Status)
+            .Excluding(p => p.Owner)
+            .Excluding(p => p.Playlists));
+    }
+
+
+    [Fact]
     public async Task UpdateSongAsync_Should_UpdateSong_When_ValidInput()
     {
+        await _infrastructure.DataResetter.ResetDataAsync();
+
         var user = _fixture.Create<User>();
         var song = _fixture.Create<Song>();
         song.AuthorId = user.Id;
@@ -260,6 +335,7 @@ public class SongControllerTest
         var isAudioPresentInBuket = await StorageInspector.CheckPresenceInBucket(s3, song.AudioUrl, CancellationToken.None);
         var isCoverPresentInBucket = await StorageInspector.CheckPresenceInBucket(s3, song.CoverUrl, CancellationToken.None);
 
+        await _infrastructure.DataResetter.ResetDataAsync();
 
         isAudioPresentInBuket.Should().BeFalse();
         isCoverPresentInBucket.Should().BeFalse();
