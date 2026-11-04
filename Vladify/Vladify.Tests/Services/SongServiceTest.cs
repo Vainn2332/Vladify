@@ -1,6 +1,7 @@
 ﻿using AutoFixture;
 using AutoFixture.AutoMoq;
 using AutoMapper;
+using FluentAssertions;
 using MassTransit;
 using Moq;
 using Vladify.BusinessLogic.Constants;
@@ -13,6 +14,7 @@ using Vladify.BusinessLogic.Services;
 using Vladify.DataAccess.Dtos;
 using Vladify.DataAccess.Dtos.Pagination;
 using Vladify.DataAccess.Entities;
+using Vladify.DataAccess.Enums;
 using Vladify.DataAccess.Interfaces;
 using Vladify.IntegrationTests.Infrastructure;
 
@@ -170,6 +172,66 @@ public class SongServiceTest
         Assert.Null(result);
 
         _songRepositoryMock.Verify(m => m.GetApprovedSongByIdAsync(invalidSongId, It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task GetSongsOfAuthorAsync_Should_ReturnOnlyApprovedSongs_When_RequesterIsNotTheAuthor()
+    {
+        var filter = new PaginationFilter()
+        {
+            PageNumber = 1,
+            PageSize = 15
+        };
+        var requesterId = Guid.NewGuid();
+        var differentAuthorId = Guid.NewGuid();
+
+        var songs = _fixture.CreateMany<Song>(15);
+        var approvedSongs = songs.Where(s => s.Status == SongStatus.Approved).ToList();
+
+        var pagedResult = new PagedResult<Song>() { Data = approvedSongs, HasNextPage = false };
+        var pagedResponse = new PagedResponse<SongModel>()
+        {
+            Data = _fixture.CreateMany<SongModel>(approvedSongs.Count).ToList(),
+            HasNextPage = false
+        };
+
+        _songRepositoryMock.Setup(m => m.GetSongsOfAuthorAsync(differentAuthorId, true, It.IsAny<bool>(), filter.PageNumber, filter.PageSize, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(pagedResult);
+        _mapperMock.Setup(m => m.Map<PagedResponse<SongModel>>(pagedResult)).Returns(pagedResponse);
+
+        var result = await _songService.GetSongsOfAuthorAsync(filter, differentAuthorId, requesterId, CancellationToken.None);
+
+        result.Data.Should().BeEquivalentTo(pagedResponse.Data);
+        result.Data.Should().AllSatisfy(song => song.IsAuthor.Should().BeFalse("requester is NOT the author"));
+    }
+
+    [Fact]
+    public async Task GetSongsOfAuthorAsync_Should_ReturnAllSongs_When_RequesterIsTheAuthor()
+    {
+        var filter = new PaginationFilter()
+        {
+            PageNumber = 1,
+            PageSize = 15
+        };
+        var requesterId = Guid.NewGuid();
+
+        var songs = _fixture.CreateMany<Song>(15).ToList();
+
+        var pagedResult = new PagedResult<Song>() { Data = songs, HasNextPage = false };
+        var pagedResponse = new PagedResponse<SongModel>()
+        {
+            Data = _fixture.CreateMany<SongModel>(songs.Count).ToList(),
+            HasNextPage = false
+        };
+
+        _songRepositoryMock.Setup(m => m.GetSongsOfAuthorAsync(requesterId, false, It.IsAny<bool>(), filter.PageNumber, filter.PageSize, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(pagedResult);
+        _mapperMock.Setup(m => m.Map<PagedResponse<SongModel>>(pagedResult)).Returns(pagedResponse);
+
+        var result = await _songService.GetSongsOfAuthorAsync(filter, requesterId, requesterId, CancellationToken.None);
+
+        result.Data.Should().BeEquivalentTo(pagedResponse.Data);
+        result.Data.Should().AllSatisfy(song => song.IsAuthor.Should().BeTrue("requester  the author"));
     }
 
     [Fact]
