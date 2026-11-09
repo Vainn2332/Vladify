@@ -1,4 +1,6 @@
-﻿namespace Vladify.BusinessLogic.Models.SongModels;
+﻿using Vladify.DataAccess.Enums;
+
+namespace Vladify.BusinessLogic.Models.SongModels;
 
 public class SongModel
 {
@@ -9,6 +11,8 @@ public class SongModel
     public string Album { get; set; } = null!;
 
     public string Author { get; set; } = null!;
+
+    public SongStatus Status { get; set; }
 
     public required string AudioUrl { get; set; }
 
