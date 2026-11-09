@@ -9,13 +9,12 @@
 
 Backend API for the **Vladify** online music platform — an ASP.NET Core
 (.NET 9) Web API backed by SQL Server, RabbitMQ (via MassTransit), Auth0 for
-authentication, and a gRPC moderation service.
+authentication, and MinIO for object storage.
 
 ### !!! This is the platform's main service — start it first
 
 This service's `compose.yml` **creates the shared Docker network
-`vladify-network`**. The other components (`vladify.frontend`,
-`vladify.notification`, `vladify.admin`, moderation) join that same network as
+`vladify-network`**. Sibling services in the platform join that same network as
 an **external** network, so they can only start once it exists. **Always bring
 this service up first**, otherwise the others fail with
 `network vladify-network not found`. See [Shared Docker network](#shared-docker-network).
@@ -34,7 +33,6 @@ this service up first**, otherwise the others fail with
 | ORM / migrations | Entity Framework Core 9 (SQL Server provider), auto-migrated on startup |
 | Object storage | MinIO (S3-compatible), AWS SDK for .NET (`AWSSDK.S3`) |
 | Messaging | RabbitMQ via MassTransit 8 (with EF Core transactional outbox) |
-| Inter-service calls | gRPC (`Grpc.Net.Client` / `ClientFactory`, Protobuf) — moderation service |
 | Mapping / validation | AutoMapper, FluentValidation |
 | Utilities | Bogus (data seeding) |
 | Testing | xUnit, Moq, AutoFixture, FluentAssertions, coverlet; integration via `WebApplicationFactory`, Testcontainers (SQL Server + MinIO), Respawn |
@@ -47,7 +45,7 @@ this service up first**, otherwise the others fail with
 |---------|----------------|
 | `Vladify` | Web API host — controllers, DI wiring, middleware |
 | `Vladify.BusinessLogic` | Services, validators, mapping, MassTransit setup |
-| `Vladify.DataAccess` | EF Core `DbContext`, repositories, migrations, gRPC clients |
+| `Vladify.DataAccess` | EF Core `DbContext`, repositories, migrations, S3 storage |
 | `Vladify.Tests` (`Vladify.UnitTests`) | Unit tests |
 | `Vladify.IntegrationTests` | Integration tests (Testcontainers + Respawn) |
 
@@ -57,7 +55,7 @@ this service up first**, otherwise the others fail with
 
 | Tool | Version | Notes |
 |------|---------|-------|
-| [Docker](https://www.docker.com/) + Docker Compose | latest | Runs SQL Server, RabbitMQ, and the API. Enough to run the whole stack. |
+| [Docker](https://www.docker.com/) + Docker Compose | latest | Runs SQL Server, RabbitMQ, MinIO, and the API. Enough to run the whole stack. |
 | [.NET SDK](https://dotnet.microsoft.com/download) | 9.0 | Only needed to build/run/test the API outside Docker. |
 | [Auth0](https://auth0.com/) tenant | — | Provides authentication and the API / M2M clients. |
 
@@ -85,8 +83,10 @@ Set at least these in `.env`:
   in-container connection string. `DbPassword` must satisfy SQL Server's policy
   (≥ 8 chars, mixing upper/lower/digits/symbols).
 - `RabbitMqOptions__Username` / `RabbitMqOptions__Password` — RabbitMQ credentials.
+- `S3Options__AccessKey` / `S3Options__SecretKey` / `S3Options__BucketName` —
+  MinIO root credentials and bucket name.
 - `ASPNETCORE_ENVIRONMENT` — set to `Development` to enable the Scalar / OpenAPI docs.
-- `Auth0__*`, `ApiKeys__Auth0SyncInDb`, `GrpcClients__ModerationServiceUrl` — see
+- `Auth0__*`, `ApiKeys__Auth0SyncInDb` — see
   [`Vladify/.env.example`](Vladify/.env.example) for every variable.
 
 `.env` is git-ignored, so your secrets are never committed.
@@ -95,7 +95,9 @@ Set at least these in `.env`:
 > overrides it from environment variables, where `__` (double underscore) maps to
 > nested sections (e.g. `Auth0__Domain` → `Auth0:Domain`). Inside Compose the `api`
 > service overrides the `localhost`-based values from `.env`: the DB host becomes
-> `sqlserver` and `RabbitMqOptions__ServerHost` becomes `rabbitmq`.
+> `sqlserver`, `RabbitMqOptions__ServerHost` becomes `rabbitmq`,
+> `S3Options__ServiceUrl` becomes `http://minio:9000`, and
+> `S3Options__PublicServiceUrl` becomes `http://localhost:9000`.
 
 ### 2. Start the stack
 
@@ -103,16 +105,17 @@ Set at least these in `.env`:
 docker compose up -d --build
 ```
 
-This creates the `vladify-network` and starts three services:
+This creates the `vladify-network` and starts four services:
 
 | Service | Container | Host port | Notes |
 |---------|-----------|-----------|-------|
 | API | `vladify-api` | `8080` | Built from `Vladify/Dockerfile` |
 | SQL Server | `sqlserver` | `14330` → `1433` | Data persisted in the `mssql-data` volume |
 | RabbitMQ | `rabbitmq` | `5672`, `15672` | Management UI on <http://localhost:15672> |
+| MinIO | `minio` | `9000`, `9001` | S3 API on `9000`; console on <http://localhost:9001>; data in the `minio-data` volume |
 
-The API waits for SQL Server and RabbitMQ to become **healthy**, applies EF Core
-migrations on startup (no manual migration step), and then listens on port `8080`.
+The API waits for SQL Server, RabbitMQ, and MinIO to become **healthy**, applies
+EF Core migrations on startup (no manual migration step), and then listens on port `8080`.
 
 > The SQL Server host port is **`14330`** (not `1433`) to avoid clashing with a
 > local SQL Server instance. Connect a DB client to `localhost,14330`
@@ -130,10 +133,10 @@ Use **`http://`** (the container serves plain HTTP on 8080 — `https://` gives
 
 ```bash
 docker compose up -d --build api     # rebuild & restart just the API after code changes
-docker compose up -d sqlserver rabbitmq   # infra only (e.g. to run the API from your IDE)
+docker compose up -d sqlserver rabbitmq minio   # infra only (e.g. to run the API from your IDE)
 docker compose logs -f api           # follow API logs
-docker compose down                  # stop (keeps data + network)
-docker compose down -v               # stop and DELETE the database volume
+docker compose down                  # stop (keeps named volumes; may remove vladify-network if no sibling services are attached)
+docker compose down -v               # stop and DELETE the database and MinIO volumes
 ```
 
 ---
@@ -161,23 +164,23 @@ networks:
 ```
 
 Once they share the network, services reach each other by container name
-(`sqlserver`, `rabbitmq`, `vladify-api`, …) instead of `localhost`.
+(`sqlserver`, `rabbitmq`, `minio`, `vladify-api`, …) instead of `localhost`.
 
 ---
 
 ## Run from your IDE (optional)
 
-Start only the infrastructure, then run the API from your IDE / CLI:
+Start only the infrastructure, then run the API from your IDE / CLI (from the `Vladify` folder):
 
 ```bash
-docker compose up -d sqlserver rabbitmq
+docker compose up -d sqlserver rabbitmq minio
 dotnet run --project Vladify/Vladify.csproj
 ```
 
 Default local URLs (from `launchSettings.json`):
 
 - HTTP: <http://localhost:5296>
-- HTTPS: <https://localhost:7161> (Scalar: <https://localhost:7161/scalar/v1>)
+- HTTPS: <https://localhost:7161> (Scalar: <https://localhost:7161/scalar>)
 
 When running on the host, point `ConnectionStrings__ApplicationDbContext` at
 `Server=localhost,14330` so it reaches the **container** DB (otherwise it hits a
@@ -187,12 +190,20 @@ local SQL Server on 1433, if you have one).
 
 ## Run tests
 
+From the repository root:
+
+```bash
+dotnet test Vladify/Vladify.sln
+```
+
+Or from the `Vladify` folder:
+
 ```bash
 dotnet test
 ```
 
 Runs `Vladify.UnitTests` and `Vladify.IntegrationTests`. Integration tests spin
-up SQL Server via Testcontainers, so Docker must be running.
+up SQL Server and MinIO via Testcontainers, so Docker must be running.
 
 ---
 
@@ -212,6 +223,6 @@ up SQL Server via Testcontainers, so Docker must be running.
   is empty or fails the password policy (≥ 8 chars, 3 of 4 character classes).
 - **Validation errors on startup** (`Configuration section Auth0 not found`, etc.)
   — options are validated on start; ensure every required `Auth0`,
-  `RabbitMqOptions`, and connection-string value is set.
+  `RabbitMqOptions`, `S3Options`, and connection-string value is set.
 - **Cannot connect to RabbitMQ** — confirm the `rabbitmq` container is healthy and
   the credentials in `.env` match.
